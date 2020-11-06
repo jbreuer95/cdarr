@@ -1,6 +1,7 @@
 <?php
 
-use Illuminate\Http\Request;
+use App\Http\Controllers\RadarrController;
+use App\Http\Controllers\SonarrController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -14,6 +15,5 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware('auth:api')->get('/user', function (Request $request) {
-    return $request->user();
-});
+Route::post('/sonarr', [SonarrController::class, 'webhook']);
+Route::post('/radarr', [RadarrController::class, 'webhook']);
