@@ -9,7 +9,7 @@ class Transcode extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['path', 'cmd'];
+    protected $fillable = ['path', 'cmd', 'service'];
 
     public function logs()
     {
