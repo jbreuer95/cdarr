@@ -1,7 +1,6 @@
 <?php
 
-use App\Http\Controllers\RadarrController;
-use App\Http\Controllers\SonarrController;
+use App\Http\Controllers\WebhookController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -15,5 +14,5 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::post('/sonarr', [SonarrController::class, 'webhook']);
-Route::post('/radarr', [RadarrController::class, 'webhook']);
+Route::post('/sonarr', [WebhookController::class, 'sonarr']);
+Route::post('/radarr', [WebhookController::class, 'radarr']);

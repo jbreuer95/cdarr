@@ -2,13 +2,13 @@
 
 namespace App\Jobs;
 
+use App\Models\Transcode;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\File;
-use Illuminate\Support\Facades\Log;
 use Symfony\Component\Process\Process;
 use Throwable;
 
@@ -20,20 +20,22 @@ class TranscodeVideo implements ShouldQueue
     public $timeout = 0;
 
     protected $path;
+    protected $transcode;
 
     /**
      * Create a new job instance.
      *
      * @return void
      */
-    public function __construct($path)
+    public function __construct($path, Transcode $transcode)
     {
         $this->path = $path;
+        $this->transcode = $transcode;
     }
 
     public function failed(Throwable $exception)
     {
-        Log::info($this->path);
+        // TODO
     }
 
     /**
@@ -70,27 +72,25 @@ class TranscodeVideo implements ShouldQueue
             "--mixdown=stereo",
         ];
 
-        Log::info("Transcoding: " . $info['basename']);
+        $this->transcode->update(['cmd' => implode(' ',$options)]);
 
         $process = new Process($options);
         $process->setTimeout(null);
         $process->setIdleTimeout(60);
 
-        $process->run(function ($type, $buffer) use (&$log) {
-            if ($type !== Process::ERR) {
-                Log::info($buffer);
-                // preg_match('/Encoding: task \d of \d, (\d+.\d+) %/', $buffer, $re);
-                // if (isset($re[1])) {}
-            } else {
-                Log::error($buffer);
-            }
+        $log = $this->transcode->logs()->create();
+        $process->run(function ($type, $buffer) use ($log) {
+            $log->update(['body' => $log->body . $buffer]);
         });
+        $this->transcode->touch();
 
         File::delete($this->path);
+        $log = $this->transcode->logs()->create(['body' => 'Deleted: '.$this->path]);
 
         $info = pathinfo($output);
         $final = $info['dirname'] . '/' . ltrim(str_replace('-transcoding.mp4', '.mp4', $info['basename']), '.');
         File::move($output, $final);
+        $log = $this->transcode->logs()->create(['body' => "Moved $output to $final"]);
     }
 
 
