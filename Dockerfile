@@ -5,7 +5,7 @@ ENV PGID=1000
 ENV TZ=Europe/London
 
 # Install packages
-RUN apk update && apk --no-cache add php7 php7-session php7-fpm php7-bcmath php7-ctype php7-fileinfo php7-json \
+RUN apk update && apk --no-cache add php7 php7-session php7-phar php7-dom php7-fpm php7-bcmath php7-ctype php7-fileinfo php7-json \
     php7-mbstring php7-openssl php7-pdo php7-pdo_sqlite php7-tokenizer php7-xml php7-sqlite3 nginx supervisor curl
 
 # Install handbrake and ffmpeg
@@ -42,6 +42,12 @@ USER appuser
 # Add application
 WORKDIR /var/www
 COPY --chown=appuser:appgroup . /var/www/
+
+# Install composer from the official image
+COPY --from=composer /usr/bin/composer /usr/bin/composer
+
+# Run composer install to install the dependencies
+RUN composer install --optimize-autoloader --no-interaction --no-progress --no-dev
 
 # Expose the port nginx is reachable on
 EXPOSE 6767
