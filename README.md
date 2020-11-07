@@ -37,11 +37,11 @@ docker run \
   jbreuer95/cdarr
 ```
 
-Now in Sonarr go to: Settings -> Connect -> + -> Webhook
+Now in Sonarr go to: `Settings -> Connect -> + -> Webhook`  
 In the URL add the url to you cdarr docker (internal or external) + /api/sonarr
 You can leave all the other settings to their defaults
 
-Now in Radarr go to: Settings -> Connect -> + -> Webhook
+Now in Radarr go to:` Settings -> Connect -> + -> Webhook`  
 In the URL add the url to you cdarr docker (internal or external) + /api/radarr
 You can leave all the other settings to their defaults
 
