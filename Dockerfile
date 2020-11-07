@@ -50,4 +50,4 @@ EXPOSE 6767
 CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
 
 # Configure a healthcheck to validate that everything is up&running
-HEALTHCHECK --timeout=10s CMD curl --silent --fail http://127.0.0.1:6767/fpm-ping
+HEALTHCHECK --timeout=5s CMD curl --silent --fail http://127.0.0.1:6767
