@@ -50,10 +50,10 @@ COPY --from=composer /usr/bin/composer /usr/bin/composer
 RUN composer install --optimize-autoloader --no-interaction --no-progress --no-dev
 
 # Expose the port nginx is reachable on
-EXPOSE 6767
+EXPOSE 5757
 
 # Let supervisord start nginx & php-fpm
 CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
 
 # Configure a healthcheck to validate that everything is up&running
-HEALTHCHECK --timeout=5s CMD curl --silent --fail http://127.0.0.1:6767
+HEALTHCHECK --timeout=5s CMD curl --silent --fail http://127.0.0.1:5757
