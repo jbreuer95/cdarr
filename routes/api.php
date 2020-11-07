@@ -14,5 +14,5 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::post('/sonarr', [WebhookController::class, 'sonarr']);
-Route::post('/radarr', [WebhookController::class, 'radarr']);
+Route::post('/sonarr', [WebhookController::class, 'sonarr'])->name('sonarr');
+Route::post('/radarr', [WebhookController::class, 'radarr'])->name('radarr');
