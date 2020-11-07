@@ -12,7 +12,7 @@ class WebhookController extends Controller
     public function sonarr(Request $request)
     {
         $data = $request->all();
-        if (!in_array($data['eventType'], ['Rename', 'Grab'])) {
+        if (in_array($data['eventType'], ['Download', 'Upgrade'])) {
             $path =  $data['episodeFile']['path'];
             $transcode = Transcode::create(['path' => $path, 'service' => 'sonarr']);
             $this->initiateTranscode($path, $transcode);
@@ -26,7 +26,7 @@ class WebhookController extends Controller
     public function radarr(Request $request)
     {
         $data = $request->all();
-        if (!in_array($data['eventType'], ['Rename', 'Grab'])) {
+        if (in_array($data['eventType'], ['Download', 'Upgrade'])) {
             $path =  $data['movieFile']['path'];
             $transcode = Transcode::create(['path' => $path, 'service' => 'radarr']);
             $this->initiateTranscode($path, $transcode);
