@@ -13,7 +13,7 @@ class WebhookController extends Controller
     {
         $data = $request->all();
         if (in_array($data['eventType'], ['Download', 'Upgrade'])) {
-            $path =  $data['episodeFile']['path'];
+            $path =  $data['series']['path'] . '/' . $data['episodeFile']['relativePath'];
             $transcode = Transcode::create(['path' => $path, 'service' => 'sonarr']);
             $this->initiateTranscode($path, $transcode);
 
@@ -27,7 +27,7 @@ class WebhookController extends Controller
     {
         $data = $request->all();
         if (in_array($data['eventType'], ['Download', 'Upgrade'])) {
-            $path =  $data['movieFile']['path'];
+            $path =  $data['movie']['folderPath'] . '/' . $data['movieFile']['relativePath'];
             $transcode = Transcode::create(['path' => $path, 'service' => 'radarr']);
             $this->initiateTranscode($path, $transcode);
 
