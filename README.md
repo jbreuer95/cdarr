@@ -1,61 +1,54 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400"></a></p>
+## About Cdarr
 
-<p align="center">
-<a href="https://travis-ci.org/laravel/framework"><img src="https://travis-ci.org/laravel/framework.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Cdarr is a Transcoding tool meant to be used with Sonarr and Radarr built on top of Handbrake.
 
-## About Laravel
+When you setup Sonarr and Radarr with Plex or Emby you soon run into the problem that most off your video's need te be transcoded on the fly, causing a massive load on your server and limiting even the best servers to 2/3 people watching at the same time.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+By transcoding your videos to a generic format before sending them to Plex or Emby you can avoid on the fly transcoding. These tools will then "DirectStream" them, using almost no CPU, only their internet bandwidth. Cdarr does just that. 
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+First it immediatly hides the video from Plex/Emby by putting a dot in-front of the filename.
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+Then it transcodes the videos in the following way:
+* Removing all subtitles
+* Converting all audio tracks to Stereo AAC
+* Changing the container and extension to MP4
+* Forcing the x264 encoder with the lowest posible encoder profile for the resolution
 
-## Learning Laravel
+Beside that Cdarr also minimizes disk space by using the special rate control system created by [Don Melton](https://github.com/donmelton/video_transcoding#how-my-simple-and-special-ratecontrol-systems-work) I ported his code for Cdarr. It makes sure you see no noticible video quality loss and save a ton of space in most situations.
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+Video transcodes are put in a queue so you wont kill your CPU. The hiding of the videos is always instant. 
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains over 1500 video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+## Usage
 
-## Laravel Sponsors
+### docker cli
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the Laravel [Patreon page](https://patreon.com/taylorotwell).
+Cdarr assumes you use the Sonarr and Radarr docker containers provided by linuxserver. I only tested it with their preview versions (Sonarr 3 and Radarr 3).
+```
+docker run \
+  --name=cdarr \
+  -e PUID=1000 \
+  -e PGID=1000 \
+  -e TZ=Europe/London \  
+  -p 6767:6767 \
+  -v /path/to/data:/config \
+  -v /path/to/tvseries:/tv \
+  -v /path/to/movies:/movies \  
+  --restart unless-stopped \
+  jbreuer95/cdarr
+```
 
-### Premium Partners
+Now in Sonarr go to: Settings -> Connect -> + -> Webhook
+In the URL add the url to you cdarr docker (internal or external) + /api/sonarr
+You can leave all the other settings to their defaults
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Cubet Techno Labs](https://cubettech.com)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[Many](https://www.many.co.uk)**
-- **[Webdock, Fast VPS Hosting](https://www.webdock.io/en)**
-- **[DevSquad](https://devsquad.com)**
-- **[OP.GG](https://op.gg)**
+Now in Radarr go to: Settings -> Connect -> + -> Webhook
+In the URL add the url to you cdarr docker (internal or external) + /api/radarr
+You can leave all the other settings to their defaults
 
 ## Contributing
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
-
-## Code of Conduct
-
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
-
-## Security Vulnerabilities
-
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+Thank you for considering contributing to Cdarr! You can make a pull request and i will look into it as soon as i can.
 
 ## License
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+Cdarr is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
