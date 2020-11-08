@@ -49,7 +49,7 @@ return [
 
         'daily' => [
             'driver' => 'daily',
-            'path' => '/config/logs/cdarr.log',
+            'path' => is_dir('/config') ? '/config/logs/cdarr.log' : storage_path('logs/laravel.log'),
             'level' => env('LOG_LEVEL', 'debug'),
             'days' => 14,
         ],
