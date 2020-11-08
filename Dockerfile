@@ -37,5 +37,7 @@ RUN composer install --optimize-autoloader --no-interaction --no-progress --no-d
 # Expose the port nginx is reachable on
 EXPOSE 5757
 
+VOLUME [ "/config", "/tv", "/movies" ]
+
 # Start the init script on running the container
 ENTRYPOINT ["/var/www/docker/init.sh"]
