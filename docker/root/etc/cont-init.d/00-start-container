@@ -22,7 +22,7 @@ chown -R abc:abc /var/lib/nginx
 chown -R abc:abc /var/log/nginx
 
 if [ "$PGID" != 1000 -o "$PUID" != 1000 ]; then
-    echo "Applying permissions to /app"
+    echo "Applying non default PUID and PGID to /app, takes a sec"
     chown -R abc:abc /app
 fi
 

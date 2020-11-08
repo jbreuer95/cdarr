@@ -18,17 +18,17 @@ RUN curl -fsSL "https://github.com/just-containers/s6-overlay/releases/latest/do
 COPY docker/root/ /
 
 # Configure nginx
-RUN sed -i 's#user nginx;##g' /etc/nginx/nginx.conf
-RUN sed -i 's#/var/log/nginx/error.log#/dev/stderr#g' /etc/nginx/nginx.conf
-RUN sed -i 's#/var/log/nginx/access.log#/dev/stdout#g' /etc/nginx/nginx.conf
+RUN sed -i 's#user nginx;##g' /etc/nginx/nginx.conf && \
+    sed -i 's#/var/log/nginx/error.log#/dev/stderr#g' /etc/nginx/nginx.conf && \
+    sed -i 's#/var/log/nginx/access.log#/dev/stdout#g' /etc/nginx/nginx.conf
 
 # COPY docker/nginx.conf /etc/nginx/nginx.conf
 COPY docker/default.conf /etc/nginx/conf.d/default.conf
 
 # Configure PHP-fpm
-RUN sed -i 's#;error_log = log/php7/error.log#error_log = /dev/stderr#g' /etc/php7/php-fpm.conf
-RUN sed -i 's#user = nobody##g' /etc/php7/php-fpm.d/www.conf
-RUN sed -i 's#group = nobody##g' /etc/php7/php-fpm.d/www.conf
+RUN sed -i 's#;error_log = log/php7/error.log#error_log = /dev/stderr#g' /etc/php7/php-fpm.conf && \
+    sed -i 's#user = nobody##g' /etc/php7/php-fpm.d/www.conf && \
+    sed -i 's#group = nobody##g' /etc/php7/php-fpm.d/www.conf
 
 # Add application
 WORKDIR /app
