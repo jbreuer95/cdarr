@@ -111,13 +111,27 @@ class TranscodeVideo implements ShouldQueue
         return $output;
     }
 
+    protected function findFirstVideoStreamIndex($info)
+    {
+        foreach ($info->streams as $key => $stream) {
+            if ($stream->codec_type === 'video') {
+                return $key;
+            }
+        }
+
+        throw new \Exception('No video stream found');
+    }
+
     protected function getEncoderLevel($info)
     {
-        if ($info->streams[0]->width > 1920 || $info->streams[0]->height > 1080) {
+        $video_stream_index = $this->findFirstVideoStreamIndex($info);
+        $video_stream = $info->streams[$video_stream_index];
+
+        if ($video_stream ->width > 1920 || $video_stream ->height > 1080) {
             return '5.1';
-        } else if ($info->streams[0]->width > 1280 || $info->streams[0]->height > 720) {
+        } else if ($video_stream ->width > 1280 || $video_stream ->height > 720) {
             return '4.0';
-        } else if ($info->streams[0]->width > 720 || $info->streams[0]->height > 576) {
+        } else if ($video_stream ->width > 720 || $video_stream ->height > 576) {
             return '3.1';
         }
         return '3.0';
@@ -125,12 +139,15 @@ class TranscodeVideo implements ShouldQueue
 
     protected function getEncoderBitrate($info)
     {
+        $video_stream_index = $this->findFirstVideoStreamIndex($info);
+        $video_stream = $info->streams[$video_stream_index];
+
         $bitrate = 1500;
-        if ($info->streams[0]->width > 1920 || $info->streams[0]->height > 1080) {
+        if ($video_stream->width > 1920 || $video_stream->height > 1080) {
              $bitrate = 12000;
-        } else if ($info->streams[0]->width > 1280 || $info->streams[0]->height > 720) {
+        } else if ($video_stream->width > 1280 || $video_stream->height > 720) {
              $bitrate = 6000;
-        } else if ($info->streams[0]->width * $info->streams[0]->height > 720 * 576) {
+        } else if ($video_stream->width * $video_stream->height > 720 * 576) {
              $bitrate = 3000;
         }
 
