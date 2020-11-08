@@ -1,0 +1,30 @@
+#!/usr/bin/with-contenv bash
+# shellcheck shell=bash
+
+PUID=${PUID}
+PGID=${PGID}
+
+addgroup -g "$PGID" -S abc
+adduser -u "$PUID" -S abc -G abc
+
+echo '
+-------------------------------------
+GID/UID
+-------------------------------------'
+echo "
+User uid:    $(id -u abc)
+User gid:    $(id -g abc)
+-------------------------------------
+"
+
+chown -R abc:abc /config
+chown -R abc:abc /var/lib/nginx
+chown -R abc:abc /var/log/nginx
+
+if [ "$PGID" != 1000 -o "$PUID" != 1000 ]; then
+    echo "Applying permissions to /app"
+    chown -R abc:abc /app
+fi
+
+chmod o+w /dev/stderr
+chmod o+w /dev/stdout

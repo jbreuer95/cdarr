@@ -1,35 +1,38 @@
-FROM alpine:3.12
+FROM alpine:3.12.0
 
-ENV PUID=1000
-ENV PGID=1000
-ENV TZ=Europe/London
+ENV PUID="1000" PGID="1000" TZ="Europe/London"
 
-# Install packages
-RUN apk update && apk --no-cache add php7 php7-session php7-phar php7-dom php7-fpm php7-bcmath php7-ctype php7-fileinfo php7-json \
-    php7-mbstring php7-openssl php7-pdo php7-pdo_sqlite php7-tokenizer php7-xml php7-sqlite3 nginx supervisor curl su-exec
+# Install base packages, php7 and nginx
+RUN apk update && apk add --no-cache shadow bash curl nginx \
+    php7 php7-session php7-phar php7-dom php7-fpm php7-bcmath \
+    php7-ctype php7-fileinfo php7-json php7-mbstring php7-openssl \
+    php7-pdo php7-pdo_sqlite php7-tokenizer php7-xml php7-sqlite3
 
-# Install handbrake and ffmpeg
+# Install handbrake, ffmpeg and composer
 RUN apk update && apk add --no-cache handbrake ffmpeg composer --repository="http://dl-cdn.alpinelinux.org/alpine/edge/testing"
 
-# Remove default server definition
-RUN rm /etc/nginx/conf.d/default.conf
+# Install s6-overlay
+RUN curl -fsSL "https://github.com/just-containers/s6-overlay/releases/latest/download/s6-overlay-amd64.tar.gz" | tar xzf - -C /
+
+# Add s6-overlay config
+COPY docker/root/ /
 
 # Configure nginx
-COPY docker/nginx.conf /etc/nginx/nginx.conf
+RUN sed -i 's#user nginx;##g' /etc/nginx/nginx.conf
+RUN sed -i 's#/var/log/nginx/error.log#/dev/stderr#g' /etc/nginx/nginx.conf
+RUN sed -i 's#/var/log/nginx/access.log#/dev/stdout#g' /etc/nginx/nginx.conf
 
-# Configure PHP-FPM
-COPY docker/fpm-pool.conf /etc/php7/php-fpm.d/www.conf
-COPY docker/php.ini /etc/php7/conf.d/custom.ini
+# COPY docker/nginx.conf /etc/nginx/nginx.conf
+COPY docker/default.conf /etc/nginx/conf.d/default.conf
 
-# Configure supervisord
-COPY docker/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
-
-# Setup document root
-RUN mkdir -p /var/www
+# Configure PHP-fpm
+RUN sed -i 's#;error_log = log/php7/error.log#error_log = /dev/stderr#g' /etc/php7/php-fpm.conf
+RUN sed -i 's#user = nobody##g' /etc/php7/php-fpm.d/www.conf
+RUN sed -i 's#group = nobody##g' /etc/php7/php-fpm.d/www.conf
 
 # Add application
-WORKDIR /var/www
-COPY . /var/www/
+WORKDIR /app
+COPY --chown=1000:1000 . /app
 
 # Run composer install to install the dependencies
 RUN composer install --optimize-autoloader --no-interaction --no-progress --no-dev
@@ -37,7 +40,9 @@ RUN composer install --optimize-autoloader --no-interaction --no-progress --no-d
 # Expose the port nginx is reachable on
 EXPOSE 5757
 
+# Hint usable volumes
 VOLUME [ "/config", "/tv", "/movies" ]
 
-# Start the init script on running the container
-ENTRYPOINT ["/var/www/docker/init.sh"]
+# Init s6-overlay
+ENTRYPOINT [ "/init" ]
+

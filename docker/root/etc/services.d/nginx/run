@@ -1,0 +1,4 @@
+#!/usr/bin/execlineb -P
+s6-setuidgid abc
+
+nginx -g "pid /tmp/nginx.pid; daemon off;"
