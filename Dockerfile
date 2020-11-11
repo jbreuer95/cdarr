@@ -8,8 +8,8 @@ RUN apk update && apk add --no-cache shadow bash curl nginx \
     php7-ctype php7-fileinfo php7-json php7-mbstring php7-openssl \
     php7-pdo php7-pdo_sqlite php7-tokenizer php7-xml php7-sqlite3
 
-# Install handbrake, ffmpeg and composer
-RUN apk update && apk add --no-cache handbrake ffmpeg composer --repository="http://dl-cdn.alpinelinux.org/alpine/edge/testing"
+# Install handbrake, ffmpeg, node, yarn and composer
+RUN apk update && apk add --no-cache handbrake ffmpeg composer nodejs yarn --repository="http://dl-cdn.alpinelinux.org/alpine/edge/testing"
 
 # Install s6-overlay
 RUN curl -fsSL "https://github.com/just-containers/s6-overlay/releases/latest/download/s6-overlay-amd64.tar.gz" | tar xzf - -C /
@@ -36,6 +36,12 @@ COPY --chown=1000:1000 . /app
 
 # Run composer install to install the dependencies
 RUN composer install --optimize-autoloader --no-interaction --no-progress --no-dev
+
+# Install FE dependencies
+RUN yarn install
+
+# Build FE
+RUN yarn run production
 
 # Expose the port nginx is reachable on
 EXPOSE 5757
