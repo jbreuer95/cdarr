@@ -32,16 +32,13 @@ RUN sed -i 's#;error_log = log/php7/error.log#error_log = /dev/stderr#g' /etc/ph
 
 # Add application
 WORKDIR /app
-COPY --chown=1000:1000 . /app
+COPY . /app
 
 # Run composer install to install the dependencies
 RUN composer install --optimize-autoloader --no-interaction --no-progress --no-dev
 
-# Install FE dependencies
-RUN yarn install
-
 # Build FE
-RUN yarn run production
+RUN yarn install && yarn run production && rm -rf node_modules
 
 # Expose the port nginx is reachable on
 EXPOSE 5757

@@ -17,14 +17,11 @@ User gid:    $(id -g abc)
 -------------------------------------
 "
 
+echo "Applying PUID and PGID to app, takes a sec"
+chown -R abc:abc /app
 chown -R abc:abc /config
 chown -R abc:abc /var/lib/nginx
 chown -R abc:abc /var/log/nginx
-
-if [ "$PGID" != 1000 -o "$PUID" != 1000 ]; then
-    echo "Applying non default PUID and PGID to /app, takes a sec"
-    chown -R abc:abc /app
-fi
 
 chmod o+w /dev/stderr
 chmod o+w /dev/stdout

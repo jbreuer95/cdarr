@@ -5,6 +5,7 @@ echo "Migrating database"
 echo "-------------------------------------"
 if [ ! -f "/config/database.sqlite" ]; then
     echo "/config/database.sqlite does not exist, creating"
-    s6-setuidgid abc touch /config/database.sqlite
+    touch /config/database.sqlite
+    chown abc:abc /config/database.sqlite
 fi
 s6-setuidgid abc php /app/artisan migrate --force
