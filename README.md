@@ -29,7 +29,7 @@ docker run \
   -e PUID=1000 \
   -e PGID=1000 \
   -e TZ=Europe/London \  
-  -p 5757:5757 \
+  -p 5656:5656 \
   -v /path/to/data:/config \
   -v /path/to/tvseries:/tv \
   -v /path/to/movies:/movies \  
