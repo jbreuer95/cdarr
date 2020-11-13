@@ -41,7 +41,7 @@ RUN composer install --optimize-autoloader --no-interaction --no-progress --no-d
 RUN yarn install && yarn run production && rm -rf node_modules
 
 # Expose the port nginx is reachable on
-EXPOSE 5757
+EXPOSE 5656
 
 # Hint usable volumes
 VOLUME [ "/config", "/tv", "/movies" ]
