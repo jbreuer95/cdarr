@@ -55,7 +55,7 @@ class TranscodeVideo implements ShouldQueue
 
         $options = [
             'HandBrakeCLI',
-            "--input=".$this->path,
+            "--input=" . $this->path,
             "--output=$output",
             "--format=av_mp4",
             "--optimize",
@@ -66,13 +66,13 @@ class TranscodeVideo implements ShouldQueue
             "--encoder=x264",
             "--encoder-profile=high",
             "--encoder-level=$encoder_level",
-            "--encopts=vbv-maxrate=$encoder_bitrate:vbv-bufsize=".($encoder_bitrate * 2).":crf-max=25:qpmax=34",
+            "--encopts=vbv-maxrate=$encoder_bitrate:vbv-bufsize=" . ($encoder_bitrate * 2) . ":crf-max=25:qpmax=34",
             "--all-audio",
             "--aencoder=av_aac",
             "--mixdown=stereo",
         ];
 
-        $this->transcode->update(['cmd' => implode(' ',$options)]);
+        $this->transcode->update(['cmd' => implode(' ', $options), 'status' => 'transcoding']);
 
         $process = new Process($options);
         $process->setTimeout(null);
@@ -81,16 +81,21 @@ class TranscodeVideo implements ShouldQueue
         $log = $this->transcode->logs()->create();
         $process->run(function ($type, $buffer) use ($log) {
             $log->update(['body' => $log->body . $buffer]);
+            preg_match('/Encoding: task \d of \d, (\d+.\d+) %/', $buffer, $re);
+            if (isset($re[1])) {
+                $this->transcode->update(['progress' => (int) round($re[1], 2) * 100]);
+            }
         });
         $this->transcode->touch();
 
         File::delete($this->path);
-        $log = $this->transcode->logs()->create(['body' => 'Deleted: '.$this->path]);
+        $log = $this->transcode->logs()->create(['body' => 'Deleted: ' . $this->path]);
 
         $info = pathinfo($output);
         $final = $info['dirname'] . '/' . ltrim(str_replace('-transcoding.mp4', '.mp4', $info['basename']), '.');
         File::move($output, $final);
         $log = $this->transcode->logs()->create(['body' => "Moved $output to $final"]);
+        $this->transcode->update(['status' => 'finished']);
     }
 
 
@@ -127,11 +132,11 @@ class TranscodeVideo implements ShouldQueue
         $video_stream_index = $this->findFirstVideoStreamIndex($info);
         $video_stream = $info->streams[$video_stream_index];
 
-        if ($video_stream ->width > 1920 || $video_stream ->height > 1080) {
+        if ($video_stream->width > 1920 || $video_stream->height > 1080) {
             return '5.1';
-        } else if ($video_stream ->width > 1280 || $video_stream ->height > 720) {
+        } else if ($video_stream->width > 1280 || $video_stream->height > 720) {
             return '4.0';
-        } else if ($video_stream ->width > 720 || $video_stream ->height > 576) {
+        } else if ($video_stream->width > 720 || $video_stream->height > 576) {
             return '3.1';
         }
         return '3.0';
@@ -144,11 +149,11 @@ class TranscodeVideo implements ShouldQueue
 
         $bitrate = 1500;
         if ($video_stream->width > 1920 || $video_stream->height > 1080) {
-             $bitrate = 12000;
+            $bitrate = 12000;
         } else if ($video_stream->width > 1280 || $video_stream->height > 720) {
-             $bitrate = 6000;
+            $bitrate = 6000;
         } else if ($video_stream->width * $video_stream->height > 720 * 576) {
-             $bitrate = 3000;
+            $bitrate = 3000;
         }
 
         $duration = $info->format->duration;
@@ -162,10 +167,8 @@ class TranscodeVideo implements ShouldQueue
             } else {
                 $bitrate = $media_bitrate;
             }
-
         }
 
         return $bitrate;
     }
-
 }

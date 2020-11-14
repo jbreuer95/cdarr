@@ -10,7 +10,7 @@ class Transcode extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['path', 'cmd', 'service', 'webhook_data'];
+    protected $fillable = ['path', 'cmd', 'service', 'webhook_data', 'status', 'progress'];
 
     public function logs()
     {
