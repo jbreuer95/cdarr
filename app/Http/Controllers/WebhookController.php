@@ -14,10 +14,17 @@ class WebhookController extends Controller
         $data = $request->all();
         if (in_array($data['eventType'], ['Download', 'Upgrade'])) {
             $path =  $data['series']['path'] . '/' . $data['episodeFile']['relativePath'];
-            $transcode = Transcode::create(['path' => $path, 'service' => 'sonarr']);
-            $this->initiateTranscode($path, $transcode);
 
-            return response()->json(['succes' => true]);
+            if (File::exists($path)) {
+                $transcode = Transcode::create([
+                    'path' => $path,
+                    'service' => 'sonarr',
+                    'webhook_data' => json_encode($data)
+                ]);
+                $this->initiateTranscode($path, $transcode);
+
+                return response()->json(['succes' => true]);
+            }
         }
 
         return response()->json(['succes' => false]);
@@ -28,10 +35,17 @@ class WebhookController extends Controller
         $data = $request->all();
         if (in_array($data['eventType'], ['Download', 'Upgrade'])) {
             $path =  $data['movie']['folderPath'] . '/' . $data['movieFile']['relativePath'];
-            $transcode = Transcode::create(['path' => $path, 'service' => 'radarr']);
-            $this->initiateTranscode($path, $transcode);
 
-            return response()->json(['succes' => true]);
+            if (File::exists($path)) {
+                $transcode = Transcode::create([
+                    'path' => $path,
+                    'service' => 'radarr',
+                    'webhook_data' => json_encode($data)
+                ]);
+                $this->initiateTranscode($path, $transcode);
+
+                return response()->json(['succes' => true]);
+            }
         }
 
         return response()->json(['succes' => false]);
