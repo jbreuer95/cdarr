@@ -83,7 +83,7 @@ class TranscodeVideo implements ShouldQueue
             $log->update(['body' => $log->body . $buffer]);
             preg_match('/Encoding: task \d of \d, (\d+.\d+) %/', $buffer, $re);
             if (isset($re[1])) {
-                $this->transcode->update(['progress' => (int) round($re[1], 2) * 100]);
+                $this->transcode->update(['progress' => intval(round($re[1], 2) * 100)]);
             }
         });
         $this->transcode->touch();
