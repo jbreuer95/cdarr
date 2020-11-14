@@ -12,7 +12,7 @@
     </head>
     <body class="text-gray-300">
         <x-nav />
-        <x-sidebar />
+        <x-sidemenu />
         <div class="md:ml-56 pt-16">
             @yield('content')
         </div>
