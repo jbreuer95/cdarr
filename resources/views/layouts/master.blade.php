@@ -7,8 +7,8 @@
         <title>Cdarr</title>
 
         <link href="{{ mix('css/app.css') }}" rel="stylesheet">
-
         <script src="{{ mix('js/app.js') }}" defer></script>
+        <livewire:styles />
     </head>
     <body class="text-gray-300">
         <x-nav />
@@ -16,5 +16,6 @@
         <div class="md:ml-56 pt-16">
             @yield('content')
         </div>
+        <livewire:scripts />
     </body>
 </html>
