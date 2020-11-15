@@ -55,6 +55,4 @@ class Transcode extends Model
     {
         return round($value / 100, 2);
     }
-
-
 }

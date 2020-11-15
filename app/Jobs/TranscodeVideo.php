@@ -72,7 +72,9 @@ class TranscodeVideo implements ShouldQueue
             "--mixdown=stereo",
         ];
 
-        $this->transcode->update(['cmd' => implode(' ', $options), 'status' => 'transcoding']);
+        $this->transcode->cmd = implode(' ', $options);
+        $this->transcode->status = 'transcoding';
+        $this->transcode->save();
 
         $process = new Process($options);
         $process->setTimeout(null);
@@ -83,7 +85,8 @@ class TranscodeVideo implements ShouldQueue
             $log->update(['body' => $log->body . $buffer]);
             preg_match('/Encoding: task \d of \d, (\d+.\d+) %/', $buffer, $re);
             if (isset($re[1])) {
-                $this->transcode->update(['progress' => intval(round($re[1], 2) * 100)]);
+                $this->transcode->progress = intval(round($re[1], 2) * 100);
+                $this->transcode->save();
             }
         });
         $this->transcode->touch();
@@ -95,7 +98,9 @@ class TranscodeVideo implements ShouldQueue
         $final = $info['dirname'] . '/' . ltrim(str_replace('-transcoding.mp4', '.mp4', $info['basename']), '.');
         File::move($output, $final);
         $log = $this->transcode->logs()->create(['body' => "Moved $output to $final"]);
-        $this->transcode->update(['status' => 'finished']);
+
+        $this->transcode->status = 'finished';
+        $this->transcode->save();
     }
 
 
