@@ -12,4 +12,5 @@ window.Echo = new Echo({
     wsHost: window.location.hostname,
     forceTLS: false,
     disableStats: true,
+    enabledTransports: ['ws', 'wss']
 });
