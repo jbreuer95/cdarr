@@ -1,6 +1,11 @@
 <?php
 
-use App\Http\Controllers\PagesController;
+use App\Http\Livewire\ShowHistory;
+use App\Http\Livewire\ShowMovies;
+use App\Http\Livewire\ShowQueue;
+use App\Http\Livewire\ShowSeries;
+use App\Http\Livewire\ShowSettings;
+use App\Http\Livewire\ShowSystem;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -13,9 +18,9 @@ use Illuminate\Support\Facades\Route;
 | contains the "web" middleware group. Now create something great!
 |
 */
-Route::get('/', [PagesController::class, 'queue'])->name('queue');
-Route::get('/history', [PagesController::class, 'history'])->name('history');
-Route::get('/series', [PagesController::class, 'series'])->name('series');
-Route::get('/movies', [PagesController::class, 'movies'])->name('movies');
-Route::get('/settings', [PagesController::class, 'settings'])->name('settings');
-Route::get('/system', [PagesController::class, 'system'])->name('system');
+Route::get('/', ShowQueue::class)->name('queue');
+Route::get('/history', ShowHistory::class)->name('history');
+Route::get('/series', ShowSeries::class)->name('series');
+Route::get('/movies', ShowMovies::class)->name('movies');
+Route::get('/settings', ShowSettings::class)->name('settings');
+Route::get('/system', ShowSystem::class)->name('system');
