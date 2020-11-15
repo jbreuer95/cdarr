@@ -5,7 +5,7 @@
         <th class="text-left">Started</th>
         <th class="text-left">Progress</th>
         @foreach ($transcodes as $transcode)
-            <livewire:queue-item :transcode="$transcode">
+            <livewire:queue-item :transcode="$transcode" :key="$transcode->id"/>
         @endforeach
     </table>
     {{ $transcodes->links('vendor/pagination/tailwind') }}
