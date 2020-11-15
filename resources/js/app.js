@@ -10,7 +10,6 @@ window.Echo = new Echo({
     key: 'local',
     cluster: 'local',
     wsHost: window.location.hostname,
-    wsPort: 6001,
     forceTLS: false,
     disableStats: true,
 });
