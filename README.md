@@ -1,5 +1,7 @@
 ## About Cdarr
 
+> ALPHA, EXPECT BREAKING CHANGES WITHOUT NOTICE
+
 Cdarr is a Transcoding tool meant to be used with Sonarr and Radarr built on top of Handbrake.
 
 When you setup Sonarr and Radarr with Plex or Emby you soon run into the problem that most off your video's need te be transcoded on the fly, causing a massive load on your server and limiting even the best servers to 2/3 people watching at the same time.
@@ -44,6 +46,21 @@ You can leave all the other settings to their defaults
 Now in Radarr go to:` Settings -> Connect -> + -> Webhook`  
 In the URL add the url to you cdarr docker (internal or external) + /api/radarr
 You can leave all the other settings to their defaults
+
+## Roadmap
+* Finish Sonarr/Radarr like styling
+* Authentication
+* Direct Sonarr integration
+* Direct Radarr integration
+* Emby integration
+* Plex integration
+* Setup wizard
+* Notifications
+* Scheduling
+* Status page
+* Updates page
+* Snap/AppImage/Deb releases
+* So much more
 
 ## Contributing
 
