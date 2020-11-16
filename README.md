@@ -49,12 +49,13 @@ You can leave all the other settings to their defaults
 
 ## Roadmap
 * Finish Sonarr/Radarr like styling
-* Authentication
 * Direct Sonarr integration
 * Direct Radarr integration
 * Emby integration
 * Plex integration
 * Setup wizard
+* Authentication
+* Customize Audio/Video settings
 * Notifications
 * Scheduling
 * Status page
