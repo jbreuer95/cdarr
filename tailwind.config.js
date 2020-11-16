@@ -14,7 +14,12 @@ module.exports = {
             'lg': '1024px',
             'xl': '1280px',
         },
-        extend: {},
+        extend: {
+            spacing: {
+                '15': '3.75rem',
+                '52': '13.125rem',
+              }
+        },
     },
     variants: {
         borderWidth: ['responsive', 'focus'],

@@ -7,7 +7,7 @@
 <a href="{{ route($route) }}"
     {{ $attributes->merge(['class' => 'w-full px-8 py-3 flex items-center ' . $classes]) }}
 >
-    <span class="mr-3 w-5 h-5">
+    <span class="mr-3 w-4 h-4">
         {!! $icon !!}
     </span>
     <span>{{ $title }}</span>

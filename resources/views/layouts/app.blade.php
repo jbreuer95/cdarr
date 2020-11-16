@@ -12,10 +12,10 @@
 
         @livewireStyles
     </head>
-    <body class="text-gray-300">
+    <body class="text-gray-300 text-sm">
         <x-nav />
         <x-sidemenu />
-        <div class="md:ml-56 pt-16">
+        <div class="md:ml-52 pt-15">
             {{ $slot }}
         </div>
 

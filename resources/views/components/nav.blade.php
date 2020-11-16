@@ -1,5 +1,5 @@
-<nav class="fixed w-full bg-green-600 flex justify-end items-center h-16" >
-    <a href="/" class="w-16 md:w-56 flex-shrink-0">
+<nav class="fixed w-full bg-green-600 flex justify-end items-center h-15" >
+    <a href="/" class="w-16 md:w-52 flex-shrink-0">
         <img src="/img/logo-full.png" alt="logo" class="hidden md:block h-10 ml-8"/>
         <img src="/img/logo.png" alt="logo" class="md:hidden h-8 ml-5"/>
     </a>
