@@ -7,6 +7,7 @@ use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\RateLimiter;
 
 class TranscodeUpdate implements ShouldBroadcastNow
 {
@@ -32,6 +33,18 @@ class TranscodeUpdate implements ShouldBroadcastNow
     public function broadcastOn()
     {
         return new Channel('public');
+    }
+
+    public function broadcastWhen()
+    {
+        $id = 'transcode-updates.'.$this->transcode->id;
+
+        if (!RateLimiter::tooManyAttempts($id, 1)) {
+            RateLimiter::hit($id, 1);
+
+            return true;
+        }
+        return false;
     }
 
     public function broadcastWith()
