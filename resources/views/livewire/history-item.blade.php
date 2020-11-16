@@ -1,7 +1,7 @@
 <tr>
     @if ($transcode->service === 'sonarr')
-        <td>{{ "$transcode->series_title - $transcode->episode_title S{$transcode->season_number}E{$transcode->episode_number}" }}</td>
-    @elseif ($transcode->service === 'radarr'))
+        <td>{{ "$transcode->series_title - S{$transcode->season_number}E{$transcode->episode_number} - $transcode->episode_title" }}</td>
+    @elseif ($transcode->service === 'radarr')
         <td>{{ basename($transcode->path) }}</td>
     @endif
 
