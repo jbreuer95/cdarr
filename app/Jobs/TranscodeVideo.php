@@ -78,7 +78,7 @@ class TranscodeVideo implements ShouldQueue
 
         $process = new Process($options);
         $process->setTimeout(null);
-        $process->setIdleTimeout(60);
+        $process->setIdleTimeout(null);
 
         $log = $this->transcode->logs()->create();
         $process->run(function ($type, $buffer) use ($log) {
