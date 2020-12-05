@@ -22,7 +22,7 @@ class ShowHistory extends Component
     public function render()
     {
         return view('livewire.show-history',[
-            'transcodes' => Transcode::whereIn('status', ['failed', 'finished'])->paginate(10)
+            'transcodes' => Transcode::whereIn('status', ['failed', 'finished'])->paginate(25)
         ]);
     }
 }

@@ -23,7 +23,7 @@ class ShowQueue extends Component
     public function render()
     {
         return view('livewire.show-queue',[
-            'transcodes' => Transcode::whereIn('status', ['waiting', 'transcoding'])->paginate(10)
+            'transcodes' => Transcode::whereIn('status', ['waiting', 'transcoding'])->paginate(25)
         ]);
     }
 }
