@@ -21,6 +21,7 @@
         "laravel/framework": "^8.12",
         "laravel/tinker": "^2.5",
         "livewire/livewire": "^2.3",
+        "maatwebsite/excel": "^3.1",
         "pusher/pusher-php-server": "~3.0"
     },
     "require-dev": {
