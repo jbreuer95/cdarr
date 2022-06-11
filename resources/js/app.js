@@ -9,7 +9,7 @@ window.Echo = new Echo({
     broadcaster: 'pusher',
     key: 'local',
     cluster: 'local',
-    wsHost: window.location.hostname,
+    wsHost: window.location.host,
     forceTLS: false,
     disableStats: true,
     enabledTransports: ['ws', 'wss']
