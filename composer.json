@@ -13,7 +13,7 @@
     ],
     "license": "MIT",
     "require": {
-        "php": "^7.3|^8.0",
+        "php": "^8.0",
         "beyondcode/laravel-websockets": "^1.9",
         "fideloper/proxy": "^4.4",
         "fruitcake/laravel-cors": "^2.0",
@@ -21,7 +21,7 @@
         "laravel/framework": "^8.12",
         "laravel/tinker": "^2.5",
         "livewire/livewire": "^2.3",
-        "pusher/pusher-php-server": "~3.0"
+        "pusher/pusher-php-server": "~7.0"
     },
     "require-dev": {
         "facade/ignition": "^2.5",

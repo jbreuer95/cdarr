@@ -1,4 +1,4 @@
-#!/usr/bin/execlineb -P
+#!/command/execlineb -P
 s6-setuidgid abc
 
 php /app/artisan websockets:serve -q
