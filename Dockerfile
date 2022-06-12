@@ -38,7 +38,8 @@ COPY docker/default.conf /etc/nginx/http.d/default.conf
 # Configure PHP-fpm
 RUN sed -i 's#;error_log = log/php8/error.log#error_log = /dev/stderr#g' /etc/php8/php-fpm.conf && \
     sed -i 's#user = nobody##g' /etc/php8/php-fpm.d/www.conf && \
-    sed -i 's#group = nobody##g' /etc/php8/php-fpm.d/www.conf
+    sed -i 's#group = nobody##g' /etc/php8/php-fpm.d/www.conf && \
+    sed -i 's#;clear_env = no#clear_env = no#g' /etc/php8/php-fpm.d/www.conf
 
 # Add application
 WORKDIR /app
