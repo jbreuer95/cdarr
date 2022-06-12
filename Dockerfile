@@ -4,7 +4,7 @@ ENV PUID="1000" PGID="1000" TZ="Europe/London"
 
 # Install base packages, php8, nginx, node, npm, composer, ffmpeg
 RUN apk update && apk add --no-cache shadow bash curl \
-    php8 php8-session php8-phar php8-dom php8-fpm php8-bcmath \
+    php8 php8-session php8-phar php8-dom php8-fpm php8-bcmath php8-simplexml \
     php8-ctype php8-fileinfo php8-json php8-mbstring php8-openssl php8-xmlwriter \
     php8-pdo php8-pdo_sqlite php8-tokenizer php8-xml php8-sqlite3 php8-curl \
     nginx composer nodejs npm ffmpeg
