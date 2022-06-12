@@ -5,7 +5,7 @@
         <td>{{ basename($transcode->path) }}</td>
     @endif
     <td>{{ ucfirst($transcode->status) }}</td>
-    @if ($transcode->status === 'transcoding')
+    @if (in_array($transcode->status, ['transcoding', 'uploading', 'downloading']))
         <td>{{ $transcode->created_at->diffForHumans() }}</td>
         <td>{{ number_format($transcode->progress, 2) }} %</td>
     @else

@@ -17,7 +17,15 @@ class CreateTranscodesTable extends Migration
             $table->id();
             $table->string('path');
             $table->enum('service', ['sonarr', 'radarr']);
-            $table->enum('status', ['waiting', 'transcoding', 'failed', 'finished'])->default('waiting');
+            $table->enum('status', [
+                'waiting',
+                'starting',
+                'uploading',
+                'transcoding',
+                'downloading',
+                'failed',
+                'finished'
+            ])->default('waiting');
             $table->integer('progress')->default(0);
             $table->string('cmd')->nullable();
             $table->text('webhook_data');
