@@ -21,7 +21,7 @@ class WebhookController extends Controller
                     'service' => 'sonarr',
                     'webhook_data' => json_encode($data)
                 ]);
-                $this->initiateTranscode($path, $transcode);
+                $this->initiateTranscode($transcode);
 
                 return response()->json(['succes' => true]);
             }
@@ -42,7 +42,7 @@ class WebhookController extends Controller
                     'service' => 'radarr',
                     'webhook_data' => json_encode($data)
                 ]);
-                $this->initiateTranscode($path, $transcode);
+                $this->initiateTranscode($transcode);
 
                 return response()->json(['succes' => true]);
             }
@@ -51,13 +51,17 @@ class WebhookController extends Controller
         return response()->json(['succes' => false]);
     }
 
-    protected function initiateTranscode($path, $transcode)
+    protected function initiateTranscode($transcode)
     {
-        $info = pathinfo($path);
+        $info = pathinfo($transcode->path);
         $hidden = $info['dirname'] . '/.' . $info['basename'];
 
-        File::move($path, $hidden);
-        $transcode->logs()->create(['body' => "Moved $path to $hidden"]);
-        $this->dispatch(new TranscodeVideo($hidden, $transcode));
+        File::move($transcode->path, $hidden);
+        $transcode->logs()->create(['body' => "Moved $transcode->path to $hidden"]);
+
+        $transcode->path = $hidden;
+        $transcode->save();
+
+        $this->dispatch(new TranscodeVideo($transcode));
     }
 }

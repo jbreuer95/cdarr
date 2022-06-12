@@ -19,7 +19,6 @@ class TranscodeVideo implements ShouldQueue
     public $tries = 1;
     public $timeout = 0;
 
-    protected $path;
     protected $transcode;
 
     /**
@@ -27,9 +26,8 @@ class TranscodeVideo implements ShouldQueue
      *
      * @return void
      */
-    public function __construct($path, Transcode $transcode)
+    public function __construct(Transcode $transcode)
     {
-        $this->path = $path;
         $this->transcode = $transcode;
     }
 
@@ -45,17 +43,17 @@ class TranscodeVideo implements ShouldQueue
      */
     public function handle()
     {
-        $info = pathinfo($this->path);
+        $info = pathinfo($this->transcode->path);
 
         $output = $info['dirname'] . '/' . $info['filename'] . '-transcoding' . '.mp4';
 
-        $video_info =  $this->getVideoInfo($this->path);
+        $video_info =  $this->getVideoInfo($this->transcode->path);
         $encoder_level = $this->getEncoderLevel($video_info);
         $encoder_bitrate = $this->getEncoderBitrate($video_info);
 
         $options = [
             'HandBrakeCLI',
-            "--input=" . $this->path,
+            "--input=" . $this->transcode->path,
             "--output=$output",
             "--format=av_mp4",
             "--optimize",
@@ -91,8 +89,8 @@ class TranscodeVideo implements ShouldQueue
         });
         $this->transcode->touch();
 
-        File::delete($this->path);
-        $log = $this->transcode->logs()->create(['body' => 'Deleted: ' . $this->path]);
+        File::delete($this->transcode->path);
+        $log = $this->transcode->logs()->create(['body' => 'Deleted: ' . $this->transcode->path]);
 
         $info = pathinfo($output);
         $final = $info['dirname'] . '/' . ltrim(str_replace('-transcoding.mp4', '.mp4', $info['basename']), '.');
@@ -118,6 +116,7 @@ class TranscodeVideo implements ShouldQueue
         ]);
         $process->run();
         $output = json_decode($process->getOutput());
+
         return $output;
     }
 
@@ -144,6 +143,7 @@ class TranscodeVideo implements ShouldQueue
         } else if ($video_stream->width > 720 || $video_stream->height > 576) {
             return '3.1';
         }
+
         return '3.0';
     }
 
