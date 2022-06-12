@@ -2,12 +2,12 @@ FROM alpine:3.16.0
 
 ENV PUID="1000" PGID="1000" TZ="Europe/London"
 
-# Install base packages, php8, nginx, node, yarn, composer, ffmpeg
+# Install base packages, php8, nginx, node, npm, composer, ffmpeg
 RUN apk update && apk add --no-cache shadow bash curl \
     php8 php8-session php8-phar php8-dom php8-fpm php8-bcmath \
     php8-ctype php8-fileinfo php8-json php8-mbstring php8-openssl php8-xmlwriter \
     php8-pdo php8-pdo_sqlite php8-tokenizer php8-xml php8-sqlite3 php8-curl \
-    nginx composer nodejs yarn
+    nginx composer nodejs npm ffmpeg
 
 # Install handbrake
 RUN apk update && apk add --no-cache handbrake --repository="http://dl-cdn.alpinelinux.org/alpine/edge/testing"
@@ -42,13 +42,13 @@ RUN sed -i 's#;error_log = log/php8/error.log#error_log = /dev/stderr#g' /etc/ph
 
 # Add application
 WORKDIR /app
-COPY . /app
+# COPY . /app
 
 # Run composer install to install the dependencies
-RUN composer install --optimize-autoloader --no-interaction --no-progress --no-dev
+# RUN composer install --optimize-autoloader --no-interaction --no-progress --no-dev
 
 # Build FE
-RUN yarn install && yarn run production && rm -rf node_modules
+# RUN npm install && npm run production && rm -rf node_modules
 
 # Expose the port nginx is reachable on
 EXPOSE 5656
