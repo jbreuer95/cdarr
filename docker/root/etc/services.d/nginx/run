@@ -1,4 +1,5 @@
 #!/command/execlineb -P
+with-contenv
 s6-setuidgid abc
 
 nginx -g "pid /tmp/nginx.pid; daemon off;"
