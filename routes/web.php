@@ -1,12 +1,12 @@
 <?php
 
+use App\Http\Controllers\DebugController;
 use App\Http\Livewire\ShowHistory;
 use App\Http\Livewire\ShowMovies;
 use App\Http\Livewire\ShowQueue;
 use App\Http\Livewire\ShowSeries;
 use App\Http\Livewire\ShowSettings;
 use App\Http\Livewire\ShowSystem;
-use App\Models\Transcode;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -23,6 +23,7 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function() {
     return redirect()->route('queue');
 });
+Route::get('/debug', [DebugController::class, 'index'])->name('debug');
 Route::get('/queue', ShowQueue::class)->name('queue');
 Route::get('/history', ShowHistory::class)->name('history');
 Route::get('/series', ShowSeries::class)->name('series');
