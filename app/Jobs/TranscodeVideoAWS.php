@@ -131,7 +131,6 @@ class TranscodeVideoAWS implements ShouldQueue
                                 $this->transcode->save();
 
                                 $lastUpdate = Date::now();
-                                dump("Progress: " . $this->transcode->progress);
                             }
                         }
                     }
@@ -269,8 +268,6 @@ class TranscodeVideoAWS implements ShouldQueue
             $info = $result->get('Job');
 
             if (!empty($info['JobPercentComplete'])) {
-                dump("Progress: " . $info['JobPercentComplete']);
-
                 $this->transcode->progress = intval($info['JobPercentComplete'] * 100);
                 $this->transcode->save();
             }
@@ -315,7 +312,6 @@ class TranscodeVideoAWS implements ShouldQueue
                             $this->transcode->save();
 
                             $lastUpdate = Date::now();
-                            dump("Progress: " . $this->transcode->progress);
                         }
                     }
                 }
