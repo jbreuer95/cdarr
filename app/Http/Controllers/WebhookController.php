@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Jobs\TranscodeVideo;
+use App\Jobs\TranscodeVideoAWS;
 use App\Models\Transcode;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
@@ -62,6 +63,10 @@ class WebhookController extends Controller
         $transcode->path = $hidden;
         $transcode->save();
 
-        $this->dispatch(new TranscodeVideo($transcode));
+        if (config('services.mediaconvert.account')) {
+            $this->dispatch(new TranscodeVideoAWS($transcode));
+        } else {
+            $this->dispatch(new TranscodeVideo($transcode));
+        }
     }
 }
