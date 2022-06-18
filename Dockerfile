@@ -43,13 +43,13 @@ RUN sed -i 's#;error_log = log/php8/error.log#error_log = /dev/stderr#g' /etc/ph
 
 # Add application
 WORKDIR /app
-# COPY . /app
+COPY . /app
 
-# Run composer install to install the dependencies
-# RUN composer install --optimize-autoloader --no-interaction --no-progress --no-dev
+Run composer install to install the dependencies
+RUN composer install --optimize-autoloader --no-interaction --no-progress --no-dev
 
 # Build FE
-# RUN npm install && npm run production && rm -rf node_modules
+RUN npm install && npm run production && rm -rf node_modules
 
 # Expose the port nginx is reachable on
 EXPOSE 5656
