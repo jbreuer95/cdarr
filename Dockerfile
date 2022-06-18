@@ -45,7 +45,7 @@ RUN sed -i 's#;error_log = log/php8/error.log#error_log = /dev/stderr#g' /etc/ph
 WORKDIR /app
 COPY . /app
 
-Run composer install to install the dependencies
+# Run composer install to install the dependencies
 RUN composer install --optimize-autoloader --no-interaction --no-progress --no-dev
 
 # Build FE
