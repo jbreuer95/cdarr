@@ -30,11 +30,11 @@ docker run \
   --name=cdarr \
   -e PUID=1000 \
   -e PGID=1000 \
-  -e TZ=Europe/London \  
+  -e TZ=Europe/London \
   -p 5656:5656 \
   -v /path/to/data:/config \
   -v /path/to/tvseries:/tv \
-  -v /path/to/movies:/movies \  
+  -v /path/to/movies:/movies \
   --restart unless-stopped \
   jbreuer95/cdarr
 ```
