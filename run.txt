@@ -1,5 +1,0 @@
-docker build -t cdarr .
-docker run --name cdarr --network jelle-net -p 5656:5656 -e PUID=1000 -e PGID=1000 -e TZ=Europe/Amsterdam -v C:\Users\breuer\.cdarr:/config -v C:\Users\breuer\Videos\Series:/tv -v C:\Users\breuer\Videos\Films:/movies cdarr
-docker run -d --name radarr --network jelle-net -p 7878:7878 -e PUID=1000 -e PGID=1000 -e TZ=Europe/Amsterdam -v C:\Users\breuer\.radarr:/config -v C:\Users\breuer\Videos\Films:/movies -v C:\Users\breuer\Usenet:/download --restart unless-stopped lscr.io/linuxserver/radarr:latest
-docker run -d --name sonarr --network jelle-net -p 8989:8989 -e PUID=1000 -e PGID=1000 -e TZ=Europe/Amsterdam -v C:\Users\breuer\.sonarr:/config -v C:\Users\breuer\Videos\Series:/tv -v C:\Users\breuer\Usenet:/download --restart unless-stopped lscr.io/linuxserver/sonarr:latest
-docker run -d --name sabnzbd --network jelle-net -p 8080:8080 -e PUID=1000 -e PGID=1000 -e TZ=Europe/Amsterdam -v C:\Users\breuer\.sabnzbd:/config  -v C:\Users\breuer\Usenet:/download --restart unless-stopped lscr.io/linuxserver/sabnzbd:latest

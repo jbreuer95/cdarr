@@ -63,4 +63,7 @@ RUN su abc -c 'npm install && npm run build && rm -rf node_modules && rm -rf .np
 # Expose the port nginx is reachable on
 EXPOSE 5656
 
+# Hint usable volumes
+VOLUME [ "/config", "/tv", "/movies" ]
+
 ENTRYPOINT ["/init"]
