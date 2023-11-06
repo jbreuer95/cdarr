@@ -1,9 +1,9 @@
 <template>
     <nav class="bg-gray-600 flex items-center h-14">
         <div class="flex items-center w-13 sm:w-52">
-            <a :href="route('home')" class="pl-5 py-3 sm:pr-3">
+            <Link :href="route('home')" class="pl-5 py-3 sm:pr-3">
                 <NavLogo />
-            </a>
+            </Link>
         </div>
         <NavMobileMenu />
         <NavSearch />
@@ -15,6 +15,7 @@
 </template>
 
 <script setup>
+import { Link } from "@inertiajs/vue3";
 import NavLogo from "./NavLogo.vue";
 import NavSearch from "./NavSearch.vue";
 import NavMobileMenu from "./NavMobileMenu.vue";

@@ -1,5 +1,5 @@
 <template>
-    <a
+    <Link
         :href="route(location)"
         class="w-full px-8 py-3 flex items-center border-l-[3px]"
         :class="classes"
@@ -8,10 +8,11 @@
             <FontAwesomeIcon :icon="icon" class="w-4 h-4 mr-3" />
             <span>{{ title }}</span>
         </div>
-    </a>
+    </Link>
 </template>
 
 <script setup>
+import { Link } from "@inertiajs/vue3";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 import { computed } from "vue";
 const props = defineProps({

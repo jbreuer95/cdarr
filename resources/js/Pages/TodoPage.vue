@@ -1,5 +1,5 @@
 <template>
-    <MasterLayout title="Welcome"> Queue </MasterLayout>
+    <MasterLayout title="TODO"> TODO </MasterLayout>
 </template>
 
 <script setup>

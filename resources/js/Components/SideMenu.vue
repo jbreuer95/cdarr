@@ -1,6 +1,6 @@
 <template>
     <div class="w-52 bg-gray-500 h-full">
-        <SideMenuItem location="queue" title="Queue" icon="gear" />
+        <SideMenuItem location="home" title="Queue" icon="gear" />
         <SideMenuItem
             location="history"
             title="History"

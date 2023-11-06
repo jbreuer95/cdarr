@@ -4,14 +4,11 @@ import "../css/app.css";
 import { createApp, h } from "vue";
 import { createInertiaApp } from "@inertiajs/vue3";
 import { ZiggyVue } from "ziggy";
-
 import loadIcons from "./icons";
 
+const appName = window.document.getElementsByTagName("title")[0]?.innerText;
+
 loadIcons();
-
-const appName =
-    window.document.getElementsByTagName("title")[0]?.innerText || "Laravel";
-
 createInertiaApp({
     title: (title) => {
         return title ? `${title} - ${appName}` : appName;
@@ -25,5 +22,8 @@ createInertiaApp({
             .use(plugin)
             .use(ZiggyVue)
             .mount(el);
+    },
+    progress: {
+        color: "#16A34A",
     },
 });

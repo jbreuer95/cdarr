@@ -2,10 +2,12 @@
     <Head v-if="title" :title="title" />
     <div class="bg-white h-full flex flex-col">
         <NavBar />
-        <SideMenu />
-        <main class="flex">
-            <slot></slot>
-        </main>
+        <div class="h-full flex">
+            <SideMenu />
+            <main class="h-full flex">
+                <slot></slot>
+            </main>
+        </div>
     </div>
 </template>
 
