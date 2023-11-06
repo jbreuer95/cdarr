@@ -1,0 +1,73 @@
+<template>
+    <Combobox v-model="selectedPerson" as="div" class="flex flex-col" nullable>
+        <div class="flex items-center">
+            <ComboboxLabel class="mr-2">
+                <MagnifyingGlassIcon class="w-4 h-4 fill-white stroke-white" />
+            </ComboboxLabel>
+            <ComboboxInput
+                placeholder="Search"
+                class="w-40 sm:w-52 transition duration-300 ease-out bg-transparent text-white placeholder-white outline-none border-b caret-white focus:placeholder-transparent focus:border-b-transparent"
+                :display-value="(person) => person?.name"
+                @change="query = $event.target.value"
+            />
+        </div>
+        <ComboboxOptions
+            v-if="filteredPeople.length > 0"
+            class="absolute top-14 bg-gray-500 rounded-b w-full left-0 sm:left-auto sm:w-52 sm:ml-6"
+        >
+            <ComboboxOption
+                v-for="person in filteredPeople"
+                :key="person.id"
+                v-slot="{ active }"
+                :value="person"
+                as="template"
+            >
+                <li
+                    class="text-white px-4 py-2 rounded-b cursor-pointer"
+                    :class="{ 'bg-gray-400': active }"
+                >
+                    {{ person.name }}
+                </li>
+            </ComboboxOption>
+        </ComboboxOptions>
+    </Combobox>
+</template>
+
+<script setup>
+import { ref, computed, watch } from "vue";
+import {
+    Combobox,
+    ComboboxInput,
+    ComboboxOptions,
+    ComboboxOption,
+    ComboboxLabel,
+} from "@headlessui/vue";
+import { MagnifyingGlassIcon } from "@heroicons/vue/24/solid";
+
+const people = [
+    { id: 1, name: "Lorem" },
+    { id: 2, name: "Impsum" },
+    { id: 3, name: "Dolar" },
+    { id: 4, name: "Sit" },
+    { id: 5, name: "Amit" },
+];
+
+const selectedPerson = ref();
+const query = ref();
+
+const filteredPeople = computed(() => {
+    if (!query.value) {
+        return people;
+    }
+
+    return people.filter((person) => {
+        return person.name.toLowerCase().includes(query.value.toLowerCase());
+    });
+});
+
+watch(selectedPerson, async (newValue) => {
+    if (newValue) {
+        window.location = "/";
+    }
+});
+</script>
