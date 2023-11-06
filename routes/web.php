@@ -16,3 +16,5 @@ use Illuminate\Support\Facades\Route;
 Route::inertia('/', 'HomePage')->name('home');
 Route::inertia('/queue', 'HomePage')->name('queue');
 Route::inertia('/history', 'HomePage')->name('history');
+Route::inertia('/series', 'HomePage')->name('series');
+Route::inertia('/movies', 'HomePage')->name('movies');

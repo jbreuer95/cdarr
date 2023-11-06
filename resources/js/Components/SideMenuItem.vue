@@ -1,13 +1,15 @@
 <template>
     <a
         :href="route(location)"
-        class="w-full px-8 py-3 flex items-center"
+        class="w-full px-8 py-3 flex items-center border-l-[3px]"
         :class="classes"
     >
-        <span class="mr-3 w-4 h-4">
-            <slot name="icon" class="w-4 h-4 fill-current"></slot>
-        </span>
-        <span>{{ title }}</span>
+        <div class="flex flex-1 items-center ml-[-3px]">
+            <span class="mr-3">
+                <slot name="icon" class="w-5 h-5"></slot>
+            </span>
+            <span class="text-sm">{{ title }}</span>
+        </div>
     </a>
 </template>
 
@@ -26,9 +28,9 @@ const props = defineProps({
 
 const classes = computed(() => {
     if (route().current() === props.location) {
-        return "bg-gray-700 text-green-600 border-l-[3px] border-green-600";
+        return "box-border bg-gray-700 text-green-600 border-green-600";
     }
 
-    return "text-white hover:text-green-600";
+    return "text-white hover:text-green-600 border-transparent";
 });
 </script>
