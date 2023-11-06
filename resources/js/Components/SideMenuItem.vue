@@ -5,15 +5,14 @@
         :class="classes"
     >
         <div class="flex flex-1 items-center ml-[-3px]">
-            <span class="mr-3">
-                <slot name="icon" class="w-5 h-5"></slot>
-            </span>
-            <span class="text-sm">{{ title }}</span>
+            <FontAwesomeIcon :icon="icon" class="w-4 h-4 mr-3" />
+            <span>{{ title }}</span>
         </div>
     </a>
 </template>
 
 <script setup>
+import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 import { computed } from "vue";
 const props = defineProps({
     location: {
@@ -21,6 +20,10 @@ const props = defineProps({
         required: true,
     },
     title: {
+        type: String,
+        required: true,
+    },
+    icon: {
         type: String,
         required: true,
     },

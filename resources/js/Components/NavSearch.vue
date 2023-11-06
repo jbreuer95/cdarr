@@ -2,7 +2,10 @@
     <Combobox v-model="selectedPerson" as="div" class="flex flex-col" nullable>
         <div class="flex items-center">
             <ComboboxLabel class="mr-2">
-                <MagnifyingGlassIcon class="w-4 h-4 fill-white stroke-white" />
+                <FontAwesomeIcon
+                    icon="magnifying-glass"
+                    class="text-white w-4 h-4"
+                />
             </ComboboxLabel>
             <ComboboxInput
                 placeholder="Search"
@@ -35,6 +38,7 @@
 
 <script setup>
 import { ref, computed, watch } from "vue";
+import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 import {
     Combobox,
     ComboboxInput,
@@ -42,7 +46,6 @@ import {
     ComboboxOption,
     ComboboxLabel,
 } from "@headlessui/vue";
-import { MagnifyingGlassIcon } from "@heroicons/vue/24/solid";
 
 const people = [
     { id: 1, name: "Lorem" },

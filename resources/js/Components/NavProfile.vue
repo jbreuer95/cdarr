@@ -3,7 +3,7 @@
         <MenuButton
             class="pr-5 py-5 pl-2 cursor-pointer text-white hover:text-green-600 outline-none"
         >
-            <UserIcon class="w-4 h-4 fill-current" />
+            <FontAwesomeIcon icon="user" class="w-4 h-4" />
         </MenuButton>
         <MenuItems
             class="absolute top-14 flex flex-col bg-gray-500 rounded-b outline-none w-full left-0 sm:left-auto sm:w-52"
@@ -14,9 +14,7 @@
                     class="flex flex-1 items-center px-4 py-2 text-white cursor-pointer rounded-b"
                     :class="{ 'bg-gray-400': active }"
                 >
-                    <ArrowPathIcon
-                        class="w-4 h-4 mr-2 fill-white stroke-white"
-                    />
+                    <FontAwesomeIcon icon="rotate" class="w-4 h-4 mr-2" />
                     Restart
                 </a>
             </MenuItem>
@@ -26,10 +24,10 @@
                     class="flex flex-1 items-center px-4 py-2 text-white cursor-pointer rounded-b"
                     :class="{ 'bg-gray-400': active }"
                 >
-                    <PowerIcon
-                        class="w-4 h-4 mr-2 fill-red-600 stroke-red-600"
+                    <FontAwesomeIcon
+                        icon="power-off"
+                        class="w-4 h-4 mr-2 text-red-500"
                     />
-
                     Shutdown
                 </a>
             </MenuItem>
@@ -39,10 +37,10 @@
                     class="flex flex-1 items-center px-4 py-2 text-white cursor-pointer rounded-b"
                     :class="{ 'bg-gray-400': active }"
                 >
-                    <ArrowLeftOnRectangleIcon
-                        class="w-4 h-4 mr-2 fill-white stroke-white"
+                    <FontAwesomeIcon
+                        icon="right-from-bracket"
+                        class="w-4 h-4 mr-2"
                     />
-
                     Logout
                 </a>
             </MenuItem>
@@ -51,11 +49,6 @@
 </template>
 
 <script setup>
+import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 import { Menu, MenuButton, MenuItems, MenuItem } from "@headlessui/vue";
-import {
-    UserIcon,
-    PowerIcon,
-    ArrowLeftOnRectangleIcon,
-    ArrowPathIcon,
-} from "@heroicons/vue/24/solid";
 </script>

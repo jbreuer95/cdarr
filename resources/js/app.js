@@ -5,6 +5,10 @@ import { createApp, h } from "vue";
 import { createInertiaApp } from "@inertiajs/vue3";
 import { ZiggyVue } from "ziggy";
 
+import loadIcons from "./icons";
+
+loadIcons();
+
 const appName =
     window.document.getElementsByTagName("title")[0]?.innerText || "Laravel";
 
