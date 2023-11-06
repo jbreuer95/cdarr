@@ -1,3 +1,4 @@
+import "../css/fonts.css";
 import "../css/app.css";
 
 import { createApp, h } from "vue";

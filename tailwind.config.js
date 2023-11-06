@@ -6,6 +6,10 @@ export default {
         "./resources/**/*.vue",
     ],
     theme: {
+        fontFamily: {
+            sans: ["Roboto"],
+            mono: ['"Roboto Mono"'],
+        },
         extend: {},
     },
     plugins: [],
