@@ -1,5 +1,9 @@
 <template>
-    <div class="w-52 bg-gray-500 h-full">
+    <div
+        ref="menuRef"
+        class="w-52 bg-gray-500 h-full fixed sm:static"
+        :class="menuClasses"
+    >
         <SideMenuItem location="home" title="Queue" icon="gear" />
         <SideMenuItem
             location="history"
@@ -26,6 +30,23 @@
 </template>
 
 <script setup>
-import SideMenuItem from "./SideMenuItem.vue";
-import SideMenuSubItem from "./SideMenuSubItem.vue";
+import { computed, ref } from "vue";
+import SideMenuItem from "@/Components/SideMenuItem.vue";
+import SideMenuSubItem from "@/Components/SideMenuSubItem.vue";
+import { useMenuStore } from "@/store";
+import { useDetectOutsideClick } from "@/composables";
+
+const menuRef = ref(null);
+const menu = useMenuStore();
+
+const menuClasses = computed(() => {
+    return {
+        "hidden sm:block": !menu.isOpen,
+        block: menu.isOpen,
+    };
+});
+
+useDetectOutsideClick(menuRef, () => {
+    menu.close();
+});
 </script>
