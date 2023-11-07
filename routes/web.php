@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\DebugController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -12,6 +13,8 @@ use Illuminate\Support\Facades\Route;
 | be assigned to the "web" middleware group. Make something great!
 |
 */
+
+Route::get('/debug', DebugController::class)->name('debug');
 
 Route::inertia('/', 'HomePage')->name('home');
 Route::inertia('/history', 'TodoPage')->name('history');
