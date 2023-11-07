@@ -17,3 +17,17 @@ Route::inertia('/', 'HomePage')->name('home');
 Route::inertia('/history', 'TodoPage')->name('history');
 Route::inertia('/series', 'TodoPage')->name('series');
 Route::inertia('/movies', 'TodoPage')->name('movies');
+
+Route::inertia('/settings', 'TodoPage')->name('settings');
+Route::inertia('/settings/general', 'TodoPage')->name('settings.general');
+Route::inertia('/settings/video', 'TodoPage')->name('settings.video');
+Route::inertia('/settings/audio', 'TodoPage')->name('settings.audio');
+Route::inertia('/settings/subtitles', 'TodoPage')->name('settings.subtitles');
+
+Route::inertia('/system', 'TodoPage')->name('system');
+Route::inertia('/system/status', 'TodoPage')->name('system.status');
+Route::inertia('/system/tasks', 'TodoPage')->name('system.tasks');
+Route::inertia('/system/backup', 'TodoPage')->name('system.backup');
+Route::inertia('/system/updates', 'TodoPage')->name('system.updates');
+Route::inertia('/system/events', 'TodoPage')->name('system.events');
+Route::inertia('/system/logs', 'TodoPage')->name('system.logs');

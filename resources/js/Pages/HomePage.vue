@@ -1,5 +1,7 @@
 <template>
-    <MasterLayout title="Welcome"> Queue </MasterLayout>
+    <MasterLayout title="Welcome">
+        <div class="p-4 flex flex-1">Queue</div>
+    </MasterLayout>
 </template>
 
 <script setup>

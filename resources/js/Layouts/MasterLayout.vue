@@ -2,9 +2,9 @@
     <Head v-if="title" :title="title" />
     <div class="bg-white h-full flex flex-col">
         <NavBar />
-        <div class="h-full flex">
+        <div class="h-full flex flex-1">
             <SideMenu />
-            <main class="h-full flex">
+            <main class="h-full flex flex-1">
                 <slot></slot>
             </main>
         </div>
