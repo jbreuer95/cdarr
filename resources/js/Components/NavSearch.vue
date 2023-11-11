@@ -9,7 +9,7 @@
             </ComboboxLabel>
             <ComboboxInput
                 placeholder="Search"
-                class="w-40 sm:w-52 transition duration-300 ease-out bg-transparent text-white placeholder-white outline-none border-b caret-white focus:placeholder-transparent focus:border-b-transparent"
+                class="w-40 sm:w-52 transition duration-300 ease-out bg-transparent text-sm p-0 text-white placeholder-white caret-white outline-none border-0 border-b border-white focus:ring-0 focus:placeholder-transparent focus:border-b-transparent"
                 :display-value="(person) => person?.name"
                 @change="query = $event.target.value"
             />
@@ -27,7 +27,7 @@
             >
                 <li
                     class="text-white px-4 py-2 rounded-b cursor-pointer"
-                    :class="{ 'bg-gray-600': active }"
+                    :class="{ 'bg-gray-700': active }"
                 >
                     {{ person.name }}
                 </li>

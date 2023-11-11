@@ -12,7 +12,7 @@
                 <a
                     href="javascript:alert('todo');"
                     class="flex flex-1 items-center px-4 py-2 text-white cursor-pointer rounded-b"
-                    :class="{ 'bg-gray-600': active }"
+                    :class="{ 'bg-gray-700': active }"
                 >
                     <FontAwesomeIcon icon="rotate" class="w-4 h-4 mr-2" />
                     Restart
@@ -22,7 +22,7 @@
                 <a
                     href="javascript:alert('todo');"
                     class="flex flex-1 items-center px-4 py-2 text-white cursor-pointer rounded-b"
-                    :class="{ 'bg-gray-600': active }"
+                    :class="{ 'bg-gray-700': active }"
                 >
                     <FontAwesomeIcon
                         icon="power-off"
@@ -35,7 +35,7 @@
                 <a
                     href="javascript:alert('todo');"
                     class="flex flex-1 items-center px-4 py-2 text-white cursor-pointer rounded-b"
-                    :class="{ 'bg-gray-600': active }"
+                    :class="{ 'bg-gray-700': active }"
                 >
                     <FontAwesomeIcon
                         icon="right-from-bracket"
