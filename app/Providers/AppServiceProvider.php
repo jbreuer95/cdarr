@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Models\Setting;
 use Illuminate\Encryption\Encrypter;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\File;
@@ -39,6 +40,7 @@ class AppServiceProvider extends ServiceProvider
             Artisan::call('db:seed --force');
         }
 
+        Setting::register();
     }
 
     protected function generateRandomKey()
