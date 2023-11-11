@@ -1,0 +1,96 @@
+services:
+    laravel.test:
+        build:
+            context: ./vendor/laravel/sail/runtimes/8.2
+            dockerfile: Dockerfile
+            args:
+                WWWGROUP: '${WWWGROUP}'
+        image: sail-8.2/app
+        extra_hosts:
+            - 'host.docker.internal:host-gateway'
+        ports:
+            - '${APP_PORT:-80}:80'
+            - '${VITE_PORT:-5173}:${VITE_PORT:-5173}'
+        environment:
+            WWWUSER: '${WWWUSER}'
+            LARAVEL_SAIL: 1
+            XDEBUG_MODE: '${SAIL_XDEBUG_MODE:-off}'
+            XDEBUG_CONFIG: '${SAIL_XDEBUG_CONFIG:-client_host=host.docker.internal}'
+            IGNITION_LOCAL_SITES_PATH: '${PWD}'
+        volumes:
+            - '.:/var/www/html'
+        networks:
+            - sail
+    cdarr:
+        image: cdarr
+        container_name: cdarr
+        environment:
+            - PUID=1000
+            - PGID=1000
+            - TZ=Europe/Amsterdam
+        volumes:
+            - /home/jelle/config/.cdarr:/config
+            - /home/jelle/data:/data
+        ports:
+            - 5656:5656
+        networks:
+            - sail
+    sonarr:
+        image: lscr.io/linuxserver/sonarr:latest
+        container_name: sonarr
+        environment:
+            - PUID=1000
+            - PGID=1000
+            - TZ=Europe/Amsterdam
+        volumes:
+            - /home/jelle/config/.sonarr:/config
+            - /home/jelle/data:/data
+        ports:
+            - 8989:8989
+        networks:
+            - sail
+    radarr:
+        image: lscr.io/linuxserver/radarr:latest
+        container_name: radarr
+        environment:
+            - PUID=1000
+            - PGID=1000
+            - TZ=Europe/Amsterdam
+        volumes:
+            - /home/jelle/config/.radarr:/config
+            - /home/jelle/data:/data
+        ports:
+            - 7878:7878
+        networks:
+            - sail
+    sabnzbd:
+        image: lscr.io/linuxserver/sabnzbd:latest
+        container_name: sabnzbd
+        environment:
+            - PUID=1000
+            - PGID=1000
+            - TZ=Europe/Amsterdam
+        volumes:
+            - /home/jelle/config/.sabnzbd:/config
+            - /home/jelle/data/usenet:/data/usenet
+        ports:
+            - 8080:8080
+        networks:
+            - sail
+    jellyfin:
+        image: lscr.io/linuxserver/jellyfin:latest
+        container_name: jellyfin
+        environment:
+            - PUID=1000
+            - PGID=1000
+            - TZ=Europe/Amsterdam
+        volumes:
+            - /home/jelle/config/.jellyfin:/config
+            - /home/jelle/data/media:/data/media
+        ports:
+            - 8096:8096
+        networks:
+            - sail
+networks:
+    sail:
+        driver: bridge
