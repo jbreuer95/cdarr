@@ -1,6 +1,6 @@
 <template>
     <svg
-        class="w-8 h-8 fill-current text-green-600"
+        class="w-8 h-8 fill-current text-green-500"
         viewBox="90.01 36.16 750.8 833.43"
     >
         <path

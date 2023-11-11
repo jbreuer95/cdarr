@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\DebugController;
+use App\Http\Controllers\RadarSettingsController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -14,19 +15,21 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/debug', DebugController::class)->name('debug');
-
 Route::inertia('/', 'HomePage')->name('home');
+Route::get('/debug', DebugController::class)->name('debug');
+Route::get('/settings/radarr', [RadarSettingsController::class, 'index'])->name('settings.radarr.index');
+Route::put('/settings/radarr', [RadarSettingsController::class, 'update'])->name('settings.radarr.update');
+Route::post('/settings/radarr', [RadarSettingsController::class, 'test'])->name('settings.radarr.test');
+
 Route::inertia('/history', 'TodoPage')->name('history');
 Route::inertia('/series', 'TodoPage')->name('series');
 Route::inertia('/movies', 'TodoPage')->name('movies');
-
 Route::inertia('/settings', 'TodoPage')->name('settings');
 Route::inertia('/settings/general', 'TodoPage')->name('settings.general');
 Route::inertia('/settings/video', 'TodoPage')->name('settings.video');
 Route::inertia('/settings/audio', 'TodoPage')->name('settings.audio');
 Route::inertia('/settings/subtitles', 'TodoPage')->name('settings.subtitles');
-
+Route::inertia('/settings/sonarr', 'TodoPage')->name('settings.sonarr');
 Route::inertia('/system', 'TodoPage')->name('system');
 Route::inertia('/system/status', 'TodoPage')->name('system.status');
 Route::inertia('/system/tasks', 'TodoPage')->name('system.tasks');

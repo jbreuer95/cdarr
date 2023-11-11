@@ -4,7 +4,7 @@
         <NavBar />
         <div class="h-full flex flex-1">
             <SideMenu />
-            <main class="h-full flex flex-1">
+            <main class="h-full flex flex-1 flex-col">
                 <slot></slot>
             </main>
         </div>

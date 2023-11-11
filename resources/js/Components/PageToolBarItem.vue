@@ -1,0 +1,48 @@
+<template>
+    <div
+        class="w-16 h-16 flex flex-col items-center text-center pt-2"
+        :class="classes"
+    >
+        <FontAwesomeIcon v-if="icon" :icon="icon" class="w-5 h-5" />
+        <p class="text-xs leading-3 mt-1 text-white">{{ computedTitle }}</p>
+    </div>
+</template>
+
+<script setup>
+import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
+import { computed } from "vue";
+
+const props = defineProps({
+    active: {
+        type: Boolean,
+        default: true,
+    },
+    icon: {
+        type: String,
+        default: null,
+    },
+    title: {
+        type: String,
+        required: true,
+    },
+    inActiveTitle: {
+        type: String,
+        default: null,
+    },
+});
+
+const computedTitle = computed(() => {
+    return props.inActiveTitle
+        ? props.active
+            ? props.title
+            : props.inActiveTitle
+        : props.title;
+});
+
+const classes = computed(() => {
+    return {
+        "text-white cursor-pointer hover:text-green-500": props.active,
+        "text-gray-300": !props.active,
+    };
+});
+</script>

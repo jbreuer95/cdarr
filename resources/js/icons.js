@@ -14,6 +14,8 @@ import { faClockRotateLeft } from "@fortawesome/free-solid-svg-icons/faClockRota
 import { faGear } from "@fortawesome/free-solid-svg-icons/faGear";
 import { faSliders } from "@fortawesome/free-solid-svg-icons/faSliders";
 import { faLaptop } from "@fortawesome/free-solid-svg-icons/faLaptop";
+import { faFloppyDisk } from "@fortawesome/free-solid-svg-icons/faFloppyDisk";
+import { faVial } from "@fortawesome/free-solid-svg-icons/faVial";
 
 export default () => {
     library.add(
@@ -30,6 +32,8 @@ export default () => {
         faGear,
         faSliders,
         faLaptop,
+        faFloppyDisk,
+        faVial,
     );
     config.styleDefault = "solid";
 };
