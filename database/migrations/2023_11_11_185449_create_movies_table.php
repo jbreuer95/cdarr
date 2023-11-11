@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->bigInteger('radarr_movie_id')->unsigned()->unique();
             $table->bigInteger('radarr_file_id')->unsigned()->unique();
+            $table->text('path');
 
             $table->string('title');
             $table->integer('year')->nullable();

@@ -28,6 +28,7 @@ class SyncRadarr implements ShouldQueue, ShouldBeUnique
                 $movie = new Movie();
                 $movie->radarr_movie_id = $radarr_movie->id;
                 $movie->radarr_file_id = $radarr_movie->movieFile->id;
+                $movie->path = $radarr_movie->movieFile->path;
                 $movie->title = $radarr_movie->title;
                 $movie->year = $radarr_movie->year ?? null;
                 $movie->studio = $radarr_movie->studio ?? null;
