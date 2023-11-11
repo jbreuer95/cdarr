@@ -64,7 +64,7 @@ class SettingsRadarrController extends Controller
         }
 
         try {
-            $response = Http::connectTimeout(3)->timeout(3)->withHeaders([
+            $response = Http::timeout(3)->withHeaders([
                 'X-Api-Key' => $validated['token']
             ])->get($api_url);
             if ($response->ok() && !empty($response->object()->current) && $response->object()->current === 'v3') {

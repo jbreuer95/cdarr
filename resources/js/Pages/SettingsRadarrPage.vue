@@ -12,6 +12,7 @@
                 v-if="testActive"
                 icon="vial"
                 title="Test connection"
+                :loading="form.processing"
                 :success="testSuccess"
                 @click="test"
             ></PageToolBarItem>
@@ -66,7 +67,7 @@ const testActive = computed(() => {
 });
 
 const update = () => {
-    if (! form.isDirty) {
+    if (! form.isDirty || form.processing) {
         return;
     }
 
@@ -79,6 +80,10 @@ const update = () => {
 };
 
 const test = () => {
+    if (form.processing) {
+        return;
+    }
+
     form.clearErrors();
     form.post(route("settings.radarr.test"), {
         onSuccess: () => {

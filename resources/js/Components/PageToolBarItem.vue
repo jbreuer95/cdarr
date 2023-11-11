@@ -1,6 +1,6 @@
 <template>
     <div
-        v-if="!success"
+        v-if="!success && !loading"
         class="w-16 h-16 flex flex-col items-center text-center pt-2"
         :class="classes"
     >
@@ -8,7 +8,13 @@
         <p class="text-xs leading-3 mt-1 text-white">{{ computedTitle }}</p>
     </div>
     <div
-        v-else
+        v-else-if="loading"
+        class="w-16 h-16 flex flex-col items-center justify-center text-white"
+    >
+        <FontAwesomeIcon icon="gear" class="w-5 h-5" spin  />
+    </div>
+    <div
+        v-else-if="success"
         class="w-16 h-16 flex flex-col items-center justify-center text-green-400"
     >
         <FontAwesomeIcon icon="check" class="w-5 h-5" />
@@ -35,6 +41,10 @@ const props = defineProps({
     inActiveTitle: {
         type: String,
         default: null,
+    },
+    loading: {
+        type: Boolean,
+        default: false,
     },
     success: {
         type: Boolean,
