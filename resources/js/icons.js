@@ -16,6 +16,7 @@ import { faSliders } from "@fortawesome/free-solid-svg-icons/faSliders";
 import { faLaptop } from "@fortawesome/free-solid-svg-icons/faLaptop";
 import { faFloppyDisk } from "@fortawesome/free-solid-svg-icons/faFloppyDisk";
 import { faVial } from "@fortawesome/free-solid-svg-icons/faVial";
+import { faCheck } from "@fortawesome/free-solid-svg-icons/faCheck";
 
 export default () => {
     library.add(
@@ -34,6 +35,7 @@ export default () => {
         faLaptop,
         faFloppyDisk,
         faVial,
+        faCheck
     );
     config.styleDefault = "solid";
 };

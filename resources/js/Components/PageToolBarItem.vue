@@ -1,10 +1,17 @@
 <template>
     <div
+        v-if="!success"
         class="w-16 h-16 flex flex-col items-center text-center pt-2"
         :class="classes"
     >
         <FontAwesomeIcon v-if="icon" :icon="icon" class="w-5 h-5" />
         <p class="text-xs leading-3 mt-1 text-white">{{ computedTitle }}</p>
+    </div>
+    <div
+        v-else
+        class="w-16 h-16 flex flex-col items-center justify-center text-green-300"
+    >
+        <FontAwesomeIcon icon="check" class="w-5 h-5" />
     </div>
 </template>
 
@@ -28,6 +35,10 @@ const props = defineProps({
     inActiveTitle: {
         type: String,
         default: null,
+    },
+    success: {
+        type: Boolean,
+        default: false,
     },
 });
 
