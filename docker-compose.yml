@@ -1,7 +1,7 @@
 services:
-    laravel.test:
+    cdarr-dev:
         build:
-            context: ./vendor/laravel/sail/runtimes/8.2
+            context: ./docker/8.2
             dockerfile: Dockerfile
             args:
                 WWWGROUP: '${WWWGROUP}'
@@ -19,11 +19,11 @@ services:
             IGNITION_LOCAL_SITES_PATH: '${PWD}'
         volumes:
             - '.:/var/www/html'
+            - /home/jelle/data:/data
         networks:
             - sail
-    cdarr:
+    cdarr-prod:
         image: cdarr
-        container_name: cdarr
         environment:
             - PUID=1000
             - PGID=1000
@@ -37,7 +37,6 @@ services:
             - sail
     sonarr:
         image: lscr.io/linuxserver/sonarr:latest
-        container_name: sonarr
         environment:
             - PUID=1000
             - PGID=1000
@@ -51,7 +50,6 @@ services:
             - sail
     radarr:
         image: lscr.io/linuxserver/radarr:latest
-        container_name: radarr
         environment:
             - PUID=1000
             - PGID=1000
@@ -65,7 +63,6 @@ services:
             - sail
     sabnzbd:
         image: lscr.io/linuxserver/sabnzbd:latest
-        container_name: sabnzbd
         environment:
             - PUID=1000
             - PGID=1000
@@ -79,7 +76,6 @@ services:
             - sail
     jellyfin:
         image: lscr.io/linuxserver/jellyfin:latest
-        container_name: jellyfin
         environment:
             - PUID=1000
             - PGID=1000

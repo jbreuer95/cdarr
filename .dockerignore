@@ -1,6 +1,8 @@
 /.vscode
 /.git
 Dockerfile
+docker-compose.yml
+/docker/8.2
 
 /node_modules
 /vendor
