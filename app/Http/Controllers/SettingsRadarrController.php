@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 
-class RadarSettingsController extends Controller
+class SettingsRadarrController extends Controller
 {
     public function index()
     {
