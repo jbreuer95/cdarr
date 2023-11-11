@@ -73,7 +73,7 @@ const labelClasses = computed(() => {
 
 const inputClasses = computed(() => {
     return {
-        "border-gray-300 text-neutral-600 placeholder-neutral-400 focus:ring-green-500 focus:border-green-500":
+        "border-gray-300 text-neutral-600 placeholder-neutral-400 focus:ring-green-400 focus:border-green-400":
             !props.error,
         "border-red-500 text-red-900 placeholder-red-700 focus:ring-red-500 focus:border-red-500":
             props.error,

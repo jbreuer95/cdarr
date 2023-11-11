@@ -46,9 +46,9 @@ const active = computed(() => {
 
 const linkClasses = computed(() => {
     return {
-        "text-white hover:text-green-500": !mainActive.value,
-        "text-green-500": mainActive.value,
-        "box-border bg-gray-700 border-green-500": active.value,
+        "text-white hover:text-green-400": !mainActive.value,
+        "text-green-400": mainActive.value,
+        "box-border bg-gray-700 border-green-400": active.value,
         "border-transparent": !active.value,
     };
 });

@@ -1,7 +1,7 @@
 <template>
     <Menu>
         <MenuButton
-            class="pr-5 py-5 pl-2 cursor-pointer text-white hover:text-green-500 outline-none"
+            class="pr-5 py-5 pl-2 cursor-pointer text-white hover:text-green-400 outline-none"
         >
             <FontAwesomeIcon icon="user" class="w-4 h-4" />
         </MenuButton>

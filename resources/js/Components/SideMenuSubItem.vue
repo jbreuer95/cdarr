@@ -1,7 +1,7 @@
 <template>
     <Link
         :href="route(location)"
-        class="w-full px-8 py-3 pl-16 flex items-center border-l-[3px] box-border border-green-500"
+        class="w-full px-8 py-3 pl-16 flex items-center border-l-[3px] box-border border-green-400"
         :class="linkClasses"
     >
         {{ title }}
@@ -29,8 +29,8 @@ const active = computed(() => {
 
 const linkClasses = computed(() => {
     return {
-        "text-green-500": active.value,
-        "text-white hover:text-green-500": !active.value,
+        "text-green-400": active.value,
+        "text-white hover:text-green-400": !active.value,
     };
 });
 </script>

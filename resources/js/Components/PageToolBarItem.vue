@@ -9,7 +9,7 @@
     </div>
     <div
         v-else
-        class="w-16 h-16 flex flex-col items-center justify-center text-green-300"
+        class="w-16 h-16 flex flex-col items-center justify-center text-green-400"
     >
         <FontAwesomeIcon icon="check" class="w-5 h-5" />
     </div>
@@ -52,7 +52,7 @@ const computedTitle = computed(() => {
 
 const classes = computed(() => {
     return {
-        "text-white cursor-pointer hover:text-green-500": props.active,
+        "text-white cursor-pointer hover:text-green-400": props.active,
         "text-gray-300": !props.active,
     };
 });
