@@ -10,8 +10,8 @@
             title="History"
             icon="clock-rotate-left"
         />
-        <SideMenuItem location="series" title="Series" icon="tv" />
         <SideMenuItem location="movies" title="Movies" icon="film" />
+        <SideMenuItem location="series" title="Series" icon="tv" />
         <SideMenuItem location="settings" title="Settings" icon="sliders">
             <SideMenuSubItem location="settings.general" title="General" />
             <SideMenuSubItem location="settings.video" title="Video" />

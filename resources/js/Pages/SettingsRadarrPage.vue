@@ -51,13 +51,17 @@ import MasterLayout from "@/Layouts/MasterLayout.vue";
 import PageHeader from "@/Components/PageHeader.vue";
 import { computed, ref, nextTick } from "vue";
 import { useForm } from "@inertiajs/vue3";
-import { usePage } from "@inertiajs/vue3";
 
-const page = usePage();
+const props = defineProps({
+    settings: {
+        type: Array,
+        required: true
+    }
+});
 
 const form = useForm({
-    token: page.props.settings.token,
-    url: page.props.settings.url,
+    token: props.settings.token,
+    url: props.settings.url,
 });
 
 const testSuccess = ref(false)
@@ -73,7 +77,7 @@ const update = () => {
 
     form.put(route("settings.radarr.update"), {
         onSuccess: () => {
-            form.defaults("url", page.props.settings.url);
+            form.defaults("url", props.settings.url);
             form.reset("url");
         },
     });
