@@ -17,7 +17,7 @@
             <SideMenuSubItem location="settings.video" title="Video" />
             <SideMenuSubItem location="settings.audio" title="Audio" />
             <SideMenuSubItem location="settings.subtitles" title="Subtitles" />
-            <SideMenuSubItem location="settings.radarr.index" title="Radarr" />
+            <SideMenuSubItem location="settings.radarr" title="Radarr" />
             <SideMenuSubItem location="settings.sonarr" title="Sonarr" />
         </SideMenuItem>
         <SideMenuItem location="system" title="System" icon="laptop">

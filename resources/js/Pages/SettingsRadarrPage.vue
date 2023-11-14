@@ -54,7 +54,7 @@ import { useForm } from "@inertiajs/vue3";
 
 const props = defineProps({
     settings: {
-        type: Array,
+        type: Object,
         required: true
     }
 });
@@ -74,6 +74,7 @@ const update = () => {
     if (! form.isDirty || form.processing) {
         return;
     }
+    testSuccess.value = false
 
     form.put(route("settings.radarr.update"), {
         onSuccess: () => {

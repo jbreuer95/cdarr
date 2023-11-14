@@ -10,6 +10,7 @@
                 v-if="!setup"
                 icon="gear"
                 title="Setup Radarr"
+                @click="goToSetup"
             ></PageToolBarItem>
         </PageToolbar>
         <div v-if="setup" class="flex flex-col p-4">
@@ -60,6 +61,7 @@ import PageToolbar from "@/Components/PageToolbar.vue";
 import PageToolBarItem from "@/Components/PageToolBarItem.vue";
 import { onMounted, ref } from "vue";
 import axios from "axios";
+import { router } from "@inertiajs/vue3";
 
 const props = defineProps({
     setup: {
@@ -88,6 +90,10 @@ const loadNextPage = async () => {
     } catch (error) {
         return;
     }
+}
+
+const goToSetup = () => {
+    router.get(route('settings.radarr'))
 }
 
 

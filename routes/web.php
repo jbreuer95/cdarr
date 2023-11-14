@@ -20,7 +20,7 @@ Route::inertia('/', 'HomePage')->name('home');
 Route::get('/debug', DebugController::class)->name('debug');
 
 Route::get('/movies', [MoviesController::class, 'index'])->name('movies');
-Route::get('/settings/radarr', [SettingsRadarrController::class, 'index'])->name('settings.radarr.index');
+Route::get('/settings/radarr', [SettingsRadarrController::class, 'index'])->name('settings.radarr');
 Route::put('/settings/radarr', [SettingsRadarrController::class, 'update'])->name('settings.radarr.update');
 Route::post('/settings/radarr/test', [SettingsRadarrController::class, 'test'])->name('settings.radarr.test');
 
