@@ -5,6 +5,9 @@
                 v-if="setup"
                 icon="rotate"
                 title="Sync Movies"
+                :loading="syncLoading"
+                :success="syncSuccess"
+                @click="syncMovies"
             ></PageToolBarItem>
             <PageToolBarItem
                 v-if="!setup"
@@ -78,6 +81,36 @@ const bottom = ref(null)
 const items = ref(props.movies.data)
 const nextPageUrl = ref(props.movies.next_page_url)
 
+const syncLoading = ref(false)
+const syncSuccess = ref(false)
+
+const syncMovies = async () => {
+    if (syncLoading.value) {
+        return;
+    }
+
+    syncLoading.value = true
+
+    try {
+        const { data: { success = false } = {} } = await axios.post(route('movies.sync'));
+        if (! success)  {
+            return;
+        }
+
+        router.reload({
+            only: ['movies'],
+            onSuccess: () => {
+                syncLoading.value = false
+                items.value = props.movies.data
+                nextPageUrl.value = props.movies.next_page_url
+            }
+        })
+
+    } catch (error) {
+        return;
+    }
+}
+
 const loadNextPage = async () => {
     if (! props.movies.next_page_url) {
         return;
@@ -95,7 +128,6 @@ const loadNextPage = async () => {
 const goToSetup = () => {
     router.get(route('settings.radarr'))
 }
-
 
 onMounted(() => {
     const observer = new IntersectionObserver((entries) => {
