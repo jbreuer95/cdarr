@@ -6,7 +6,7 @@
             <FontAwesomeIcon icon="user" class="w-4 h-4" />
         </MenuButton>
         <MenuItems
-            class="absolute top-14 flex flex-col bg-gray-500 rounded-b outline-none w-full left-0 sm:left-auto sm:w-52"
+            class="absolute top-14 flex flex-col bg-gray-500 rounded-b outline-none left-0 sm:left-auto sm:w-52"
         >
             <MenuItem v-slot="{ active }">
                 <a

@@ -11,7 +11,7 @@
             <input
                 id="helper-text"
                 :type="type"
-                class="border text-sm rounded-lg block w-full px-4 py-1.5"
+                class="border text-sm rounded-lg block px-4 py-1.5"
                 :class="inputClasses"
                 :placeholder="placeholder"
                 :value="modelValue"

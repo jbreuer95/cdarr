@@ -1,7 +1,7 @@
 <template>
     <Link
         :href="route(location)"
-        class="w-full px-8 py-3 flex items-center border-l-[3px]"
+        class="px-8 py-3 flex items-center border-l-[3px]"
         :class="linkClasses"
     >
         <div class="flex flex-1 items-center ml-[-3px]">

@@ -1,7 +1,7 @@
 <template>
-    <div
+    <menu
         ref="menuRef"
-        class="w-52 bg-gray-500 h-full fixed sm:static"
+        class="w-52 bg-gray-500 h-full fixed top-14 left-0 z-10"
         :class="menuClasses"
     >
         <SideMenuItem location="home" title="Queue" icon="gear" />
@@ -28,7 +28,7 @@
             <SideMenuSubItem location="system.events" title="Events" />
             <SideMenuSubItem location="system.logs" title="Logs" />
         </SideMenuItem>
-    </div>
+    </menu>
 </template>
 
 <script setup>
@@ -43,8 +43,7 @@ const menu = useMenuStore();
 
 const menuClasses = computed(() => {
     return {
-        "hidden sm:block": !menu.isOpen,
-        block: menu.isOpen,
+        "hidden sm:block": !menu.isOpen
     };
 });
 

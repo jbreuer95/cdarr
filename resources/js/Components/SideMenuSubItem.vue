@@ -1,7 +1,7 @@
 <template>
     <Link
         :href="route(location)"
-        class="w-full px-8 py-3 pl-16 flex items-center border-l-[3px] box-border border-green-400"
+        class="px-8 py-3 pl-16 flex items-center border-l-[3px] box-border border-green-400"
         :class="linkClasses"
     >
         {{ title }}

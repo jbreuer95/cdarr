@@ -44,7 +44,6 @@ class SettingsRadarrController extends Controller
             'url' => ['required', 'max:50'],
         ]);
 
-
         $ping_url = str($validated['url'])->rtrim('/') . '/ping';
         $api_url = str($validated['url'])->rtrim('/') . '/api';
 

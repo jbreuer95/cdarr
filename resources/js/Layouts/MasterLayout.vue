@@ -1,14 +1,10 @@
 <template>
     <Head v-if="title" :title="title" />
-    <div class="bg-white h-full flex flex-col">
-        <NavBar />
-        <div class="h-full flex flex-1">
-            <SideMenu />
-            <main class="h-full flex flex-1 flex-col">
-                <slot></slot>
-            </main>
-        </div>
-    </div>
+    <NavBar />
+    <SideMenu />
+    <main class="w-full h-full overflow-y-auto overflow-x-scroll z-0 flex flex-1 flex-col sm:pl-52">
+        <slot></slot>
+    </main>
 </template>
 
 <script setup>
