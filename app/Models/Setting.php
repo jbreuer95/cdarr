@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Schema;
 
 class Setting extends Model
 {
@@ -20,10 +21,12 @@ class Setting extends Model
 
     public static function register()
     {
-        $db_settings = Setting::all(['key', 'value'])->keyBy('key')->transform(function ($setting) {
-            return $setting->value;
-        })->toArray();
+        if (Schema::hasTable('settings')) {
+            $db_settings = Setting::all(['key', 'value'])->keyBy('key')->transform(function ($setting) {
+                return $setting->value;
+            })->toArray();
 
-        config($db_settings);
+            config($db_settings);
+        }
     }
 }
