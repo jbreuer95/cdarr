@@ -46,7 +46,7 @@
                         <td class="p-2 border-t">{{ movie.title }}</td>
                         <td class="p-2 border-t">{{ movie.year }}</td>
                         <td class="p-2 border-t">{{ movie.studio }}</td>
-                        <td class="p-2 border-t">{{ movie.quality }}</td>
+                        <td class="p-2 border-t">{{ movie.quality }}p</td>
                         <td class="p-2 border-t">{{ movie.status }}</td>
                     </tr>
                 </tbody>

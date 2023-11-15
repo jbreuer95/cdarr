@@ -4,6 +4,7 @@ namespace App\Jobs;
 
 use App\Facades\Radarr;
 use App\Models\Movie;
+use App\Models\VideoFile;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -28,13 +29,17 @@ class SyncRadarr implements ShouldQueue, ShouldBeUnique
                 $movie = new Movie();
                 $movie->radarr_movie_id = $radarr_movie->id;
                 $movie->radarr_file_id = $radarr_movie->movieFile->id;
-                $movie->path = $radarr_movie->movieFile->path;
                 $movie->title = $radarr_movie->title;
                 $movie->year = $radarr_movie->year ?? null;
                 $movie->studio = $radarr_movie->studio ?? null;
                 $movie->quality = $radarr_movie->movieFile->quality->quality->resolution ?? null;
                 $movie->status = 'unknown';
                 $movie->save();
+
+                $file = new VideoFile();
+                $file->path = $radarr_movie->movieFile->path;
+                $file->movie_id = $movie->id;
+                $file->save();
             } else {
                 // TODO
             }
