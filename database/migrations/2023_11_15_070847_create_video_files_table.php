@@ -18,10 +18,15 @@ return new class extends Migration
             $table->integer('duration')->nullable();
             $table->integer('width')->nullable();
             $table->integer('height')->nullable();
+            $table->string('container_format')->nullable();
             $table->string('codec')->nullable();
+            $table->string('codec_id')->nullable();
             $table->string('profile')->nullable();
             $table->string('level')->nullable();
             $table->string('pixel_format')->nullable();
+            $table->string('color_space')->nullable();
+            $table->string('color_transfer')->nullable();
+            $table->string('color_primaries')->nullable();
             $table->string('frame_rate')->nullable();
             $table->integer('bit_rate')->nullable();
             $table->boolean('faststart')->default(false);

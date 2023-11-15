@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
 
             $table->string('codec')->nullable();
+            $table->string('codec_id')->nullable();
             $table->string('profile')->nullable();
             $table->string('lang')->nullable();
             $table->integer('channels')->nullable();

@@ -9,6 +9,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Process;
 
@@ -53,41 +54,42 @@ class AnalyzeFile implements ShouldQueue
         Log::info($info->output());
         Log::info($trace->output());
 
-        $info = json_decode($info->output());
-        $trace = $trace->output();
+        $analysis = json_decode($info->output());
+        $videostream = $this->getPrimaryVideoStream($analysis->streams);
 
-        foreach ($info->streams as $stream) {
-            if ($stream->codec_type !== 'video') {
-                continue;
-            }
-
-            $faststart = false;
-            if (($moov_pos = strpos($trace, 'moov')) && ($mdat_pos = strpos($trace, 'mdat'))) {
-                $faststart = $moov_pos < $mdat_pos;
-            }
-
-            $this->file->width = $stream->width ?? null;
-            $this->file->height = $stream->height ?? null;
-            $this->file->codec = $stream->codec_name ?? null;
-            $this->file->profile = $stream->profile ?? null;
-            $this->file->level = $stream->level ?? null;
-            $this->file->pixel_format = $stream->pix_fmt ?? null;
-            $this->file->frame_rate = $stream->avg_frame_rate ?? null;
-            $this->file->bit_rate = $stream->bit_rate ?? $info->format->bit_rate ?? null;
-            $this->file->duration = (int) round(($stream->duration ?? $info->format->duration ?? 0) * 1000) ?: null;
-            $this->file->faststart = $faststart;
-            $this->file->save();
-
-            break;
+        $faststart = false;
+        if (($moov_pos = strpos($trace->output(), 'moov')) && ($mdat_pos = strpos($trace->output(), 'mdat'))) {
+            $faststart = $moov_pos < $mdat_pos;
         }
 
-        foreach ($info->streams as $stream) {
+
+        // TODO: multiview (3D) detection
+        // TODO: HDR detection
+        $this->file->container_format = $analysis->format->format_name ?? null;
+        $this->file->width = $videostream->width ?? null;
+        $this->file->height = $videostream->height ?? null;
+        $this->file->codec = $videostream->codec_name ?? null;
+        $this->file->codec_id = $videostream->codec_tag_string ?? null;
+        $this->file->profile = $videostream->profile ?? null;
+        $this->file->level = $videostream->level ?? null;
+        $this->file->pixel_format = $videostream->pix_fmt ?? null;
+        $this->file->color_space = $videostream->color_space ?? null;
+        $this->file->color_transfer = $videostream->color_transfer ?? null;
+        $this->file->color_primaries = $videostream->color_primaries ?? null;
+        $this->file->frame_rate = $videostream->avg_frame_rate ?? null;
+        $this->file->bit_rate = $videostream->bit_rate ?? null;
+        $this->file->duration = $this->getBestRuntime($videostream->duration ?? null, $analysis->format->duration ?? null);
+        $this->file->faststart = $faststart;
+        $this->file->save();
+
+        foreach ($analysis->streams as $stream) {
             if ($stream->codec_type !== 'audio') {
                 continue;
             }
 
             $audiostream = new AudioStream();
             $audiostream->codec = $stream->codec_name ?? null;
+            $audiostream->codec_id = $stream->codec_tag_string ?? null;
             $audiostream->profile = $stream->profile ?? null;
             $audiostream->lang = $stream->tags->language ?? 'und';
             $audiostream->channels = $stream->channels ?? null;
@@ -96,5 +98,34 @@ class AnalyzeFile implements ShouldQueue
             $audiostream->video_file_id = $this->file->id;
             $audiostream->save();
         }
+    }
+
+    protected function getBestRuntime($video, $general)
+    {
+        if (!$video || $video === 0) {
+            return (int) round($general * 1000);
+        }
+
+        return (int) round($video * 1000);
+    }
+
+    protected function getPrimaryVideoStream(array $streams)
+    {
+        $total = count(array_filter($streams, function($stream) {
+            return $stream->codec_type === 'video';
+        }));
+        $first = Arr::first($streams, function ($stream) {
+            return $stream->codec_type === 'video';
+        });
+
+        if ($total <= 1) {
+            return  $first;
+        }
+
+        $firstNonMotion = Arr::first($streams, function ($stream) {
+            return $stream->codec_type === 'video' && !in_array($stream->codec_name, ['mjpeg', 'png']);
+        });
+
+        return $firstNonMotion ?? $first;
     }
 }

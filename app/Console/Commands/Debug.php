@@ -63,7 +63,7 @@ class Debug extends Command
                         'codec' => $stream->codec_name,
                         'profile' => $stream->profile,
                         'level' => $stream->level,
-                        'color_space' => $stream->pix_fmt,
+                        'pixel_format' => $stream->pix_fmt,
                         'frame_rate' => $framerate,
                         'bit_rate' => $stream->bit_rate ?? $info->format->bit_rate,
                         'duration' => (int) round($stream->duration ?? $info->format->duration * 1000),
