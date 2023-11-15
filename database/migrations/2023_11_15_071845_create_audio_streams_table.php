@@ -15,10 +15,11 @@ return new class extends Migration
             $table->id();
 
             $table->string('codec')->nullable();
+            $table->string('profile')->nullable();
             $table->string('lang')->nullable();
-            $table->string('channels')->nullable();
-            $table->string('sample_rate')->nullable();
-            $table->string('bit_rate')->nullable();
+            $table->integer('channels')->nullable();
+            $table->integer('sample_rate')->nullable();
+            $table->integer('bit_rate')->nullable();
 
             $table->bigInteger('video_file_id')->unsigned();
             $table->foreign('video_file_id')->references('id')->on('video_files')->cascadeOnDelete();

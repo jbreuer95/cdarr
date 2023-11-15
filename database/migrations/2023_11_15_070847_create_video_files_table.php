@@ -21,9 +21,10 @@ return new class extends Migration
             $table->string('codec')->nullable();
             $table->string('profile')->nullable();
             $table->string('level')->nullable();
-            $table->string('color_space')->nullable();
+            $table->string('pixel_format')->nullable();
             $table->string('frame_rate')->nullable();
-            $table->string('bit_rate')->nullable();
+            $table->integer('bit_rate')->nullable();
+            $table->boolean('faststart')->default(false);
 
             $table->bigInteger('movie_id')->unsigned()->nullable();
             $table->foreign('movie_id')->references('id')->on('movies')->cascadeOnDelete();
