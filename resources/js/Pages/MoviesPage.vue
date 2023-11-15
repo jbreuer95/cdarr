@@ -129,7 +129,7 @@ const goToSetup = () => {
     router.get(route('settings.radarr'))
 }
 
-onMounted(() => {
+const setupInfiniteScrolling = () => {
     const observer = new IntersectionObserver((entries) => {
         entries.forEach((entry) => {
             if (entry.isIntersecting) {
@@ -142,5 +142,11 @@ onMounted(() => {
     })
 
     observer.observe(bottom.value)
+}
+
+onMounted(() => {
+    if (props.setup) {
+        setupInfiniteScrolling()
+    }
 });
 </script>
