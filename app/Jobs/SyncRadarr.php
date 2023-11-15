@@ -6,15 +6,25 @@ use App\Facades\Radarr;
 use App\Models\Movie;
 use App\Models\VideoFile;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 
-class SyncRadarr implements ShouldQueue, ShouldBeUnique
+class SyncRadarr implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+
+    public $tries = 1;
+    public $timeout = 0;
+
+    /**
+     * Create a new job instance.
+     */
+    public function __construct()
+    {
+        $this->onQueue('default');
+    }
 
     /**
      * Execute the job.
@@ -40,6 +50,8 @@ class SyncRadarr implements ShouldQueue, ShouldBeUnique
                 $file->path = $radarr_movie->movieFile->path;
                 $file->movie_id = $movie->id;
                 $file->save();
+
+                AnalyzeFile::dispatch($file);
             } else {
                 // TODO
             }
