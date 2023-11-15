@@ -5,12 +5,12 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Movie extends Model
+class AudioStream extends Model
 {
     use HasFactory;
 
     public function videofile()
     {
-        return $this->hasOne(VideoFile::class);
+        return $this->belongsTo(VideoFile::class);
     }
 }
