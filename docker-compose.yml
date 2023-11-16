@@ -23,9 +23,9 @@ services:
             - /home/jelle/data:/data
         networks:
             - sail
-    cdarr:
+    cdarr_v2:
         image: cdarr
-        container_name: cdarr
+        container_name: cdarr_v2
         environment:
             - PUID=1000
             - PGID=1000
@@ -35,6 +35,20 @@ services:
             - /home/jelle/data:/data
         ports:
             - 5656:5656
+        networks:
+            - sail
+    cdarr_v1:
+        image: jbreuer95/cdarr
+        container_name: cdarr_v1
+        environment:
+            - PUID=1000
+            - PGID=1000
+            - TZ=Europe/Amsterdam
+        volumes:
+            - /home/jelle/config/.cdarr:/config
+            - /home/jelle/data:/data
+        ports:
+            - 1111:5656
         networks:
             - sail
     sonarr:
