@@ -11,7 +11,6 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\File;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Process;
 use Illuminate\Support\Str;
 
@@ -92,12 +91,11 @@ class EncodeVideo implements ShouldQueue
                 return;
             }
 
+            $this->file->analysed = false;
+            $this->file->save();
+
             $log->status = EventStatus::FINISHED;
             $log->info("Finished encoding file {$output}");
-
-            $file = new VideoFile();
-            $file->path = $output;
-            $file->save();
         } catch (\Throwable $th) {
             $log->status = EventStatus::ERRORED;
             $log->info('Job failed with the following error:');

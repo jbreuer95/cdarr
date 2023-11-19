@@ -15,6 +15,9 @@ return new class extends Migration
             $table->id();
             $table->text('path');
 
+            $table->boolean('analysed')->default(false);
+            $table->boolean('encoded')->default(false);
+
             $table->integer('index')->nullable();
             $table->integer('duration')->nullable();
             $table->integer('width')->nullable();

@@ -13,6 +13,7 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Process;
+use Symfony\Component\Process\Process as SymfonyProcess;
 
 class AnalyzeFile implements ShouldQueue
 {
@@ -45,7 +46,7 @@ class AnalyzeFile implements ShouldQueue
 
         try {
             $log->info('Analyzing file ' . $this->file->path);
-
+            $log->info('Running ffprobe command to get stream info');
             $command = [
                 'ffprobe',
                 '-v',
@@ -54,20 +55,15 @@ class AnalyzeFile implements ShouldQueue
                 'json',
                 '-show_format',
                 '-show_streams',
-                "'{$this->file->path}'",
+                $this->file->path,
             ];
-
-            $log->info('Running ffprobe command to get stream info');
-            $log->info(implode(' ', $command));
-            $process = Process::start(implode(' ', $command), function (string $type, string $output) use ($log) {
-                if ($type === 'stderr') {
-                    $log->info($output);
-                }
-            });
-            $result = $process->wait();
+            $log->info((new SymfonyProcess($command))->getCommandLine());
+            $result = Process::run($command);
             if (! $result->successful()) {
                 $log->status = EventStatus::ERRORED;
                 $log->info('ffprobe command failed unexpectedly, exiting');
+                $log->info($result->errorOutput());
+                $log->info($result->output());
                 return;
             }
 
@@ -80,35 +76,26 @@ class AnalyzeFile implements ShouldQueue
 
             $log->info(json_encode($analysis, JSON_PRETTY_PRINT));
 
+            $log->info('Running ffprobe command to determine faststart');
             $command = [
                 'ffprobe',
                 '-v',
                 'trace',
                 '-i',
-                "'{$this->file->path}'",
-                '2>&1',
-                '|',
-                'grep',
-                '-e',
-                "type:\'mdat\'",
-                '-e',
-                "type:\'moov\'",
+                $this->file->path,
             ];
-
-            $log->info('Running ffprobe command to determine faststart');
-            $log->info(implode(' ', $command));
-            $result = Process::start(implode(' ', $command), function (string $type, string $output) use ($log) {
-                $log->info($output);
-            });
-            $result = $process->wait();
+            $log->info((new SymfonyProcess($command))->getCommandLine());
+            $result = Process::run($command);
             if (! $result->successful()) {
                 $log->status = EventStatus::ERRORED;
                 $log->info('ffprobe command failed unexpectedly, exiting');
+                $log->info($result->errorOutput());
+                $log->info($result->output());
                 return;
             }
 
             $faststart = false;
-            if (($moov_pos = strpos($result->output(), 'moov')) && ($mdat_pos = strpos($result->output(), 'mdat'))) {
+            if (($moov_pos = strpos($result->errorOutput(), 'moov')) && ($mdat_pos = strpos($result->errorOutput(), 'mdat'))) {
                 $faststart = $moov_pos < $mdat_pos;
             }
             $log->info('Faststart '. ($faststart ? '' : 'NOT ') . 'detected');
@@ -134,6 +121,8 @@ class AnalyzeFile implements ShouldQueue
             $this->file->bit_rate = $this->getBestVideoBitRate($videostream, $analysis->format);
             $this->file->duration = $this->getBestRuntime($videostream->duration ?? null, $analysis->format->duration ?? null);
             $this->file->faststart = $faststart;
+            $this->file->encoded = !empty($analysis->tags->cdarr_encoded_time);
+            $this->file->analysed = true;
             $this->file->save();
 
             $log->info("Video stream index: {$this->file->index}");
@@ -177,6 +166,16 @@ class AnalyzeFile implements ShouldQueue
                 $log->info("Audio stream {$audiostream->index} channels: {$audiostream->channels}");
                 $log->info("Audio stream {$audiostream->index} sample_rate: {$audiostream->sample_rate}");
                 $log->info("Audio stream {$audiostream->index} bit_rate: {$audiostream->bit_rate}");
+            }
+
+
+
+            $this->file->refresh();
+            $log->info('File is '. ($this->file->encoded ? '' : 'NOT ') . 'already encoded by cdarr');
+            $log->info('File is '. ($this->file->compliant ? '' : 'NOT ') . 'already compliant for direct play');
+            if ($this->file->encoded === false && $this->file->compliant === false) {
+                $log->info('Dispatching EncodeVideo job');
+                EncodeVideo::dispatch($this->file);
             }
 
             $log->status = EventStatus::FINISHED;

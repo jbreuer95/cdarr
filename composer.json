@@ -4,6 +4,7 @@
     "description": "Convert videos from Radarr and Sonarr for Plex and Emby.",
     "keywords": [
         "cdarr",
+        "encoding",
         "transcoding",
         "converting",
         "sonarr",
