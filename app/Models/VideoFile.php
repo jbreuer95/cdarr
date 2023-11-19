@@ -40,30 +40,33 @@ class VideoFile extends Model
                 if ($this->index === null || $this->index !== 0) {
                     return false;
                 }
-                if ($this->container_format === null || $this->container_format !== 'mp4') {
+                if ($this->container_format === null || ! str($this->container_format)->contains('mp4')) {
                     return false;
                 }
                 if ($this->codec === null || $this->codec !== 'h264') {
                     return false;
                 }
-                // if ($this->codec_id === null || $this->codec_id  !== '?') {
-                //     return false;
-                // }
-                // if ($this->profile === null || $this->profile  !== '?') {
-                //     return false;
-                // }
-                // if ($this->level === null || $this->level  !== '?') {
-                //     return false;
-                // }
+                if ($this->codec_id === null || $this->codec_id  !== 'avc1') {
+                    return false;
+                }
+                if ($this->profile === null || $this->profile  !== 'high') {
+                    return false;
+                }
+                if ($this->level === null || (int) $this->level  > 41) {
+                    return false;
+                }
                 if ($this->pixel_format === null || $this->pixel_format !== 'yuv420p') {
                     return false;
                 }
-                // if ($this->color_space !== null && $this->color_space !== 'yuv420p') {
-                //     return false;
-                // }
-                // if ($this->color_primaries !== null && $this->color_primaries !== 'yuv420p') {
-                //     return false;
-                // }
+                if (!in_array($this->color_space, ['bt601', 'bt709'])) {
+                    return false;
+                }
+                if (!in_array($this->color_transfer, [null, 'bt601', 'bt709'])) {
+                    return false;
+                }
+                if (!in_array($this->color_primaries, [null, 'bt601', 'bt709'])) {
+                    return false;
+                }
                 if ($this->faststart === null || $this->faststart !== true) {
                     return false;
                 }
@@ -74,23 +77,8 @@ class VideoFile extends Model
                     return false;
                 }
 
-                foreach ($this->audiostreams as $stream) {
-                    if ($stream->codec === null || $stream->codec !== 'aac') {
-                        return false;
-                    }
-                    // if ($stream->codec_id === null || $stream->codec_id !== '?') {
-                    //     return false;
-                    // }
-                    // if ($stream->profile === null || $stream->profile !== '?') {
-                    //     return false;
-                    // }
-                    if ($stream->channels === null || $stream->channels > 2) {
-                        return false;
-                    }
-                    if ($stream->sample_rate === null || $stream->sample_rate !== 48000) {
-                        return false;
-                    }
-                    if ($stream->bit_rate === null || $stream->bit_rate > 160000) {
+                foreach ($this->audiostreams as $audiostream) {
+                    if (! $audiostream->compliant) {
                         return false;
                     }
                 }

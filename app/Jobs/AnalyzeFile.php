@@ -105,6 +105,7 @@ class AnalyzeFile implements ShouldQueue
 
             // TODO: multiview (3D) detection
             // TODO: HDR detection
+            $this->file->audiostreams()->delete();
             $this->file->index = $videostream->index;
             $this->file->container_format = $analysis->format->format_name ?? null;
             $this->file->width = $videostream->width ?? null;
@@ -171,8 +172,8 @@ class AnalyzeFile implements ShouldQueue
 
 
             $this->file->refresh();
-            $log->info('File is '. ($this->file->encoded ? '' : 'NOT ') . 'already encoded by cdarr');
-            $log->info('File is '. ($this->file->compliant ? '' : 'NOT ') . 'already compliant for direct play');
+            $log->info('File is '. ($this->file->encoded ? '' : 'NOT ') . 'encoded by cdarr already');
+            $log->info('File is '. ($this->file->compliant ? '' : 'NOT ') . 'compliant for direct play already');
             if ($this->file->encoded === false && $this->file->compliant === false) {
                 $log->info('Dispatching EncodeVideo job');
                 EncodeVideo::dispatch($this->file);

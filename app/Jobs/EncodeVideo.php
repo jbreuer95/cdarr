@@ -12,6 +12,7 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Process;
+use Symfony\Component\Process\Process as SymfonyProcess;
 use Illuminate\Support\Str;
 
 class EncodeVideo implements ShouldQueue
@@ -22,6 +23,9 @@ class EncodeVideo implements ShouldQueue
     public $timeout = 0;
 
     protected VideoFile $file;
+
+    protected ?Event $log = null;
+    protected $test;
 
     /**
      * Create a new job instance.
@@ -38,68 +42,128 @@ class EncodeVideo implements ShouldQueue
      */
     public function handle(): void
     {
-        $log = new Event();
-        $log->type = (new \ReflectionClass($this))->getShortName();
-        $log->status = EventStatus::RUNNING;
-        $log->video_file_id = $this->file->id;
+        $this->log = new Event();
+        $this->log->type = (new \ReflectionClass($this))->getShortName();
+        $this->log->status = EventStatus::RUNNING;
+        $this->log->video_file_id = $this->file->id;
 
         try {
-            $log->info("Encoding file " . pathinfo($this->file->path, PATHINFO_BASENAME));
+            $this->log->info("Encoding file " . pathinfo($this->file->path, PATHINFO_BASENAME));
 
             $uuid = Str::uuid()->toString();
             $tmp_location = storage_path("tmp/$uuid");
             File::ensureDirectoryExists($tmp_location);
+            $this->log->info("Created temporary directory $uuid");
 
-            $log->info("Created temporary directory $uuid");
-
+            $this->log->info('Running ffmpeg command');
             $output = $tmp_location . '/' . pathinfo($this->file->path, PATHINFO_FILENAME) . '.mp4';
-            $command = [
-                'ffmpeg',
-                '-i',
-                "'{$this->file->path}'",
-                '-c',
-                'copy',
-                '-movflags',
-                'use_metadata_tags',
-                '-map_metadata',
-                '0',
-                '-metadata',
-                'cdarr_encoded_time="'.(now()->toISOString()).'"',
-                '-loglevel',
-                'error',
-                '-progress',
-                '-',
-                '-nostats',
-                "'{$output}'",
-            ];
-
-            $log->info('Running ffmpeg command');
-            $log->info(implode(' ', $command));
-            $process = Process::start(implode(' ', $command), function (string $type, string $output) use ($log) {
+            $command = $this->buildCommand($output);
+            $this->log->info((new SymfonyProcess($command))->getCommandLine());
+            $process = Process::forever()->start($command, function (string $type, string $output) {
                 preg_match('/^out_time_us=(\d+)$/m', $output, $matches);
                 if (count($matches) === 2) {
-                    $percentage = round(($matches[1] / 1000) / $this->file->duration * 100, 1);
-                    $log->info("Progress {$percentage}%");
-                } else {
-                    $log->info($output);
+                    $percentage = round(($matches[1] / 1000) / $this->file->duration * 100, 2);
+                    $this->log->info("Progress {$percentage}%");
                 }
             });
             $result = $process->wait();
             if (! $result->successful()) {
-                $log->status = EventStatus::ERRORED;
-                $log->info('ffmpeg command failed unexpectedly, exiting');
+                $this->log->status = EventStatus::ERRORED;
+                $this->log->info('ffmpeg command failed unexpectedly, exiting');
+                $this->log->info($result->errorOutput());
+                $this->log->info($result->output());
                 return;
             }
 
             $this->file->analysed = false;
             $this->file->save();
 
-            $log->status = EventStatus::FINISHED;
-            $log->info("Finished encoding file {$output}");
+            $this->log->status = EventStatus::FINISHED;
+            $this->log->info("Finished encoding file {$output}");
         } catch (\Throwable $th) {
-            $log->status = EventStatus::ERRORED;
-            $log->info('Job failed with the following error:');
-            $log->info($th->getMessage());
+            $this->log->status = EventStatus::ERRORED;
+            $this->log->info('Job failed with the following error:');
+            $this->log->info($th->getMessage());
         }
+    }
+
+    protected function filterAudioStreams()
+    {
+        $streams = collect([]);
+        foreach ($this->file->audiostreams as $audiostream) {
+            if ($audiostream->lang !== 'und' && $existing = $streams->where('lang', $audiostream->lang)->first()) {
+                if ($existing->channels <= $audiostream->channels) {
+                    $this->log->info("Skipping audiostream {$audiostream->index} because an other stream was found with the same language and less channels");
+                    continue;
+                } else {
+                    $this->log->info("Skipping audiostream {$existing->index} because an other stream was found with the same language and less channels");
+                    $streams = $streams->reject(function ($item) use ($existing) {
+                        return $item === $existing;
+                    });
+                }
+            }
+            $streams->push($audiostream);
+        }
+
+        return $streams;
+    }
+
+    protected function buildCommand($output) {
+        $command = [
+            'ffmpeg',
+            '-i',
+            $this->file->path
+        ];
+
+        $command[] = '-map';
+        $command[] = "0:{$this->file->index}";
+
+        $audiostreams = $this->filterAudioStreams();
+        foreach ($audiostreams as $audiostream) {
+            $command[] = '-map';
+            $command[] = "0:{$audiostream->index}";
+        }
+
+        $command[] = '-sn'; // Disable subtitles tracks from getting mapped
+
+        $command[] = '-c:a';
+        $command[] = 'aac';
+        $command[] = '-ac';
+        $command[] = '2';
+        $command[] = '-b:a';
+        $command[] = '128k';
+
+        $bitrate = 5000;
+        $command[] = '-c:v';
+        $command[] = 'libx264';
+        $command[] = '-f';
+        $command[] = 'mp4';
+        $command[] = '-preset';
+        $command[] = app()->isProduction() ? 'slow' : 'fast';
+        $command[] = '-profile:v';
+        $command[] = 'high';
+        // TODO downscale to 1080p $command[] = '-vf'; $command[] = "scale=w={$width}:h={$height}";
+        $command[] = '-crf';
+        $command[] = '23';
+        $command[] = '-maxrate';
+        $command[] = "{$bitrate}k";
+        $command[] = '-bufsize';
+        $command[] = ($bitrate * 2).'k';
+        $command[] = '-vf';
+        $command[] = 'format=pix_fmts=yuv420p';
+        // TODO force bt709 color space (removes HDR)
+        $command[] = '-movflags';
+        $command[] = '+faststart';
+        $command[] = '-metadata';
+        $command[] = 'encoded_by="cdarr"';
+        $command[] = '-loglevel';
+        $command[] = 'error';
+        $command[] = '-progress';
+        $command[] = '-';
+        $command[] = '-nostats';
+
+        $command[] = $output;
+
+        return $command;
     }
 }
