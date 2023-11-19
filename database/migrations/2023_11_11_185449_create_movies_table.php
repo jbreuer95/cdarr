@@ -20,7 +20,6 @@ return new class extends Migration
             $table->integer('year')->nullable();
             $table->string('studio')->nullable();
             $table->string('quality')->nullable();
-            $table->string('status');
 
             $table->timestamps();
         });

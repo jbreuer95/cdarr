@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('audio_streams', function (Blueprint $table) {
             $table->id();
 
+            $table->integer('index')->nullable();
             $table->string('codec')->nullable();
             $table->string('codec_id')->nullable();
             $table->string('profile')->nullable();

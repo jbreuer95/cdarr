@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->text('path');
 
+            $table->integer('index')->nullable();
             $table->integer('duration')->nullable();
             $table->integer('width')->nullable();
             $table->integer('height')->nullable();
