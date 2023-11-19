@@ -21,7 +21,6 @@ class AnalyzeFile implements ShouldQueue
     public $tries = 1;
     public $timeout = 0;
 
-
     protected VideoFile $file;
 
     /**
@@ -60,13 +59,26 @@ class AnalyzeFile implements ShouldQueue
 
             $log->info('Running ffprobe command to get stream info');
             $log->info(implode(' ', $command));
-            $info = Process::run(implode(' ', $command));
-            if ($output = $info->output()) {
-                $log->info('Received the following output');
-                $log->info(json_encode(json_decode($output), JSON_PRETTY_PRINT));
-            } else {
-                $log->info('Received NO output');
+            $process = Process::start(implode(' ', $command), function (string $type, string $output) use ($log) {
+                if ($type === 'stderr') {
+                    $log->info($output);
+                }
+            });
+            $result = $process->wait();
+            if (! $result->successful()) {
+                $log->status = JobLogStatusEnum::ERRORED;
+                $log->info('ffprobe command failed unexpectedly, exiting');
+                return;
             }
+
+            $analysis = json_decode($result->output());
+            if (! $analysis) {
+                $log->status = JobLogStatusEnum::ERRORED;
+                $log->info('ffprobe gave no readable data, exiting');
+                return;
+            }
+
+            $log->info(json_encode($analysis, JSON_PRETTY_PRINT));
 
             $command = [
                 'ffprobe',
@@ -85,23 +97,24 @@ class AnalyzeFile implements ShouldQueue
 
             $log->info('Running ffprobe command to determine faststart');
             $log->info(implode(' ', $command));
-            $trace = Process::run(implode(' ', $command));
-            if ($output = $trace->output()) {
-                $log->info('Received output');
-                $log->info(json_encode(json_decode($output), JSON_PRETTY_PRINT));
-            } else {
-                $log->info('Received NO output');
+            $result = Process::start(implode(' ', $command), function (string $type, string $output) use ($log) {
+                $log->info($output);
+            });
+            $result = $process->wait();
+            if (! $result->successful()) {
+                $log->status = JobLogStatusEnum::ERRORED;
+                $log->info('ffprobe command failed unexpectedly, exiting');
+                return;
             }
-
-            $analysis = json_decode($info->output());
-            $videostream = $this->getPrimaryVideoStream($analysis->streams);
-            $log->info("Determined that stream with index {$videostream->index} is the primary video stream");
 
             $faststart = false;
-            if (($moov_pos = strpos($trace->output(), 'moov')) && ($mdat_pos = strpos($trace->output(), 'mdat'))) {
+            if (($moov_pos = strpos($result->output(), 'moov')) && ($mdat_pos = strpos($result->output(), 'mdat'))) {
                 $faststart = $moov_pos < $mdat_pos;
             }
+            $log->info('Faststart '. ($faststart ? '' : 'NOT ') . 'detected');
 
+            $videostream = $this->getPrimaryVideoStream($analysis->streams);
+            $log->info("Determined that stream with index {$videostream->index} is the primary video stream, skipping other video streams");
 
             // TODO: multiview (3D) detection
             // TODO: HDR detection
@@ -138,7 +151,6 @@ class AnalyzeFile implements ShouldQueue
             $log->info("Video stream frame_rate: {$this->file->frame_rate}");
             $log->info("Video stream bit_rate: {$this->file->bit_rate}");
             $log->info("Video stream duration: {$this->file->duration}");
-            $log->info("Video stream faststart: " . ($this->file->faststart ? 'Yes' : 'No'));
 
             foreach ($analysis->streams as $stream) {
                 if ($stream->codec_type !== 'audio') {
