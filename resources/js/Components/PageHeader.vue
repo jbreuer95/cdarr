@@ -1,7 +1,5 @@
 <template>
-    <h2
-        class="text-gray-700 text-xl border-b border-solid border-neural-200 mb-5"
-    >
+    <h2 class="text-xl border-b border-solid border-neural-200 mb-5">
         {{ title }}
     </h2>
 </template>

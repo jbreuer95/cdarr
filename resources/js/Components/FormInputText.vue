@@ -23,7 +23,7 @@
             <p
                 v-if="helper || $slots.helper"
                 id="helper-text-explanation"
-                class="mt-2 text-sm text-gray-500"
+                class="mt-2 text-sm"
             >
                 <slot name="helper">
                     {{ helper }}
@@ -66,14 +66,13 @@ defineEmits(["update:modelValue"]);
 
 const labelClasses = computed(() => {
     return {
-        "text-neutral-600": !props.error,
         "text-red-700": props.error,
     };
 });
 
 const inputClasses = computed(() => {
     return {
-        "border-gray-300 text-neutral-600 placeholder-neutral-400 focus:ring-green-400 focus:border-green-400":
+        "border-gray-300 placeholder-neutral-400 focus:ring-green-400 focus:border-green-400":
             !props.error,
         "border-red-500 text-red-900 placeholder-red-700 focus:ring-red-500 focus:border-red-500":
             props.error,

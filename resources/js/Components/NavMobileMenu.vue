@@ -1,6 +1,6 @@
 <template>
     <div
-        class="p-5 text-white hover:text-gray-400 cursor-pointer sm:hidden"
+        class="p-5 text-white hover:text-gray-300 cursor-pointer sm:hidden"
         @click.stop="menu.toggle()"
     >
         <FontAwesomeIcon icon="bars" class="w-4 h-4" />
