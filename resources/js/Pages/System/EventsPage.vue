@@ -60,7 +60,7 @@
                         <DialogDescription class="p-8 pt-3">
                             <p class="xs">Message</p>
                             <div
-                                class="border border-solid border-neural-200 rounded p-3 font-mono"
+                                class="border border-solid border-neural-200 rounded p-3 font-mono break-all"
                             >
                                 <div v-if="message" v-html="message"></div>
                                 <FontAwesomeIcon
