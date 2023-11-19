@@ -38,7 +38,7 @@ class SyncRadarr implements ShouldQueue
         $log->status = JobLogStatusEnum::RUNNING;
 
         try {
-            $log->info('Starting sync with Radarr');
+            $log->info('Syncing movies with Radarr');
             $radarr_movies = Radarr::movies()->all();
             $log->info('Found ' . count($radarr_movies) . ' movies with a video file');
 

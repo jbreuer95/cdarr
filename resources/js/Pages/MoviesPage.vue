@@ -6,7 +6,6 @@
                 icon="rotate"
                 title="Sync Movies"
                 :loading="syncLoading"
-                :success="syncSuccess"
                 @click="syncMovies"
             ></PageToolBarItem>
             <PageToolBarItem
@@ -66,7 +65,6 @@ const bottom = ref(null);
 const { start, items, nextPageUrl } = useInfiniteScrolling(props.movies);
 
 const syncLoading = ref(false);
-const syncSuccess = ref(false);
 
 const syncMovies = async () => {
     if (syncLoading.value) {

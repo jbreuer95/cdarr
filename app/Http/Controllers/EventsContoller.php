@@ -9,10 +9,7 @@ use Inertia\Inertia;
 
 class EventsContoller extends Controller
 {
-    /**
-     * Handle the incoming request.
-     */
-    public function __invoke(Request $request)
+    public function index(Request $request)
     {
         $events = JobLog::select('id', 'updated_at', 'type', DB::raw('SUBSTR(payload, 1, INSTR(payload, char(10)) -1) as firstline'))
             ->orderByDesc('updated_at')
@@ -31,6 +28,23 @@ class EventsContoller extends Controller
 
         return Inertia::render('System/EventsPage', [
             'events' => $events
+        ]);
+    }
+
+    public function show(Request $request, $id)
+    {
+        $event = JobLog::find($id);
+        $event->html = $event->toHtml();
+
+        return response()->json($event);
+    }
+
+    public function clear(Request $request)
+    {
+        JobLog::query()->delete();
+
+        return response()->json([
+            'success' => true
         ]);
     }
 }

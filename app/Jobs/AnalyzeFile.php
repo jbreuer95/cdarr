@@ -44,7 +44,7 @@ class AnalyzeFile implements ShouldQueue
         $log->video_file_id = $this->file->id;
 
         try {
-            $log->info('Starting analyzing file ' . $this->file->path);
+            $log->info('Analyzing file ' . $this->file->path);
 
             $command = [
                 'ffprobe',

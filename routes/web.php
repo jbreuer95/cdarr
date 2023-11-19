@@ -25,7 +25,9 @@ Route::post('/movies/sync', [MoviesController::class, 'sync'])->name('movies.syn
 Route::get('/settings/radarr', [RadarrController::class, 'index'])->name('settings.radarr');
 Route::put('/settings/radarr', [RadarrController::class, 'update'])->name('settings.radarr.update');
 Route::post('/settings/radarr/test', [RadarrController::class, 'test'])->name('settings.radarr.test');
-Route::get('/system/events', EventsContoller::class)->name('system.events');
+Route::get('/system/events', [EventsContoller::class, 'index'])->name('system.events');
+Route::get('/events/{id}', [EventsContoller::class, 'show'])->name('events.show');
+Route::post('/events/clear', [EventsContoller::class, 'clear'])->name('events.clear');
 
 Route::inertia('/history', 'TodoPage')->name('history');
 Route::inertia('/series', 'TodoPage')->name('series');
