@@ -33,14 +33,14 @@ class SyncRadarr implements ShouldQueue
      */
     public function handle(): void
     {
-        $log = new Event();
-        $log->type = (new \ReflectionClass($this))->getShortName();
-        $log->status = EventStatus::RUNNING;
+        $event = new Event();
+        $event->type = (new \ReflectionClass($this))->getShortName();
+        $event->status = EventStatus::RUNNING;
 
         try {
-            $log->info('Syncing movies with Radarr');
+            $event->info('Syncing movies with Radarr');
             $radarr_movies = Radarr::movies()->all();
-            $log->info('Found ' . count($radarr_movies) . ' movies with a video file');
+            $event->info('Found ' . count($radarr_movies) . ' movies with a video file');
 
             foreach ($radarr_movies as $radarr_movie) {
                 $movie = Movie::where('radarr_movie_id', $radarr_movie->id)->first();
@@ -65,12 +65,12 @@ class SyncRadarr implements ShouldQueue
                 }
             }
 
-            $log->status = EventStatus::FINISHED;
-            $log->info('Finished sync with Radarr');
+            $event->status = EventStatus::FINISHED;
+            $event->info('Finished sync with Radarr');
         } catch (\Throwable $th) {
-            $log->status = EventStatus::ERRORED;
-            $log->info('Job failed with the following error:');
-            $log->info($th->getMessage());
+            $event->status = EventStatus::ERRORED;
+            $event->info('Job failed with the following error:');
+            $event->info($th->getMessage());
         }
     }
 }

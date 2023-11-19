@@ -39,14 +39,14 @@ class AnalyzeFile implements ShouldQueue
      */
     public function handle(): void
     {
-        $log = new Event();
-        $log->type = (new \ReflectionClass($this))->getShortName();
-        $log->status = EventStatus::RUNNING;
-        $log->video_file_id = $this->file->id;
+        $event = new Event();
+        $event->type = (new \ReflectionClass($this))->getShortName();
+        $event->status = EventStatus::RUNNING;
+        $event->video_file_id = $this->file->id;
 
         try {
-            $log->info('Analyzing file ' . $this->file->path);
-            $log->info('Running ffprobe command to get stream info');
+            $event->info('Analyzing file ' . $this->file->path);
+            $event->info('Running ffprobe command to get stream info');
             $command = [
                 'ffprobe',
                 '-v',
@@ -57,26 +57,26 @@ class AnalyzeFile implements ShouldQueue
                 '-show_streams',
                 $this->file->path,
             ];
-            $log->info((new SymfonyProcess($command))->getCommandLine());
+            $event->info((new SymfonyProcess($command))->getCommandLine());
             $result = Process::run($command);
             if (! $result->successful()) {
-                $log->status = EventStatus::ERRORED;
-                $log->info('ffprobe command failed unexpectedly, exiting');
-                $log->info($result->errorOutput());
-                $log->info($result->output());
+                $event->status = EventStatus::ERRORED;
+                $event->info('ffprobe command failed unexpectedly, exiting');
+                $event->info($result->errorOutput());
+                $event->info($result->output());
                 return;
             }
 
             $analysis = json_decode($result->output());
             if (! $analysis) {
-                $log->status = EventStatus::ERRORED;
-                $log->info('ffprobe gave no readable data, exiting');
+                $event->status = EventStatus::ERRORED;
+                $event->info('ffprobe gave no readable data, exiting');
                 return;
             }
 
-            $log->info(json_encode($analysis, JSON_PRETTY_PRINT));
+            $event->info(json_encode($analysis, JSON_PRETTY_PRINT));
 
-            $log->info('Running ffprobe command to determine faststart');
+            $event->info('Running ffprobe command to determine faststart');
             $command = [
                 'ffprobe',
                 '-v',
@@ -84,13 +84,13 @@ class AnalyzeFile implements ShouldQueue
                 '-i',
                 $this->file->path,
             ];
-            $log->info((new SymfonyProcess($command))->getCommandLine());
+            $event->info((new SymfonyProcess($command))->getCommandLine());
             $result = Process::run($command);
             if (! $result->successful()) {
-                $log->status = EventStatus::ERRORED;
-                $log->info('ffprobe command failed unexpectedly, exiting');
-                $log->info($result->errorOutput());
-                $log->info($result->output());
+                $event->status = EventStatus::ERRORED;
+                $event->info('ffprobe command failed unexpectedly, exiting');
+                $event->info($result->errorOutput());
+                $event->info($result->output());
                 return;
             }
 
@@ -98,10 +98,10 @@ class AnalyzeFile implements ShouldQueue
             if (($moov_pos = strpos($result->errorOutput(), 'moov')) && ($mdat_pos = strpos($result->errorOutput(), 'mdat'))) {
                 $faststart = $moov_pos < $mdat_pos;
             }
-            $log->info('Faststart '. ($faststart ? '' : 'NOT ') . 'detected');
+            $event->info('Faststart '. ($faststart ? '' : 'NOT ') . 'detected');
 
             $videostream = $this->getPrimaryVideoStream($analysis->streams);
-            $log->info("Determined that stream with index {$videostream->index} is the primary video stream, skipping other video streams");
+            $event->info("Determined that stream with index {$videostream->index} is the primary video stream, skipping other video streams");
 
             // TODO: multiview (3D) detection
             // TODO: HDR detection
@@ -126,21 +126,21 @@ class AnalyzeFile implements ShouldQueue
             $this->file->analysed = true;
             $this->file->save();
 
-            $log->info("Video stream index: {$this->file->index}");
-            $log->info("Video stream container_format: {$this->file->container_format}");
-            $log->info("Video stream width: {$this->file->width}");
-            $log->info("Video stream height: {$this->file->height}");
-            $log->info("Video stream codec: {$this->file->codec}");
-            $log->info("Video stream codec_id: {$this->file->codec_id}");
-            $log->info("Video stream profile: {$this->file->profile}");
-            $log->info("Video stream level: {$this->file->level}");
-            $log->info("Video stream pixel_format: {$this->file->pixel_format}");
-            $log->info("Video stream color_space: {$this->file->color_space}");
-            $log->info("Video stream color_transfer: {$this->file->color_transfer}");
-            $log->info("Video stream color_primaries: {$this->file->color_primaries}");
-            $log->info("Video stream frame_rate: {$this->file->frame_rate}");
-            $log->info("Video stream bit_rate: {$this->file->bit_rate}");
-            $log->info("Video stream duration: {$this->file->duration}");
+            $event->info("Video stream index: {$this->file->index}");
+            $event->info("Video stream container_format: {$this->file->container_format}");
+            $event->info("Video stream width: {$this->file->width}");
+            $event->info("Video stream height: {$this->file->height}");
+            $event->info("Video stream codec: {$this->file->codec}");
+            $event->info("Video stream codec_id: {$this->file->codec_id}");
+            $event->info("Video stream profile: {$this->file->profile}");
+            $event->info("Video stream level: {$this->file->level}");
+            $event->info("Video stream pixel_format: {$this->file->pixel_format}");
+            $event->info("Video stream color_space: {$this->file->color_space}");
+            $event->info("Video stream color_transfer: {$this->file->color_transfer}");
+            $event->info("Video stream color_primaries: {$this->file->color_primaries}");
+            $event->info("Video stream frame_rate: {$this->file->frame_rate}");
+            $event->info("Video stream bit_rate: {$this->file->bit_rate}");
+            $event->info("Video stream duration: {$this->file->duration}");
 
             foreach ($analysis->streams as $stream) {
                 if ($stream->codec_type !== 'audio') {
@@ -159,32 +159,32 @@ class AnalyzeFile implements ShouldQueue
                 $audiostream->video_file_id = $this->file->id;
                 $audiostream->save();
 
-                $log->info("Audio stream {$audiostream->index} index: {$audiostream->index}");
-                $log->info("Audio stream {$audiostream->index} lang: {$audiostream->lang}");
-                $log->info("Audio stream {$audiostream->index} codec: {$audiostream->codec}");
-                $log->info("Audio stream {$audiostream->index} codec_id: {$audiostream->codec_id}");
-                $log->info("Audio stream {$audiostream->index} profile: {$audiostream->profile}");
-                $log->info("Audio stream {$audiostream->index} channels: {$audiostream->channels}");
-                $log->info("Audio stream {$audiostream->index} sample_rate: {$audiostream->sample_rate}");
-                $log->info("Audio stream {$audiostream->index} bit_rate: {$audiostream->bit_rate}");
+                $event->info("Audio stream {$audiostream->index} index: {$audiostream->index}");
+                $event->info("Audio stream {$audiostream->index} lang: {$audiostream->lang}");
+                $event->info("Audio stream {$audiostream->index} codec: {$audiostream->codec}");
+                $event->info("Audio stream {$audiostream->index} codec_id: {$audiostream->codec_id}");
+                $event->info("Audio stream {$audiostream->index} profile: {$audiostream->profile}");
+                $event->info("Audio stream {$audiostream->index} channels: {$audiostream->channels}");
+                $event->info("Audio stream {$audiostream->index} sample_rate: {$audiostream->sample_rate}");
+                $event->info("Audio stream {$audiostream->index} bit_rate: {$audiostream->bit_rate}");
             }
 
 
 
             $this->file->refresh();
-            $log->info('File is '. ($this->file->encoded ? '' : 'NOT ') . 'encoded by cdarr already');
-            $log->info('File is '. ($this->file->compliant ? '' : 'NOT ') . 'compliant for direct play already');
+            $event->info('File is '. ($this->file->encoded ? '' : 'NOT ') . 'encoded by cdarr already');
+            $event->info('File is '. ($this->file->compliant ? '' : 'NOT ') . 'compliant for direct play already');
             if ($this->file->encoded === false && $this->file->compliant === false) {
-                $log->info('Dispatching EncodeVideo job');
+                $event->info('Dispatching EncodeVideo job');
                 EncodeVideo::dispatch($this->file);
             }
 
-            $log->status = EventStatus::FINISHED;
-            $log->info('Finished analyzing file ' . $this->file->path);
+            $event->status = EventStatus::FINISHED;
+            $event->info('Finished analyzing file ' . $this->file->path);
         } catch (\Throwable $th) {
-            $log->status = EventStatus::ERRORED;
-            $log->info('Job failed with the following error:');
-            $log->info($th->getMessage());
+            $event->status = EventStatus::ERRORED;
+            $event->info('Job failed with the following error:');
+            $event->info($th->getMessage());
         }
     }
 

@@ -24,7 +24,7 @@ class EncodeVideo implements ShouldQueue
 
     protected VideoFile $file;
 
-    protected ?Event $log = null;
+    protected ?Event $event = null;
     protected $test;
 
     /**
@@ -42,48 +42,48 @@ class EncodeVideo implements ShouldQueue
      */
     public function handle(): void
     {
-        $this->log = new Event();
-        $this->log->type = (new \ReflectionClass($this))->getShortName();
-        $this->log->status = EventStatus::RUNNING;
-        $this->log->video_file_id = $this->file->id;
+        $this->event = new Event();
+        $this->event->type = (new \ReflectionClass($this))->getShortName();
+        $this->event->status = EventStatus::RUNNING;
+        $this->event->video_file_id = $this->file->id;
 
         try {
-            $this->log->info("Encoding file " . pathinfo($this->file->path, PATHINFO_BASENAME));
+            $this->event->info("Encoding file " . pathinfo($this->file->path, PATHINFO_BASENAME));
 
             $uuid = Str::uuid()->toString();
             $tmp_location = storage_path("tmp/$uuid");
             File::ensureDirectoryExists($tmp_location);
-            $this->log->info("Created temporary directory $uuid");
+            $this->event->info("Created temporary directory $uuid");
 
-            $this->log->info('Running ffmpeg command');
+            $this->event->info('Running ffmpeg command');
             $output = $tmp_location . '/' . pathinfo($this->file->path, PATHINFO_FILENAME) . '.mp4';
             $command = $this->buildCommand($output);
-            $this->log->info((new SymfonyProcess($command))->getCommandLine());
+            $this->event->info((new SymfonyProcess($command))->getCommandLine());
             $process = Process::forever()->start($command, function (string $type, string $output) {
                 preg_match('/^out_time_us=(\d+)$/m', $output, $matches);
                 if (count($matches) === 2) {
                     $percentage = round(($matches[1] / 1000) / $this->file->duration * 100, 2);
-                    $this->log->info("Progress {$percentage}%");
+                    $this->event->info("Progress {$percentage}%");
                 }
             });
             $result = $process->wait();
             if (! $result->successful()) {
-                $this->log->status = EventStatus::ERRORED;
-                $this->log->info('ffmpeg command failed unexpectedly, exiting');
-                $this->log->info($result->errorOutput());
-                $this->log->info($result->output());
+                $this->event->status = EventStatus::ERRORED;
+                $this->event->info('ffmpeg command failed unexpectedly, exiting');
+                $this->event->info($result->errorOutput());
+                $this->event->info($result->output());
                 return;
             }
 
             $this->file->analysed = false;
             $this->file->save();
 
-            $this->log->status = EventStatus::FINISHED;
-            $this->log->info("Finished encoding file {$output}");
+            $this->event->status = EventStatus::FINISHED;
+            $this->event->info("Finished encoding file {$output}");
         } catch (\Throwable $th) {
-            $this->log->status = EventStatus::ERRORED;
-            $this->log->info('Job failed with the following error:');
-            $this->log->info($th->getMessage());
+            $this->event->status = EventStatus::ERRORED;
+            $this->event->info('Job failed with the following error:');
+            $this->event->info($th->getMessage());
         }
     }
 
@@ -93,10 +93,10 @@ class EncodeVideo implements ShouldQueue
         foreach ($this->file->audiostreams as $audiostream) {
             if ($audiostream->lang !== 'und' && $existing = $streams->where('lang', $audiostream->lang)->first()) {
                 if ($existing->channels <= $audiostream->channels) {
-                    $this->log->info("Skipping audiostream {$audiostream->index} because an other stream was found with the same language and less channels");
+                    $this->event->info("Skipping audiostream {$audiostream->index} because an other stream was found with the same language and less channels");
                     continue;
                 } else {
-                    $this->log->info("Skipping audiostream {$existing->index} because an other stream was found with the same language and less channels");
+                    $this->event->info("Skipping audiostream {$existing->index} because an other stream was found with the same language and less channels");
                     $streams = $streams->reject(function ($item) use ($existing) {
                         return $item === $existing;
                     });
