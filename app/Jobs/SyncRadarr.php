@@ -34,7 +34,7 @@ class SyncRadarr implements ShouldQueue
     public function handle(): void
     {
         $log = new JobLog();
-        $log->type = $this::class;
+        $log->type = (new \ReflectionClass($this))->getShortName();
         $log->status = JobLogStatusEnum::RUNNING;
 
         try {

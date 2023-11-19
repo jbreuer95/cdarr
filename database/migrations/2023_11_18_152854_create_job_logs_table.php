@@ -18,7 +18,7 @@ return new class extends Migration
             $table->longText('payload');
 
             $table->bigInteger('video_file_id')->unsigned()->nullable();
-            $table->foreign('video_file_id')->references('id')->on('video_files')->cascadeOnDelete();
+            $table->foreign('video_file_id')->references('id')->on('video_files')->nullOnDelete();
 
             $table->timestamps();
         });

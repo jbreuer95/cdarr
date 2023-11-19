@@ -1,11 +1,13 @@
 <template>
     <div
         v-if="!success && !loading"
-        class="w-16 h-16 flex flex-col items-center text-center pt-2"
+        class="w-16 h-16 flex flex-col items-center justify-center text-center pt-1"
         :class="classes"
     >
         <FontAwesomeIcon v-if="icon" :icon="icon" class="w-5 h-5" />
-        <p class="text-xs leading-3 mt-1 text-white">{{ computedTitle }}</p>
+        <div class="flex flex-col justify-center h-6 mt-1">
+            <p class="text-xs leading-3 text-white ">{{ computedTitle }}</p>
+        </div>
     </div>
     <div
         v-else-if="loading"

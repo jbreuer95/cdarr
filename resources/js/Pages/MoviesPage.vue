@@ -17,20 +17,6 @@
             ></PageToolBarItem>
         </PageToolbar>
         <div v-if="setup" class="flex flex-col p-4">
-            <!-- <div class="flex flex-1 justify-around">
-                <div class="flex-1 p-2">Movie title</div>
-                <div class="flex-1 p-2">Year</div>
-                <div class="flex-1 p-2">Studio</div>
-                <div class="flex-1 p-2">Quality</div>
-                <div class="flex-1 p-2">Status</div>
-            </div>
-            <div v-for="movie in movies" :key="movie.id" class="flex flex-1 justify-around">
-                <div class="flex-1 p-2 border-t">{{ movie.title }}</div>
-                <div class="flex-1 p-2 border-t">{{ movie.year }}</div>
-                <div class="flex-1 p-2 border-t">{{ movie.studio }}</div>
-                <div class="flex-1 p-2 border-t">{{ movie.quality }}</div>
-                <div class="flex-1 p-2 border-t">{{ movie.status }}</div>
-            </div> -->
             <table>
                 <thead>
                     <tr>
@@ -53,8 +39,6 @@
             </table>
             <div ref="bottom"></div>
         </div>
-        <!-- <div class="flex bg-black h-16">
-        </div> -->
     </MasterLayout>
 </template>
 
@@ -62,9 +46,10 @@
 import MasterLayout from "@/Layouts/MasterLayout.vue";
 import PageToolbar from "@/Components/PageToolbar.vue";
 import PageToolBarItem from "@/Components/PageToolBarItem.vue";
+import { useInfiniteScrolling } from '@/Composables/infinite';
 import { onMounted, ref } from "vue";
-import axios from "axios";
 import { router } from "@inertiajs/vue3";
+import axios from "axios";
 
 const props = defineProps({
     setup: {
@@ -78,8 +63,7 @@ const props = defineProps({
 })
 
 const bottom = ref(null)
-const items = ref(props.movies.data)
-const nextPageUrl = ref(props.movies.next_page_url)
+const { start, items, nextPageUrl } = useInfiniteScrolling(props.movies);
 
 const syncLoading = ref(false)
 const syncSuccess = ref(false)
@@ -111,42 +95,13 @@ const syncMovies = async () => {
     }
 }
 
-const loadNextPage = async () => {
-    if (! props.movies.next_page_url) {
-        return;
-    }
-
-    try {
-        const { data: movies } = await axios.get(props.movies.next_page_url)
-        items.value = [...items.value, ...movies.data]
-        nextPageUrl.value = movies.next_page_url;
-    } catch (error) {
-        return;
-    }
-}
-
 const goToSetup = () => {
     router.get(route('settings.radarr'))
 }
 
-const setupInfiniteScrolling = () => {
-    const observer = new IntersectionObserver((entries) => {
-        entries.forEach((entry) => {
-            if (entry.isIntersecting) {
-                loadNextPage();
-            }
-        })
-    }, {
-        root: document.querySelector('main'),
-        rootMargin: '0px 0px 300px 0px'
-    })
-
-    observer.observe(bottom.value)
-}
-
 onMounted(() => {
     if (props.setup) {
-        setupInfiniteScrolling()
+        start(bottom);
     }
 });
 </script>

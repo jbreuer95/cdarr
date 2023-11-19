@@ -19,7 +19,6 @@ class MovieFactory extends Factory
         return [
             'radarr_movie_id' => fake()->unique()->randomNumber(6),
             'radarr_file_id' => fake()->unique()->randomNumber(6),
-            'path' => '/data/media/movies/' . fake()->name(). '.mp4',
             'title' => fake()->name(),
             'year' => fake()->year(),
             'studio' => fake()->randomElement([
@@ -33,14 +32,6 @@ class MovieFactory extends Factory
                 '480',
                 '720',
                 '1080',
-            ]),
-            'status' => fake()->randomElement([
-                'unknown',
-                'queued',
-                'inspecting',
-                'non-compliant',
-                'compliant',
-                'transcoded',
             ]),
         ];
     }

@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\DebugController;
+use App\Http\Controllers\EventsContoller;
 use App\Http\Controllers\MoviesController;
 use App\Http\Controllers\RadarrController;
 use Illuminate\Support\Facades\Route;
@@ -24,6 +25,7 @@ Route::post('/movies/sync', [MoviesController::class, 'sync'])->name('movies.syn
 Route::get('/settings/radarr', [RadarrController::class, 'index'])->name('settings.radarr');
 Route::put('/settings/radarr', [RadarrController::class, 'update'])->name('settings.radarr.update');
 Route::post('/settings/radarr/test', [RadarrController::class, 'test'])->name('settings.radarr.test');
+Route::get('/system/events', EventsContoller::class)->name('system.events');
 
 Route::inertia('/history', 'TodoPage')->name('history');
 Route::inertia('/series', 'TodoPage')->name('series');
@@ -38,5 +40,4 @@ Route::inertia('/system/status', 'TodoPage')->name('system.status');
 Route::inertia('/system/tasks', 'TodoPage')->name('system.tasks');
 Route::inertia('/system/backup', 'TodoPage')->name('system.backup');
 Route::inertia('/system/updates', 'TodoPage')->name('system.updates');
-Route::inertia('/system/events', 'TodoPage')->name('system.events');
 Route::inertia('/system/logs', 'TodoPage')->name('system.logs');

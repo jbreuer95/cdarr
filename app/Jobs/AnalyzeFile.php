@@ -40,7 +40,7 @@ class AnalyzeFile implements ShouldQueue
     public function handle(): void
     {
         $log = new JobLog();
-        $log->type = $this::class;
+        $log->type = (new \ReflectionClass($this))->getShortName();
         $log->status = JobLogStatusEnum::RUNNING;
         $log->video_file_id = $this->file->id;
 
@@ -174,10 +174,6 @@ class AnalyzeFile implements ShouldQueue
             $log->info('Job failed with the following error:');
             $log->info($th->getMessage());
         }
-
-        header('Content-Type: text/html');
-        echo $log->toHtml();
-        exit();
     }
 
     protected function getBestRuntime($video, $format)
