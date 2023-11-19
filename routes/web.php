@@ -2,7 +2,7 @@
 
 use App\Http\Controllers\DebugController;
 use App\Http\Controllers\MoviesController;
-use App\Http\Controllers\SettingsRadarrController;
+use App\Http\Controllers\RadarrController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -21,9 +21,9 @@ Route::get('/debug', DebugController::class)->name('debug');
 
 Route::get('/movies', [MoviesController::class, 'index'])->name('movies');
 Route::post('/movies/sync', [MoviesController::class, 'sync'])->name('movies.sync');
-Route::get('/settings/radarr', [SettingsRadarrController::class, 'index'])->name('settings.radarr');
-Route::put('/settings/radarr', [SettingsRadarrController::class, 'update'])->name('settings.radarr.update');
-Route::post('/settings/radarr/test', [SettingsRadarrController::class, 'test'])->name('settings.radarr.test');
+Route::get('/settings/radarr', [RadarrController::class, 'index'])->name('settings.radarr');
+Route::put('/settings/radarr', [RadarrController::class, 'update'])->name('settings.radarr.update');
+Route::post('/settings/radarr/test', [RadarrController::class, 'test'])->name('settings.radarr.test');
 
 Route::inertia('/history', 'TodoPage')->name('history');
 Route::inertia('/series', 'TodoPage')->name('series');

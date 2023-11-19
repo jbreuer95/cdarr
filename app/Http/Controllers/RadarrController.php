@@ -9,11 +9,11 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 
-class SettingsRadarrController extends Controller
+class RadarrController extends Controller
 {
     public function index()
     {
-        return Inertia::render('SettingsRadarrPage', [
+        return Inertia::render('Settings/RadarrPage', [
             'settings' => config('radarr'),
         ]);
     }
