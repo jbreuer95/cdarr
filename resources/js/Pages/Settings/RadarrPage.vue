@@ -55,8 +55,8 @@ import { useForm } from "@inertiajs/vue3";
 const props = defineProps({
     settings: {
         type: Object,
-        required: true
-    }
+        required: true,
+    },
 });
 
 const form = useForm({
@@ -64,17 +64,17 @@ const form = useForm({
     url: props.settings.url,
 });
 
-const testSuccess = ref(false)
+const testSuccess = ref(false);
 
 const testActive = computed(() => {
     return form.token !== "" && form.url !== "";
 });
 
 const update = () => {
-    if (! form.isDirty || form.processing) {
+    if (!form.isDirty || form.processing) {
         return;
     }
-    testSuccess.value = false
+    testSuccess.value = false;
 
     form.put(route("settings.radarr.update"), {
         onSuccess: () => {
@@ -92,9 +92,9 @@ const test = () => {
     form.clearErrors();
     form.post(route("settings.radarr.test"), {
         onSuccess: () => {
-            testSuccess.value = true
+            testSuccess.value = true;
             setTimeout(() => {
-                testSuccess.value = false
+                testSuccess.value = false;
             }, 3000);
 
             let token = form.token;
@@ -105,7 +105,6 @@ const test = () => {
                 form.token = token;
                 form.url = url;
             });
-
         },
     });
 };

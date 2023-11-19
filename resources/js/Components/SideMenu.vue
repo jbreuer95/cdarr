@@ -11,22 +11,26 @@
             icon="clock-rotate-left"
         />
         <SideMenuItem location="movies" title="Movies" icon="film" />
-        <SideMenuItem location="series" title="Series" icon="tv" />
-        <SideMenuItem location="settings" title="Settings" icon="sliders">
-            <SideMenuSubItem location="settings.general" title="General" />
-            <SideMenuSubItem location="settings.video" title="Video" />
-            <SideMenuSubItem location="settings.audio" title="Audio" />
-            <SideMenuSubItem location="settings.subtitles" title="Subtitles" />
+        <!-- <SideMenuItem location="series" title="Series" icon="tv" /> -->
+        <SideMenuItem
+            location="settings.radarr"
+            title="Settings"
+            icon="sliders"
+        >
+            <!-- <SideMenuSubItem location="settings.general" title="General" /> -->
+            <!-- <SideMenuSubItem location="settings.video" title="Video" /> -->
+            <!-- <SideMenuSubItem location="settings.audio" title="Audio" /> -->
+            <!-- <SideMenuSubItem location="settings.subtitles" title="Subtitles" /> -->
             <SideMenuSubItem location="settings.radarr" title="Radarr" />
-            <SideMenuSubItem location="settings.sonarr" title="Sonarr" />
+            <!-- <SideMenuSubItem location="settings.sonarr" title="Sonarr" /> -->
         </SideMenuItem>
-        <SideMenuItem location="system" title="System" icon="laptop">
-            <SideMenuSubItem location="system.status" title="Status" />
-            <SideMenuSubItem location="system.tasks" title="Tasks" />
-            <SideMenuSubItem location="system.backup" title="Backup" />
-            <SideMenuSubItem location="system.updates" title="Updates" />
+        <SideMenuItem location="system.events" title="System" icon="laptop">
+            <!-- <SideMenuSubItem location="system.status" title="Status" /> -->
+            <!-- <SideMenuSubItem location="system.tasks" title="Tasks" /> -->
+            <!-- <SideMenuSubItem location="system.backup" title="Backup" /> -->
+            <!-- <SideMenuSubItem location="system.updates" title="Updates" /> -->
             <SideMenuSubItem location="system.events" title="Events" />
-            <SideMenuSubItem location="system.logs" title="Logs" />
+            <!-- <SideMenuSubItem location="system.logs" title="Logs" /> -->
         </SideMenuItem>
     </menu>
 </template>
@@ -43,7 +47,7 @@ const menu = useMenuStore();
 
 const menuClasses = computed(() => {
     return {
-        "hidden sm:block": !menu.isOpen
+        "hidden sm:block": !menu.isOpen,
     };
 });
 

@@ -37,7 +37,7 @@ export default () => {
         faFloppyDisk,
         faVial,
         faCheck,
-        faTrashAlt
+        faTrashAlt,
     );
     config.styleDefault = "solid";
 };

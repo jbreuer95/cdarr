@@ -46,7 +46,7 @@
 import MasterLayout from "@/Layouts/MasterLayout.vue";
 import PageToolbar from "@/Components/PageToolbar.vue";
 import PageToolBarItem from "@/Components/PageToolBarItem.vue";
-import { useInfiniteScrolling } from '@/Composables/infinite';
+import { useInfiniteScrolling } from "@/Composables/infinite";
 import { onMounted, ref } from "vue";
 import { router } from "@inertiajs/vue3";
 import axios from "axios";
@@ -54,50 +54,51 @@ import axios from "axios";
 const props = defineProps({
     setup: {
         type: Boolean,
-        default:  false
+        default: false,
     },
     movies: {
         type: Object,
-        required: true
+        required: true,
     },
-})
+});
 
-const bottom = ref(null)
+const bottom = ref(null);
 const { start, items, nextPageUrl } = useInfiniteScrolling(props.movies);
 
-const syncLoading = ref(false)
-const syncSuccess = ref(false)
+const syncLoading = ref(false);
+const syncSuccess = ref(false);
 
 const syncMovies = async () => {
     if (syncLoading.value) {
         return;
     }
 
-    syncLoading.value = true
+    syncLoading.value = true;
 
     try {
-        const { data: { success = false } = {} } = await axios.post(route('movies.sync'));
-        if (! success)  {
+        const { data: { success = false } = {} } = await axios.post(
+            route("movies.sync"),
+        );
+        if (!success) {
             return;
         }
 
         router.reload({
-            only: ['movies'],
+            only: ["movies"],
             onSuccess: () => {
-                syncLoading.value = false
-                items.value = props.movies.data
-                nextPageUrl.value = props.movies.next_page_url
-            }
-        })
-
+                syncLoading.value = false;
+                items.value = props.movies.data;
+                nextPageUrl.value = props.movies.next_page_url;
+            },
+        });
     } catch (error) {
         return;
     }
-}
+};
 
 const goToSetup = () => {
-    router.get(route('settings.radarr'))
-}
+    router.get(route("settings.radarr"));
+};
 
 onMounted(() => {
     if (props.setup) {

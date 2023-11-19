@@ -1,5 +1,7 @@
 <template>
-    <nav class="bg-gray-600 flex items-center h-14 fixed top-0 left-0 w-full z-20">
+    <nav
+        class="bg-gray-600 flex items-center h-14 fixed top-0 left-0 w-full z-20"
+    >
         <div class="flex items-center w-13 sm:w-52">
             <Link :href="route('home')" class="pl-5 py-3 sm:pr-3">
                 <NavLogo />

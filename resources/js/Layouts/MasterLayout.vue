@@ -2,7 +2,9 @@
     <Head v-if="title" :title="title" />
     <NavBar />
     <SideMenu />
-    <main class="w-full overflow-y-auto overflow-x-hidden z-0 flex flex-1 flex-col sm:pl-52 relative h-[calc(100%-theme('height.14'))]">
+    <main
+        class="w-full overflow-y-auto overflow-x-hidden z-0 flex flex-1 flex-col sm:pl-52 relative h-[calc(100%-theme('height.14'))]"
+    >
         <slot></slot>
     </main>
 </template>

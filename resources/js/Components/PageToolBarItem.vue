@@ -6,14 +6,14 @@
     >
         <FontAwesomeIcon v-if="icon" :icon="icon" class="w-5 h-5" />
         <div class="flex flex-col justify-center h-6 mt-1">
-            <p class="text-xs leading-3 text-white ">{{ computedTitle }}</p>
+            <p class="text-xs leading-3 text-white">{{ computedTitle }}</p>
         </div>
     </div>
     <div
         v-else-if="loading"
         class="w-16 h-16 flex flex-col items-center justify-center text-white"
     >
-        <FontAwesomeIcon icon="gear" class="w-5 h-5" spin  />
+        <FontAwesomeIcon icon="gear" class="w-5 h-5" spin />
     </div>
     <div
         v-else-if="success"
