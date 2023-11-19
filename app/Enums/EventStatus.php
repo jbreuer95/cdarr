@@ -2,7 +2,7 @@
 
 namespace App\Enums;
 
-enum JobLogStatusEnum:string {
+enum EventStatus:string {
     case RUNNING = 'running';
     case FINISHED = 'finished';
     case ERRORED = 'errored';

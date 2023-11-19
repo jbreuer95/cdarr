@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-use App\Enums\JobLogStatusEnum;
+use App\Enums\EventStatus;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -11,7 +11,7 @@ class JobLog extends Model
     use HasFactory;
 
     protected $casts = [
-        'status' => JobLogStatusEnum::class
+        'status' => EventStatus::class
     ];
     public function info($line)
     {

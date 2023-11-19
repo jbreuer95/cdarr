@@ -2,7 +2,7 @@
 
 namespace App\Jobs;
 
-use App\Enums\JobLogStatusEnum;
+use App\Enums\EventStatus;
 use App\Facades\Radarr;
 use App\Models\JobLog;
 use App\Models\Movie;
@@ -35,7 +35,7 @@ class SyncRadarr implements ShouldQueue
     {
         $log = new JobLog();
         $log->type = (new \ReflectionClass($this))->getShortName();
-        $log->status = JobLogStatusEnum::RUNNING;
+        $log->status = EventStatus::RUNNING;
 
         try {
             $log->info('Syncing movies with Radarr');
@@ -65,10 +65,10 @@ class SyncRadarr implements ShouldQueue
                 }
             }
 
-            $log->status = JobLogStatusEnum::FINISHED;
+            $log->status = EventStatus::FINISHED;
             $log->info('Finished sync with Radarr');
         } catch (\Throwable $th) {
-            $log->status = JobLogStatusEnum::ERRORED;
+            $log->status = EventStatus::ERRORED;
             $log->info('Job failed with the following error:');
             $log->info($th->getMessage());
         }

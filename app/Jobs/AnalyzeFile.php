@@ -2,7 +2,7 @@
 
 namespace App\Jobs;
 
-use App\Enums\JobLogStatusEnum;
+use App\Enums\EventStatus;
 use App\Models\AudioStream;
 use App\Models\JobLog;
 use App\Models\VideoFile;
@@ -40,7 +40,7 @@ class AnalyzeFile implements ShouldQueue
     {
         $log = new JobLog();
         $log->type = (new \ReflectionClass($this))->getShortName();
-        $log->status = JobLogStatusEnum::RUNNING;
+        $log->status = EventStatus::RUNNING;
         $log->video_file_id = $this->file->id;
 
         try {
@@ -66,14 +66,14 @@ class AnalyzeFile implements ShouldQueue
             });
             $result = $process->wait();
             if (! $result->successful()) {
-                $log->status = JobLogStatusEnum::ERRORED;
+                $log->status = EventStatus::ERRORED;
                 $log->info('ffprobe command failed unexpectedly, exiting');
                 return;
             }
 
             $analysis = json_decode($result->output());
             if (! $analysis) {
-                $log->status = JobLogStatusEnum::ERRORED;
+                $log->status = EventStatus::ERRORED;
                 $log->info('ffprobe gave no readable data, exiting');
                 return;
             }
@@ -102,7 +102,7 @@ class AnalyzeFile implements ShouldQueue
             });
             $result = $process->wait();
             if (! $result->successful()) {
-                $log->status = JobLogStatusEnum::ERRORED;
+                $log->status = EventStatus::ERRORED;
                 $log->info('ffprobe command failed unexpectedly, exiting');
                 return;
             }
@@ -179,10 +179,10 @@ class AnalyzeFile implements ShouldQueue
                 $log->info("Audio stream {$audiostream->index} bit_rate: {$audiostream->bit_rate}");
             }
 
-            $log->status = JobLogStatusEnum::FINISHED;
+            $log->status = EventStatus::FINISHED;
             $log->info('Finished analyzing file ' . $this->file->path);
         } catch (\Throwable $th) {
-            $log->status = JobLogStatusEnum::ERRORED;
+            $log->status = EventStatus::ERRORED;
             $log->info('Job failed with the following error:');
             $log->info($th->getMessage());
         }

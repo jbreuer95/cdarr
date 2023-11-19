@@ -2,7 +2,7 @@
 
 namespace App\Jobs;
 
-use App\Enums\JobLogStatusEnum;
+use App\Enums\EventStatus;
 use App\Models\JobLog;
 use App\Models\VideoFile;
 use Illuminate\Bus\Queueable;
@@ -41,7 +41,7 @@ class EncodeVideo implements ShouldQueue
     {
         $log = new JobLog();
         $log->type = (new \ReflectionClass($this))->getShortName();
-        $log->status = JobLogStatusEnum::RUNNING;
+        $log->status = EventStatus::RUNNING;
         $log->video_file_id = $this->file->id;
 
         try {
@@ -87,19 +87,19 @@ class EncodeVideo implements ShouldQueue
             });
             $result = $process->wait();
             if (! $result->successful()) {
-                $log->status = JobLogStatusEnum::ERRORED;
+                $log->status = EventStatus::ERRORED;
                 $log->info('ffmpeg command failed unexpectedly, exiting');
                 return;
             }
 
-            $log->status = JobLogStatusEnum::FINISHED;
+            $log->status = EventStatus::FINISHED;
             $log->info("Finished encoding file {$output}");
 
             $file = new VideoFile();
             $file->path = $output;
             $file->save();
         } catch (\Throwable $th) {
-            $log->status = JobLogStatusEnum::ERRORED;
+            $log->status = EventStatus::ERRORED;
             $log->info('Job failed with the following error:');
             $log->info($th->getMessage());
         }
