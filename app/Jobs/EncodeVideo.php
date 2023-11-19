@@ -3,7 +3,7 @@
 namespace App\Jobs;
 
 use App\Enums\EventStatus;
-use App\Models\JobLog;
+use App\Models\Event;
 use App\Models\VideoFile;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -39,7 +39,7 @@ class EncodeVideo implements ShouldQueue
      */
     public function handle(): void
     {
-        $log = new JobLog();
+        $log = new Event();
         $log->type = (new \ReflectionClass($this))->getShortName();
         $log->status = EventStatus::RUNNING;
         $log->video_file_id = $this->file->id;
