@@ -123,7 +123,7 @@ class AnalyzeFile implements ShouldQueue
             $this->file->bit_rate = $this->getBestVideoBitRate($videostream, $analysis->format);
             $this->file->duration = $this->getBestRuntime($videostream->duration ?? null, $analysis->format->duration ?? null);
             $this->file->faststart = $faststart;
-            $this->file->encoded = !empty($analysis->tags->cdarr_encoded_time);
+            $this->file->encoded = str($analysis->format->tags->comment ?? '')->contains('cdarr');
             $this->file->analysed = true;
             $this->file->save();
 

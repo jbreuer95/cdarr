@@ -207,7 +207,7 @@ class EncodeVideo implements ShouldQueue
         $command[] = '-movflags';
         $command[] = '+faststart';
         $command[] = '-metadata';
-        $command[] = 'encoded_by="cdarr"';
+        $command[] = "comment='Encoded by cdarr on ".now()->format('Y-m-d H:i:s')."'";
         $command[] = '-loglevel';
         $command[] = 'error';
         $command[] = '-progress';
