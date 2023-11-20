@@ -2,8 +2,10 @@
 
 namespace App\Jobs;
 
+use App\Enums\EncodeStatus;
 use App\Enums\EventStatus;
 use App\Models\AudioStream;
+use App\Models\Encode;
 use App\Models\Event;
 use App\Models\VideoFile;
 use Illuminate\Bus\Queueable;
@@ -14,6 +16,7 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Process;
 use Symfony\Component\Process\Process as SymfonyProcess;
+use Throwable;
 
 class AnalyzeFile implements ShouldQueue
 {
@@ -62,18 +65,15 @@ class AnalyzeFile implements ShouldQueue
             $this->event->info((new SymfonyProcess($command))->getCommandLine());
             $result = Process::run($command);
             if (! $result->successful()) {
-                $this->event->status = EventStatus::ERRORED;
-                $this->event->error('ffprobe command failed unexpectedly, exiting');
                 $this->event->error($result->errorOutput());
                 $this->event->error($result->output());
-                return;
+
+                throw new \Exception('ffprobe command failed unexpectedly, exiting');
             }
 
             $analysis = json_decode($result->output());
             if (! $analysis) {
-                $this->event->status = EventStatus::ERRORED;
-                $this->event->info('ffprobe gave no readable data, exiting');
-                return;
+                throw new \Exception('ffprobe gave no readable data, exiting');
             }
 
             $this->event->info(json_encode($analysis, JSON_PRETTY_PRINT));
@@ -89,11 +89,10 @@ class AnalyzeFile implements ShouldQueue
             $this->event->info((new SymfonyProcess($command))->getCommandLine());
             $result = Process::run($command);
             if (! $result->successful()) {
-                $this->event->status = EventStatus::ERRORED;
-                $this->event->error('ffprobe command failed unexpectedly, exiting');
                 $this->event->error($result->errorOutput());
                 $this->event->error($result->output());
-                return;
+
+                throw new \Exception('ffprobe command failed unexpectedly, exiting');
             }
 
             $faststart = false;
@@ -178,15 +177,41 @@ class AnalyzeFile implements ShouldQueue
             $this->event->info('File is '. ($this->file->compliant ? '' : 'NOT ') . 'compliant for direct play already');
             if ($this->file->encoded === false && $this->file->compliant === false) {
                 $this->event->info('Dispatching EncodeVideo job');
-                EncodeVideo::dispatch($this->file);
+
+                $encode = new Encode();
+                $encode->status = EncodeStatus::WAITING;
+                $encode->video_file_id = $this->file->id;
+                $encode->save();
+
+                EncodeVideo::dispatch($encode);
             }
 
             $this->event->status = EventStatus::FINISHED;
             $this->event->info('Finished analyzing file ' . $this->file->path);
-        } catch (\Throwable $th) {
-            $this->event->status = EventStatus::ERRORED;
-            $this->event->error('Job failed with the following error:');
-            $this->event->error($th->getMessage());
+        } catch (Throwable $th) {
+            $this->logFailure($th);
+        }
+    }
+
+    public function failed(Throwable $th): void
+    {
+        $this->logFailure($th);
+    }
+
+    protected function logFailure(Throwable $th)
+    {
+        $event = $this->event;
+        if (!$event) {
+            $event = Event::where('video_file_id', $this->file->id)
+                ->whereNotIn('status', [EventStatus::ERRORED, EventStatus::FINISHED])
+                ->where('type', (new \ReflectionClass($this))->getShortName())
+                ->orderByDesc('id')
+                ->first();
+        }
+        if ($event) {
+            $event->status = EventStatus::ERRORED;
+            $event->error('Job failed with the following error:');
+            $event->error($th->getMessage());
         }
     }
 

@@ -83,7 +83,7 @@ import MasterLayout from "@/Layouts/MasterLayout.vue";
 import PageToolbar from "@/Components/PageToolbar.vue";
 import PageToolBarItem from "@/Components/PageToolBarItem.vue";
 import { onMounted, ref } from "vue";
-import { useInfiniteScrolling } from "../../Composables/infinite";
+import { useInfiniteScrolling } from "@/Composables/infinite";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 
 import {

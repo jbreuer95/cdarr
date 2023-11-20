@@ -15,6 +15,11 @@ class Event extends Model
         'status' => EventStatus::class
     ];
 
+    public function videofile()
+    {
+        return $this->belongsTo(VideoFile::class, 'video_file_id');
+    }
+
     public function info($line)
     {
         Log::info($line);

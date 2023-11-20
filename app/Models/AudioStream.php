@@ -12,7 +12,7 @@ class AudioStream extends Model
 
     public function videofile()
     {
-        return $this->belongsTo(VideoFile::class);
+        return $this->belongsTo(VideoFile::class, 'video_file_id');
     }
 
     protected $appends = ['compliant'];

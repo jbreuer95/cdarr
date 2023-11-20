@@ -36,7 +36,7 @@ return new class extends Migration
             $table->boolean('faststart')->default(false);
 
             $table->bigInteger('movie_id')->unsigned()->nullable();
-            $table->foreign('movie_id')->references('id')->on('movies')->cascadeOnDelete();
+            $table->foreign('movie_id')->references('id')->on('movies')->nullOnDelete();
 
             $table->timestamps();
         });

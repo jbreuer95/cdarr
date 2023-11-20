@@ -4,7 +4,7 @@
         class="w-52 bg-gray-500 h-full fixed top-14 left-0 z-10"
         :class="menuClasses"
     >
-        <SideMenuItem location="home" title="Queue" icon="gear" />
+        <SideMenuItem location="queue" title="Queue" icon="gear" />
         <SideMenuItem
             location="history"
             title="History"

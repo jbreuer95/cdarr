@@ -3,6 +3,7 @@
 use App\Http\Controllers\DebugController;
 use App\Http\Controllers\EventsContoller;
 use App\Http\Controllers\MoviesController;
+use App\Http\Controllers\QueueController;
 use App\Http\Controllers\RadarrController;
 use Illuminate\Support\Facades\Route;
 
@@ -17,7 +18,8 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::inertia('/', 'HomePage')->name('home');
+Route::get('/', [QueueController::class, 'index'])->name('queue');
+Route::get('/history', [QueueController::class, 'history'])->name('history');
 Route::get('/debug', DebugController::class)->name('debug');
 
 Route::get('/movies', [MoviesController::class, 'index'])->name('movies');
@@ -29,7 +31,6 @@ Route::get('/system/events', [EventsContoller::class, 'index'])->name('system.ev
 Route::get('/events/{id}', [EventsContoller::class, 'show'])->name('events.show');
 Route::post('/events/clear', [EventsContoller::class, 'clear'])->name('events.clear');
 
-Route::inertia('/history', 'TodoPage')->name('history');
 Route::inertia('/series', 'TodoPage')->name('series');
 Route::inertia('/settings', 'TodoPage')->name('settings');
 Route::inertia('/settings/general', 'TodoPage')->name('settings.general');

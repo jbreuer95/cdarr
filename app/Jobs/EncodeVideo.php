@@ -2,7 +2,9 @@
 
 namespace App\Jobs;
 
+use App\Enums\EncodeStatus;
 use App\Enums\EventStatus;
+use App\Models\Encode;
 use App\Models\Event;
 use App\Models\VideoFile;
 use Illuminate\Bus\Queueable;
@@ -14,6 +16,7 @@ use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Process;
 use Symfony\Component\Process\Process as SymfonyProcess;
 use Illuminate\Support\Str;
+use Throwable;
 
 class EncodeVideo implements ShouldQueue
 {
@@ -22,6 +25,7 @@ class EncodeVideo implements ShouldQueue
     public $tries = 1;
     public $timeout = 0;
 
+    protected Encode $encode;
     protected VideoFile $file;
 
     protected ?Event $event = null;
@@ -29,11 +33,12 @@ class EncodeVideo implements ShouldQueue
     /**
      * Create a new job instance.
      */
-    public function __construct(VideoFile $file)
+    public function __construct(Encode $encode)
     {
         $this->onQueue('encoding');
 
-        $this->file = $file;
+        $this->encode = $encode;
+        $this->file = $this->encode->videofile;
     }
 
     /**
@@ -49,43 +54,88 @@ class EncodeVideo implements ShouldQueue
         try {
             $this->event->info("Encoding file " . pathinfo($this->file->path, PATHINFO_BASENAME));
 
-            $uuid = Str::uuid()->toString();
-            $tmp_location = storage_path("tmp/$uuid");
-            File::ensureDirectoryExists($tmp_location);
-            $this->event->info("Created temporary directory $uuid");
+            $output = $this->getTmpLocation() . '/' . pathinfo($this->file->path, PATHINFO_FILENAME) . '.mp4';
+            $command = $this->buildCommand($output);
+            $command_line = (new SymfonyProcess($command))->getCommandLine();
 
             $this->event->info('Running ffmpeg command');
-            $output = $tmp_location . '/' . pathinfo($this->file->path, PATHINFO_FILENAME) . '.mp4';
-            $command = $this->buildCommand($output);
-            $this->event->info((new SymfonyProcess($command))->getCommandLine());
+            $this->event->info($command_line);
+
+            $this->encode->event_id = $this->event->id;
+            $this->encode->status = EncodeStatus::TRANSCODING;
+            $this->encode->save();
 
             $process = Process::forever()->start($command, function (string $type, string $output) {
                 preg_match('/^out_time_us=(\d+)$/m', $output, $matches);
                 if (count($matches) === 2) {
-                    $percentage = round(($matches[1] / 1000) / $this->file->duration * 100, 2);
-                    $this->event->info("Progress {$percentage}%");
+                    $progress = (int) ceil(($matches[1] / 1000) / $this->file->duration * 10000);
+                    $this->encode->progress = $progress;
+                    $this->encode->save();
+
+                    $this->event->info("Progress ".($progress / 100)."%");
                 }
             });
             $result = $process->wait();
 
             if (! $result->successful()) {
-                $this->event->status = EventStatus::ERRORED;
-                $this->event->error('ffmpeg command failed unexpectedly, exiting');
                 $this->event->error($result->errorOutput());
                 $this->event->error($result->output());
-                return;
+
+                throw new \Exception('ffmpeg command failed unexpectedly, exiting');
             }
+
+            $this->encode->status = EncodeStatus::FINISHED;
+            $this->encode->save();
+
+            $this->event->status = EventStatus::FINISHED;
+            $this->event->info("Finished encoding file");
+
+            File::delete($this->file->path);
+            File::move($output, $this->file->path);
 
             $this->file->analysed = false;
             $this->file->save();
+            AnalyzeFile::dispatch($this->file);
 
-            $this->event->status = EventStatus::FINISHED;
-            $this->event->info("Finished encoding file {$output}");
-        } catch (\Throwable $th) {
-            $this->event->status = EventStatus::ERRORED;
-            $this->event->error('Job failed with the following error:');
-            $this->event->error($th->getMessage());
+            // TODO trigger rescan radarr/sonarr
+        } catch (Throwable $th) {
+            $this->logFailure($th);
         }
+    }
+
+    public function failed(Throwable $th): void
+    {
+        $this->logFailure($th);
+    }
+
+    protected function logFailure(Throwable $th)
+    {
+        $this->encode->status = EncodeStatus::FAILED;
+        $this->encode->save();
+
+        $event = $this->event ?? $this->encode->event;
+        if (!$event) {
+            $event = Event::where('video_file_id', $this->file->id)
+                ->whereNotIn('status', [EventStatus::ERRORED, EventStatus::FINISHED])
+                ->where('type', (new \ReflectionClass($this))->getShortName())
+                ->orderByDesc('id')
+                ->first();
+        }
+        if ($event) {
+            $event->status = EventStatus::ERRORED;
+            $event->error('Job failed with the following error:');
+            $event->error($th->getMessage());
+        }
+    }
+
+    protected function getTmpLocation()
+    {
+        $uuid = Str::uuid()->toString();
+        $tmp_location = storage_path("tmp/$uuid");
+        File::ensureDirectoryExists($tmp_location);
+        $this->event->info("Created temporary directory $uuid");
+
+        return $tmp_location;
     }
 
     protected function filterAudioStreams()
@@ -109,7 +159,8 @@ class EncodeVideo implements ShouldQueue
         return $streams;
     }
 
-    protected function buildCommand($output) {
+    protected function buildCommand($output)
+    {
         $command = [
             'ffmpeg',
             '-i',

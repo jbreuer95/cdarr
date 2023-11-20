@@ -1,7 +1,7 @@
 <template>
     <div
         v-if="!success && !loading"
-        class="w-16 h-16 flex flex-col items-center justify-center text-center pt-1"
+        class="w-16 h-16 select-none flex flex-col items-center justify-center text-center pt-1"
         :class="classes"
     >
         <FontAwesomeIcon v-if="icon" :icon="icon" class="w-5 h-5" />
@@ -11,13 +11,13 @@
     </div>
     <div
         v-else-if="loading"
-        class="w-16 h-16 flex flex-col items-center justify-center text-white"
+        class="w-16 h-16 select-none flex flex-col items-center justify-center text-white"
     >
         <FontAwesomeIcon icon="gear" class="w-5 h-5" spin />
     </div>
     <div
         v-else-if="success"
-        class="w-16 h-16 flex flex-col items-center justify-center text-green-400"
+        class="w-16 h-16 select-none flex flex-col items-center justify-center text-green-400"
     >
         <FontAwesomeIcon icon="check" class="w-5 h-5" />
     </div>

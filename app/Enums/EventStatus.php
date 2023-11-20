@@ -2,8 +2,9 @@
 
 namespace App\Enums;
 
-enum EventStatus:string {
-    case RUNNING = 'running';
-    case FINISHED = 'finished';
-    case ERRORED = 'errored';
+enum EventStatus:string
+{
+    case RUNNING = 'RUNNING';
+    case FINISHED = 'FINISHED';
+    case ERRORED = 'ERRORED';
 }

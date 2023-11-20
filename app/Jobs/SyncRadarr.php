@@ -12,6 +12,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Throwable;
 
 class SyncRadarr implements ShouldQueue
 {
@@ -69,10 +70,29 @@ class SyncRadarr implements ShouldQueue
 
             $this->event->status = EventStatus::FINISHED;
             $this->event->info('Finished sync with Radarr');
-        } catch (\Throwable $th) {
-            $this->event->status = EventStatus::ERRORED;
-            $this->event->error('Job failed with the following error:');
-            $this->event->error($th->getMessage());
+        } catch (Throwable $th) {
+            $this->logFailure($th);
+        }
+    }
+
+    public function failed(Throwable $th): void
+    {
+        $this->logFailure($th);
+    }
+
+    protected function logFailure(Throwable $th)
+    {
+        $event = $this->event;
+        if (! $event) {
+            $event = Event::whereNotIn('status', [EventStatus::ERRORED, EventStatus::FINISHED])
+                ->where('type', (new \ReflectionClass($this))->getShortName())
+                ->orderByDesc('id')
+                ->first();
+        }
+        if ($event) {
+            $event->status = EventStatus::ERRORED;
+            $event->error('Job failed with the following error:');
+            $event->error($th->getMessage());
         }
     }
 }
