@@ -34,37 +34,37 @@ class VideoFile extends Model
                 if ($this->analysed === false) {
                     return false;
                 }
-                if ($this->path === null || ! str($this->path)->endsWith('.mp4')) {
+                if ($this->path === null || ! str($this->path)->lower()->endsWith('.mp4')) {
                     return false;
                 }
                 if ($this->index === null || $this->index !== 0) {
                     return false;
                 }
-                if ($this->container_format === null || ! str($this->container_format)->contains('mp4')) {
+                if ($this->container_format === null || ! str($this->container_format)->lower()->contains('mp4')) {
                     return false;
                 }
-                if ($this->codec === null || $this->codec !== 'h264') {
+                if ($this->codec === null || ! str($this->codec)->lower()->exactly('h264')) {
                     return false;
                 }
-                if ($this->codec_id === null || $this->codec_id  !== 'avc1') {
+                if ($this->codec_id === null || ! str($this->codec_id)->lower()->exactly('avc1')) {
                     return false;
                 }
-                if ($this->profile === null || $this->profile  !== 'high') {
+                if ($this->profile === null || ! str($this->profile)->lower()->exactly('high')) {
                     return false;
                 }
                 if ($this->level === null || (int) $this->level  > 41) {
                     return false;
                 }
-                if ($this->pixel_format === null || $this->pixel_format !== 'yuv420p') {
+                if ($this->pixel_format === null || ! str($this->pixel_format)->lower()->exactly('yuv420p')) {
                     return false;
                 }
-                if (!in_array($this->color_space, ['bt601', 'bt709'])) {
+                if ($this->color_space === null || ! in_array(str($this->color_space)->lower(), ['bt601', 'bt709'])) {
                     return false;
                 }
-                if (!in_array($this->color_transfer, [null, 'bt601', 'bt709'])) {
+                if ($this->color_transfer !== null && !in_array(str($this->color_transfer)->lower(), ['bt601', 'bt709'])) {
                     return false;
                 }
-                if (!in_array($this->color_primaries, [null, 'bt601', 'bt709'])) {
+                if ($this->color_primaries !== null && !in_array(str($this->color_primaries)->lower(), ['bt601', 'bt709'])) {
                     return false;
                 }
                 if ($this->faststart === null || $this->faststart !== true) {

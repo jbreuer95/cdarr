@@ -21,13 +21,13 @@ class AudioStream extends Model
     {
         return new Attribute(
             get: function ()  {
-                if ($this->codec === null || $this->codec !== 'aac') {
+                if ($this->codec === null || ! str($this->codec)->lower()->exactly('aac')) {
                     return false;
                 }
-                if ($this->codec_id === null || $this->codec_id !== 'mp4a') {
+                if ($this->codec_id === null || ! str($this->codec_id)->lower()->exactly('mp4a')) {
                     return false;
                 }
-                if ($this->profile === null || $this->profile !== 'LC') {
+                if ($this->profile === null || ! str($this->profile)->lower()->exactly('lc')) {
                     return false;
                 }
                 if ($this->channels === null || $this->channels > 2) {
