@@ -20,6 +20,8 @@ class SyncRadarr implements ShouldQueue
     public $tries = 1;
     public $timeout = 0;
 
+    protected ?Event $event = null;
+
     /**
      * Create a new job instance.
      */
@@ -33,14 +35,14 @@ class SyncRadarr implements ShouldQueue
      */
     public function handle(): void
     {
-        $event = new Event();
-        $event->type = (new \ReflectionClass($this))->getShortName();
-        $event->status = EventStatus::RUNNING;
+        $this->event = new Event();
+        $this->event->type = (new \ReflectionClass($this))->getShortName();
+        $this->event->status = EventStatus::RUNNING;
 
         try {
-            $event->info('Syncing movies with Radarr');
+            $this->event->info('Syncing movies with Radarr');
             $radarr_movies = Radarr::movies()->all();
-            $event->info('Found ' . count($radarr_movies) . ' movies with a video file');
+            $this->event->info('Found ' . count($radarr_movies) . ' movies with a video file');
 
             foreach ($radarr_movies as $radarr_movie) {
                 $movie = Movie::where('radarr_movie_id', $radarr_movie->id)->first();
@@ -65,12 +67,12 @@ class SyncRadarr implements ShouldQueue
                 }
             }
 
-            $event->status = EventStatus::FINISHED;
-            $event->info('Finished sync with Radarr');
+            $this->event->status = EventStatus::FINISHED;
+            $this->event->info('Finished sync with Radarr');
         } catch (\Throwable $th) {
-            $event->status = EventStatus::ERRORED;
-            $event->info('Job failed with the following error:');
-            $event->info($th->getMessage());
+            $this->event->status = EventStatus::ERRORED;
+            $this->event->error('Job failed with the following error:');
+            $this->event->error($th->getMessage());
         }
     }
 }

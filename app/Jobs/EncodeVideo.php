@@ -25,7 +25,6 @@ class EncodeVideo implements ShouldQueue
     protected VideoFile $file;
 
     protected ?Event $event = null;
-    protected $test;
 
     /**
      * Create a new job instance.
@@ -59,6 +58,7 @@ class EncodeVideo implements ShouldQueue
             $output = $tmp_location . '/' . pathinfo($this->file->path, PATHINFO_FILENAME) . '.mp4';
             $command = $this->buildCommand($output);
             $this->event->info((new SymfonyProcess($command))->getCommandLine());
+
             $process = Process::forever()->start($command, function (string $type, string $output) {
                 preg_match('/^out_time_us=(\d+)$/m', $output, $matches);
                 if (count($matches) === 2) {
@@ -67,11 +67,12 @@ class EncodeVideo implements ShouldQueue
                 }
             });
             $result = $process->wait();
+
             if (! $result->successful()) {
                 $this->event->status = EventStatus::ERRORED;
-                $this->event->info('ffmpeg command failed unexpectedly, exiting');
-                $this->event->info($result->errorOutput());
-                $this->event->info($result->output());
+                $this->event->error('ffmpeg command failed unexpectedly, exiting');
+                $this->event->error($result->errorOutput());
+                $this->event->error($result->output());
                 return;
             }
 
@@ -82,8 +83,8 @@ class EncodeVideo implements ShouldQueue
             $this->event->info("Finished encoding file {$output}");
         } catch (\Throwable $th) {
             $this->event->status = EventStatus::ERRORED;
-            $this->event->info('Job failed with the following error:');
-            $this->event->info($th->getMessage());
+            $this->event->error('Job failed with the following error:');
+            $this->event->error($th->getMessage());
         }
     }
 
