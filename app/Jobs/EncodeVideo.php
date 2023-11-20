@@ -90,6 +90,7 @@ class EncodeVideo implements ShouldQueue
             $this->event->status = EventStatus::FINISHED;
             $this->event->info("Finished encoding file");
 
+            // TODO what if file is playing/locked?
             File::delete($this->file->path);
             File::move($output, $this->file->path);
 

@@ -27,14 +27,14 @@ class Movie extends Model
                 if (!$this->videofile->compliant && !$this->videofile->encoded) {
                     return 'Queued for encoding';
                 }
+                if (!$this->videofile->compliant && $this->videofile->encoded) {
+                    return 'Encoded but not compliant (anymore)';
+                }
                 if ($this->videofile->compliant && !$this->videofile->encoded) {
                     return 'Compliant, no need for encoding';
                 }
                 if ($this->videofile->compliant && $this->videofile->encoded) {
-                    return 'Encoded, still compliant';
-                }
-                if (!$this->videofile->compliant && $this->videofile->encoded) {
-                    return 'Encoded, no longer compliant';
+                    return 'Encoded and compliant';
                 }
 
                 return 'Unknown';
