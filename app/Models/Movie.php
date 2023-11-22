@@ -20,17 +20,17 @@ class Movie extends Model
     protected function status(): Attribute
     {
         return new Attribute(
-            get: function ()  {
-                if (!$this->videofile->analysed) {
+            get: function () {
+                if (! $this->videofile->analysed) {
                     return 'Queued for analysing';
                 }
-                if (!$this->videofile->compliant && !$this->videofile->encoded) {
+                if (! $this->videofile->compliant && ! $this->videofile->encoded) {
                     return 'Queued for encoding';
                 }
-                if (!$this->videofile->compliant && $this->videofile->encoded) {
+                if (! $this->videofile->compliant && $this->videofile->encoded) {
                     return 'Encoded but not compliant (anymore)';
                 }
-                if ($this->videofile->compliant && !$this->videofile->encoded) {
+                if ($this->videofile->compliant && ! $this->videofile->encoded) {
                     return 'Compliant, no need for encoding';
                 }
                 if ($this->videofile->compliant && $this->videofile->encoded) {

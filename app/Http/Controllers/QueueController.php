@@ -17,8 +17,8 @@ class QueueController extends Controller
             ->orderByDesc('updated_at')
             ->cursorPaginate(100);
 
-        $encodes = $encodes->through(function($encode) {
-            if (!empty($encode->videofile->path)) {
+        $encodes = $encodes->through(function ($encode) {
+            if (! empty($encode->videofile->path)) {
                 $encode->videofile->path = pathinfo($encode->videofile->path, PATHINFO_BASENAME);
             }
 
@@ -30,7 +30,7 @@ class QueueController extends Controller
         }
 
         return Inertia::render('QueuePage', [
-            'encodes' => $encodes
+            'encodes' => $encodes,
         ]);
     }
 
@@ -42,8 +42,8 @@ class QueueController extends Controller
             ->orderByDesc('id')
             ->cursorPaginate(100);
 
-        $encodes = $encodes->through(function($encode) {
-            if (!empty($encode->videofile->path)) {
+        $encodes = $encodes->through(function ($encode) {
+            if (! empty($encode->videofile->path)) {
                 $encode->videofile->path = pathinfo($encode->videofile->path, PATHINFO_BASENAME);
             }
 
@@ -55,7 +55,7 @@ class QueueController extends Controller
         }
 
         return Inertia::render('QueuePage', [
-            'encodes' => $encodes
+            'encodes' => $encodes,
         ]);
     }
 }

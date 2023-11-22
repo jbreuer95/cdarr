@@ -14,8 +14,8 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Process;
-use Symfony\Component\Process\Process as SymfonyProcess;
 use Illuminate\Support\Str;
+use Symfony\Component\Process\Process as SymfonyProcess;
 use Throwable;
 
 class EncodeVideo implements ShouldQueue
@@ -23,9 +23,11 @@ class EncodeVideo implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     public $tries = 1;
+
     public $timeout = 0;
 
     protected Encode $encode;
+
     protected VideoFile $file;
 
     protected ?Event $event = null;
@@ -52,10 +54,10 @@ class EncodeVideo implements ShouldQueue
         $this->event->video_file_id = $this->file->id;
 
         try {
-            $this->event->info("Encoding file " . pathinfo($this->file->path, PATHINFO_BASENAME));
+            $this->event->info('Encoding file '.pathinfo($this->file->path, PATHINFO_BASENAME));
 
-            $tmp_output = $this->getTmpLocation() . '/' . pathinfo($this->file->path, PATHINFO_FILENAME) . '.mp4';
-            $final_output = pathinfo($this->file->path, PATHINFO_DIRNAME) . '/' . pathinfo($this->file->path, PATHINFO_FILENAME) . '.mp4';
+            $tmp_output = $this->getTmpLocation().'/'.pathinfo($this->file->path, PATHINFO_FILENAME).'.mp4';
+            $final_output = pathinfo($this->file->path, PATHINFO_DIRNAME).'/'.pathinfo($this->file->path, PATHINFO_FILENAME).'.mp4';
 
             $command = $this->buildCommand($tmp_output);
             $command_line = (new SymfonyProcess($command))->getCommandLine();
@@ -74,7 +76,7 @@ class EncodeVideo implements ShouldQueue
                     $this->encode->progress = $progress;
                     $this->encode->save();
 
-                    $this->event->info("Progress ".($progress / 100)."%");
+                    $this->event->info('Progress '.($progress / 100).'%');
                 }
             });
             $result = $process->wait();
@@ -90,7 +92,7 @@ class EncodeVideo implements ShouldQueue
             $this->encode->save();
 
             $this->event->status = EventStatus::FINISHED;
-            $this->event->info("Finished encoding file");
+            $this->event->info('Finished encoding file');
 
             // TODO what if file is playing/locked?
             File::delete($this->file->path);
@@ -118,7 +120,7 @@ class EncodeVideo implements ShouldQueue
         $this->encode->save();
 
         $event = $this->event ?? $this->encode->event;
-        if (!$event) {
+        if (! $event) {
             $event = Event::where('video_file_id', $this->file->id)
                 ->whereNotIn('status', [EventStatus::ERRORED, EventStatus::FINISHED])
                 ->where('type', (new \ReflectionClass($this))->getShortName())
@@ -149,6 +151,7 @@ class EncodeVideo implements ShouldQueue
             if ($audiostream->lang !== 'und' && $existing = $streams->where('lang', $audiostream->lang)->first()) {
                 if ($existing->channels <= $audiostream->channels) {
                     $this->event->info("Skipping audiostream {$audiostream->index} because an other stream was found with the same language and less channels");
+
                     continue;
                 } else {
                     $this->event->info("Skipping audiostream {$existing->index} because an other stream was found with the same language and less channels");
@@ -168,7 +171,7 @@ class EncodeVideo implements ShouldQueue
         $command = [
             'ffmpeg',
             '-i',
-            $this->file->path
+            $this->file->path,
         ];
 
         $command[] = '-map';

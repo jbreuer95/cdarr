@@ -15,7 +15,7 @@ class EventsContoller extends Controller
             ->orderByDesc('id')
             ->cursorPaginate(100);
 
-        $events = $events->through(function($event) {
+        $events = $events->through(function ($event) {
             $event->date = $event->updated_at->format('d-m-Y');
             $event->time = $event->updated_at->format('H:i');
 
@@ -27,7 +27,7 @@ class EventsContoller extends Controller
         }
 
         return Inertia::render('System/EventsPage', [
-            'events' => $events
+            'events' => $events,
         ]);
     }
 
@@ -44,7 +44,7 @@ class EventsContoller extends Controller
         Event::query()->delete();
 
         return response()->json([
-            'success' => true
+            'success' => true,
         ]);
     }
 }

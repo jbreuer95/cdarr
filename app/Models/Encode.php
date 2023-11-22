@@ -12,7 +12,7 @@ class Encode extends Model
 
     protected $casts = [
         'status' => EncodeStatus::class,
-        'progress' => 'integer'
+        'progress' => 'integer',
     ];
 
     public function videofile()

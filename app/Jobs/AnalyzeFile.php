@@ -23,6 +23,7 @@ class AnalyzeFile implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     public $tries = 1;
+
     public $timeout = 0;
 
     protected VideoFile $file;
@@ -50,7 +51,7 @@ class AnalyzeFile implements ShouldQueue
         $this->event->video_file_id = $this->file->id;
 
         try {
-            $this->event->info('Analyzing file ' . $this->file->path);
+            $this->event->info('Analyzing file '.$this->file->path);
             $this->event->info('Running ffprobe command to get stream info');
             $command = [
                 'ffprobe',
@@ -99,7 +100,7 @@ class AnalyzeFile implements ShouldQueue
             if (($moov_pos = strpos($result->errorOutput(), 'moov')) && ($mdat_pos = strpos($result->errorOutput(), 'mdat'))) {
                 $faststart = $moov_pos < $mdat_pos;
             }
-            $this->event->info('Faststart '. ($faststart ? '' : 'NOT ') . 'detected');
+            $this->event->info('Faststart '.($faststart ? '' : 'NOT ').'detected');
 
             $videostream = $this->getPrimaryVideoStream($analysis->streams);
             $this->event->info("Determined that stream with index {$videostream->index} is the primary video stream, skipping other video streams");
@@ -173,11 +174,9 @@ class AnalyzeFile implements ShouldQueue
                 $this->event->info("Audio stream {$audiostream->index} bit_rate: {$audiostream->bit_rate}");
             }
 
-
-
             $this->file->refresh();
-            $this->event->info('File is '. ($this->file->encoded ? '' : 'NOT ') . 'encoded by cdarr already');
-            $this->event->info('File is '. ($this->file->compliant ? '' : 'NOT ') . 'compliant for direct play already');
+            $this->event->info('File is '.($this->file->encoded ? '' : 'NOT ').'encoded by cdarr already');
+            $this->event->info('File is '.($this->file->compliant ? '' : 'NOT ').'compliant for direct play already');
             if ($this->file->encoded === false && $this->file->compliant === false) {
                 $this->event->info('Dispatching EncodeVideo job');
 
@@ -190,7 +189,7 @@ class AnalyzeFile implements ShouldQueue
             }
 
             $this->event->status = EventStatus::FINISHED;
-            $this->event->info('Finished analyzing file ' . $this->file->path);
+            $this->event->info('Finished analyzing file '.$this->file->path);
         } catch (Throwable $th) {
             $this->logFailure($th);
         }
@@ -204,7 +203,7 @@ class AnalyzeFile implements ShouldQueue
     protected function logFailure(Throwable $th)
     {
         $event = $this->event;
-        if (!$event) {
+        if (! $event) {
             $event = Event::where('video_file_id', $this->file->id)
                 ->whereNotIn('status', [EventStatus::ERRORED, EventStatus::FINISHED])
                 ->where('type', (new \ReflectionClass($this))->getShortName())
@@ -220,7 +219,7 @@ class AnalyzeFile implements ShouldQueue
 
     protected function getBestRuntime($video, $format)
     {
-        if (!$video || $video === 0) {
+        if (! $video || $video === 0) {
             return (int) round($format * 1000);
         }
 
@@ -229,15 +228,15 @@ class AnalyzeFile implements ShouldQueue
 
     protected function getBestVideoBitRate($video, $format)
     {
-        if (!empty($video->bit_rate) && $video->bit_rate !== 0) {
+        if (! empty($video->bit_rate) && $video->bit_rate !== 0) {
             return (int) $video->bit_rate;
         }
 
-        if (!empty($video->tags->BPS) && $video->tags->BPS !== 0) {
+        if (! empty($video->tags->BPS) && $video->tags->BPS !== 0) {
             return (int) $video->tags->BPS;
         }
 
-        if (!empty($format->bit_rate) && $format->bit_rate !== 0) {
+        if (! empty($format->bit_rate) && $format->bit_rate !== 0) {
             return (int) $format->bit_rate;
         }
 
@@ -246,11 +245,11 @@ class AnalyzeFile implements ShouldQueue
 
     protected function getBestAudioBitRate($audio)
     {
-        if (!empty($audio->bit_rate) && $audio->bit_rate !== 0) {
+        if (! empty($audio->bit_rate) && $audio->bit_rate !== 0) {
             return (int) $audio->bit_rate;
         }
 
-        if (!empty($audio->tags->BPS) && $audio->tags->BPS !== 0) {
+        if (! empty($audio->tags->BPS) && $audio->tags->BPS !== 0) {
             return (int) $audio->tags->BPS;
         }
 
@@ -259,7 +258,7 @@ class AnalyzeFile implements ShouldQueue
 
     protected function getPrimaryVideoStream(array $streams)
     {
-        $total = count(array_filter($streams, function($stream) {
+        $total = count(array_filter($streams, function ($stream) {
             return $stream->codec_type === 'video';
         }));
         $first = Arr::first($streams, function ($stream) {
@@ -267,11 +266,11 @@ class AnalyzeFile implements ShouldQueue
         });
 
         if ($total <= 1) {
-            return  $first;
+            return $first;
         }
 
         $firstNonMotion = Arr::first($streams, function ($stream) {
-            return $stream->codec_type === 'video' && !in_array($stream->codec_name, ['mjpeg', 'png']);
+            return $stream->codec_type === 'video' && ! in_array($stream->codec_name, ['mjpeg', 'png']);
         });
 
         return $firstNonMotion ?? $first;

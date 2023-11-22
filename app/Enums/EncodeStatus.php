@@ -2,7 +2,7 @@
 
 namespace App\Enums;
 
-enum EncodeStatus:string
+enum EncodeStatus: string
 {
     case WAITING = 'WAITING';
     case TRANSCODING = 'TRANSCODING';

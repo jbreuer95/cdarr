@@ -2,9 +2,9 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Casts\Attribute;
 
 class AudioStream extends Model
 {
@@ -20,7 +20,7 @@ class AudioStream extends Model
     protected function compliant(): Attribute
     {
         return new Attribute(
-            get: function ()  {
+            get: function () {
                 if ($this->codec === null || ! str($this->codec)->lower()->exactly('aac')) {
                     return false;
                 }

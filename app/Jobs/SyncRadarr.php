@@ -19,6 +19,7 @@ class SyncRadarr implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     public $tries = 1;
+
     public $timeout = 0;
 
     protected ?Event $event = null;
@@ -43,7 +44,7 @@ class SyncRadarr implements ShouldQueue
         try {
             $this->event->info('Syncing movies with Radarr');
             $radarr_movies = Radarr::movies()->all();
-            $this->event->info('Found ' . count($radarr_movies) . ' movies with a video file');
+            $this->event->info('Found '.count($radarr_movies).' movies with a video file');
 
             foreach ($radarr_movies as $radarr_movie) {
                 $movie = Movie::where('radarr_movie_id', $radarr_movie->id)->first();

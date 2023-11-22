@@ -15,6 +15,7 @@ class VideoFile extends Model
         'encoded' => 'boolean',
         'faststart' => 'boolean',
     ];
+
     protected $appends = ['compliant'];
 
     public function movie()
@@ -30,7 +31,7 @@ class VideoFile extends Model
     protected function compliant(): Attribute
     {
         return new Attribute(
-            get: function ()  {
+            get: function () {
                 if ($this->analysed === false) {
                     return false;
                 }
@@ -53,7 +54,7 @@ class VideoFile extends Model
                 if ($this->profile === null || ! str($this->profile)->lower()->exactly('high')) {
                     return false;
                 }
-                if ($this->level === null || (int) $this->level  > 41) {
+                if ($this->level === null || (int) $this->level > 41) {
                     return false;
                 }
                 if ($this->pixel_format === null || ! str($this->pixel_format)->lower()->exactly('yuv420p')) {
@@ -62,10 +63,10 @@ class VideoFile extends Model
                 if ($this->color_space === null || ! in_array(str($this->color_space)->lower(), ['bt601', 'bt709'])) {
                     return false;
                 }
-                if ($this->color_transfer !== null && !in_array(str($this->color_transfer)->lower(), ['bt601', 'bt709'])) {
+                if ($this->color_transfer !== null && ! in_array(str($this->color_transfer)->lower(), ['bt601', 'bt709'])) {
                     return false;
                 }
-                if ($this->color_primaries !== null && !in_array(str($this->color_primaries)->lower(), ['bt601', 'bt709'])) {
+                if ($this->color_primaries !== null && ! in_array(str($this->color_primaries)->lower(), ['bt601', 'bt709'])) {
                     return false;
                 }
                 if ($this->faststart === null || $this->faststart !== true) {

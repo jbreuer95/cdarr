@@ -15,8 +15,8 @@ class Client
         $this->request = Http::withHeaders([
             'Accept' => 'application/json',
             'Content-type' => 'application/json',
-            'X-Api-Key' => $config['token']
-        ])->timeout(60)->baseUrl($config['url']. '/api/v3');
+            'X-Api-Key' => $config['token'],
+        ])->timeout(60)->baseUrl($config['url'].'/api/v3');
     }
 
     public function getClient()

@@ -44,36 +44,38 @@ class RadarrController extends Controller
             'url' => ['required', 'max:50'],
         ]);
 
-        $ping_url = str($validated['url'])->rtrim('/') . '/ping';
-        $api_url = str($validated['url'])->rtrim('/') . '/api';
+        $ping_url = str($validated['url'])->rtrim('/').'/ping';
+        $api_url = str($validated['url'])->rtrim('/').'/api';
 
         $connected = false;
         $authenticated = false;
         try {
             $response = Http::connectTimeout(3)->timeout(3)->get($ping_url);
-            if ($response->ok() && !empty($response->object()->status) && $response->object()->status === 'OK') {
+            if ($response->ok() && ! empty($response->object()->status) && $response->object()->status === 'OK') {
                 $connected = true;
             }
-        } catch (ConnectionException $e) {}
+        } catch (ConnectionException $e) {
+        }
 
-        if (!$connected) {
+        if (! $connected) {
             throw ValidationException::withMessages([
-                'url' => 'Cannot connect to this url, are you sure this docker instance can connect to this url?'
+                'url' => 'Cannot connect to this url, are you sure this docker instance can connect to this url?',
             ]);
         }
 
         try {
             $response = Http::timeout(3)->withHeaders([
-                'X-Api-Key' => $validated['token']
+                'X-Api-Key' => $validated['token'],
             ])->get($api_url);
-            if ($response->ok() && !empty($response->object()->current) && $response->object()->current === 'v3') {
+            if ($response->ok() && ! empty($response->object()->current) && $response->object()->current === 'v3') {
                 $authenticated = true;
             }
-        } catch (ConnectionException $e) {}
+        } catch (ConnectionException $e) {
+        }
 
-        if (!$authenticated) {
+        if (! $authenticated) {
             throw ValidationException::withMessages([
-                'token' => 'Invalid token, double check?'
+                'token' => 'Invalid token, double check?',
             ]);
         }
 

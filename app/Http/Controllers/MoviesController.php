@@ -20,7 +20,7 @@ class MoviesController extends Controller
 
         return Inertia::render('MoviesPage', [
             'setup' => $setup,
-            'movies' => $movies
+            'movies' => $movies,
         ]);
     }
 
@@ -29,7 +29,7 @@ class MoviesController extends Controller
         dispatch_sync(new SyncRadarr);
 
         return response()->json([
-            'success' => true
+            'success' => true,
         ]);
     }
 }

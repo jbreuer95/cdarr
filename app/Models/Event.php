@@ -12,7 +12,7 @@ class Event extends Model
     use HasFactory;
 
     protected $casts = [
-        'status' => EventStatus::class
+        'status' => EventStatus::class,
     ];
 
     public function videofile()
