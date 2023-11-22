@@ -120,6 +120,9 @@ class AnalyzeFile implements ShouldQueue
             $this->file->color_transfer = $videostream->color_transfer ?? null;
             $this->file->color_primaries = $videostream->color_primaries ?? null;
             $this->file->frame_rate = $videostream->avg_frame_rate ?? null;
+            // $this->file->anamorphic  = '?'; TODO detect anamorphic
+            // $this->file->interlaced = '?'; TODO detect interlaced
+            $this->file->frame_rate = $videostream->avg_frame_rate ?? null;
             $this->file->bit_rate = $this->getBestVideoBitRate($videostream, $analysis->format);
             $this->file->duration = $this->getBestRuntime($videostream->duration ?? null, $analysis->format->duration ?? null);
             $this->file->faststart = $faststart;

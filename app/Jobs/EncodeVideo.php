@@ -54,8 +54,10 @@ class EncodeVideo implements ShouldQueue
         try {
             $this->event->info("Encoding file " . pathinfo($this->file->path, PATHINFO_BASENAME));
 
-            $output = $this->getTmpLocation() . '/' . pathinfo($this->file->path, PATHINFO_FILENAME) . '.mp4';
-            $command = $this->buildCommand($output);
+            $tmp_output = $this->getTmpLocation() . '/' . pathinfo($this->file->path, PATHINFO_FILENAME) . '.mp4';
+            $final_output = pathinfo($this->file->path, PATHINFO_DIRNAME) . '/' . pathinfo($this->file->path, PATHINFO_FILENAME) . '.mp4';
+
+            $command = $this->buildCommand($tmp_output);
             $command_line = (new SymfonyProcess($command))->getCommandLine();
 
             $this->event->info('Running ffmpeg command');
@@ -92,13 +94,14 @@ class EncodeVideo implements ShouldQueue
 
             // TODO what if file is playing/locked?
             File::delete($this->file->path);
-            File::move($output, $this->file->path);
+            File::move($tmp_output, $final_output);
 
             $this->file->analysed = false;
             $this->file->save();
             AnalyzeFile::dispatch($this->file);
 
             // TODO trigger rescan radarr/sonarr
+            // TODO trigger rename radarr/sonarr
         } catch (Throwable $th) {
             $this->logFailure($th);
         }
@@ -178,6 +181,9 @@ class EncodeVideo implements ShouldQueue
         }
 
         $command[] = '-sn'; // Disable subtitles tracks from getting mapped
+        $command[] = '-dn'; // Disable data tracks from getting mapped
+        $command[] = '-map_chapters'; // Disable chapter data track from being created
+        $command[] = '-1';
 
         $command[] = '-c:a';
         $command[] = 'aac';
@@ -192,7 +198,7 @@ class EncodeVideo implements ShouldQueue
         $command[] = '-f';
         $command[] = 'mp4';
         $command[] = '-preset';
-        $command[] = app()->isProduction() ? 'slow' : 'fast';
+        $command[] = 'faster';
         $command[] = '-profile:v';
         $command[] = 'high';
         // TODO downscale to 1080p $command[] = '-vf'; $command[] = "scale=w={$width}:h={$height}";
@@ -203,8 +209,11 @@ class EncodeVideo implements ShouldQueue
         $command[] = '-bufsize';
         $command[] = ($bitrate * 2).'k';
         $command[] = '-vf';
-        $command[] = 'format=pix_fmts=yuv420p';
-        // TODO force bt709 color space (removes HDR)
+        if (false) { // TODO if HDR
+            $command[] = 'zscale=t=linear:npl=100,format=gbrpf32le,zscale=p=bt709,tonemap=tonemap=hable:desat=0:peak=100,zscale=t=bt709:m=bt709,format=yuv420p,format=pix_fmts=yuv420p';
+        } else {
+            $command[] = 'format=pix_fmts=yuv420p';
+        }
         $command[] = '-movflags';
         $command[] = '+faststart';
         $command[] = '-metadata';
