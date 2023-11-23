@@ -6,7 +6,7 @@ ENV PUID="1000" PGID="1000" TZ="Europe/London"
 RUN apk update && apk add --no-cache shadow bash \
     php82 php82-fpm php82-phar php82-mbstring php82-openssl php82-curl \
     php82-session php82-fileinfo php82-tokenizer php82-dom \
-    php82-pdo php82-pdo_sqlite \
+    php82-pdo php82-pdo_sqlite php82-pcntl php82-posix php82-ctype php82-xml php82-intl \
     php82-opcache \
     nginx nodejs npm ffmpeg
 

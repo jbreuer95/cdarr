@@ -3,6 +3,7 @@
 use App\Http\Controllers\DebugController;
 use App\Http\Controllers\EventsContoller;
 use App\Http\Controllers\MoviesController;
+use App\Http\Controllers\PHPController;
 use App\Http\Controllers\QueueController;
 use App\Http\Controllers\RadarrController;
 use Illuminate\Support\Facades\Route;
@@ -21,6 +22,7 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', [QueueController::class, 'index'])->name('queue');
 Route::get('/history', [QueueController::class, 'history'])->name('history');
 Route::get('/debug', DebugController::class)->name('debug');
+Route::get('/php', PHPController::class)->name('php');
 
 Route::get('/movies', [MoviesController::class, 'index'])->name('movies');
 Route::post('/movies/sync', [MoviesController::class, 'sync'])->name('movies.sync');
