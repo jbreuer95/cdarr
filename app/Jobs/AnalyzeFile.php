@@ -25,17 +25,18 @@ class AnalyzeFile implements ShouldQueue
 
     public $timeout = 0;
 
-    protected VideoFile $file;
+    protected Event $event;
 
-    protected ?Event $event = null;
+    protected VideoFile $file;
 
     /**
      * Create a new job instance.
      */
-    public function __construct(VideoFile $file)
+    public function __construct(Event $event, VideoFile $file)
     {
         $this->onQueue('encoding');
 
+        $this->event = $event;
         $this->file = $file;
     }
 
@@ -44,12 +45,8 @@ class AnalyzeFile implements ShouldQueue
      */
     public function handle(): void
     {
-        $this->event = new Event();
-        $this->event->type = (new \ReflectionClass($this))->getShortName();
-        $this->event->video_file_id = $this->file->id;
-
         try {
-            $this->event->info('Analyzing file '.$this->file->path);
+            $this->event->info('Started analyzing file '.$this->file->path);
             $this->event->info('Running ffprobe command to get stream info');
             $command = [
                 'ffprobe',
@@ -174,43 +171,34 @@ class AnalyzeFile implements ShouldQueue
             if ($this->file->encoded === false && $this->file->playable === false) {
                 $this->event->info('Dispatching EncodeVideo job');
 
+                $event = new Event();
+                $event->type = (new \ReflectionClass(EncodeVideo::class))->getShortName();
+                $event->video_file_id = $this->file->id;
+                $event->info('Queued encoding file '.pathinfo($this->file->path, PATHINFO_BASENAME));
+
                 $encode = new Encode();
                 $encode->status = EncodeStatus::WAITING;
                 $encode->video_file_id = $this->file->id;
                 $encode->save();
 
-                EncodeVideo::dispatch($encode);
+                EncodeVideo::dispatch($event, $encode);
             }
 
             $this->event->info('Finished analyzing file '.$this->file->path);
         } catch (Throwable $th) {
-            $this->logFailure($th);
+            $this->failed($th);
         }
     }
 
     public function failed(Throwable $th): void
     {
-        $this->logFailure($th);
+        $this->event->error('Job failed with the following error:');
+        $this->event->error($th->getMessage());
     }
 
     public function uniqueId()
     {
         return $this->file->id;
-    }
-
-    protected function logFailure(Throwable $th)
-    {
-        $event = $this->event;
-        if (! $event) {
-            $event = Event::where('video_file_id', $this->file->id)
-                ->where('type', (new \ReflectionClass($this))->getShortName())
-                ->orderByDesc('id')
-                ->first();
-        }
-        if ($event) {
-            $event->error('Job failed with the following error:');
-            $event->error($th->getMessage());
-        }
     }
 
     protected function getBestRuntime($video, $format)

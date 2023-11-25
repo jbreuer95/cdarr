@@ -21,14 +21,16 @@ class SyncRadarr implements ShouldQueue
 
     public $timeout = 0;
 
-    protected ?Event $event = null;
+    protected Event $event;
 
     /**
      * Create a new job instance.
      */
-    public function __construct()
+    public function __construct(Event $event)
     {
         $this->onQueue('default');
+
+        $this->event = $event;
     }
 
     /**
@@ -36,11 +38,8 @@ class SyncRadarr implements ShouldQueue
      */
     public function handle(): void
     {
-        $this->event = new Event();
-        $this->event->type = (new \ReflectionClass($this))->getShortName();
-
         try {
-            $this->event->info('Syncing movies with Radarr');
+            $this->event->info('Started syncing movies with Radarr');
             $radarr_movies = Radarr::movies()->all();
             $this->event->info('Found '.count($radarr_movies).' movies with a video file');
 
@@ -61,32 +60,24 @@ class SyncRadarr implements ShouldQueue
                     $file->movie_id = $movie->id;
                     $file->save();
 
-                    AnalyzeFile::dispatch($file);
+                    $event = new Event();
+                    $event->type = (new \ReflectionClass(AnalyzeFile::class))->getShortName();
+                    $event->video_file_id = $file->id;
+                    $event->info('Queued analyzing file '.pathinfo($file->path, PATHINFO_BASENAME));
+
+                    AnalyzeFile::dispatch($event, $file);
                 }
             }
 
             $this->event->info('Finished sync with Radarr');
         } catch (Throwable $th) {
-            $this->logFailure($th);
+            $this->failed($th);
         }
     }
 
     public function failed(Throwable $th): void
     {
-        $this->logFailure($th);
-    }
-
-    protected function logFailure(Throwable $th)
-    {
-        $event = $this->event;
-        if (! $event) {
-            $event = Event::where('type', (new \ReflectionClass($this))->getShortName())
-                ->orderByDesc('id')
-                ->first();
-        }
-        if ($event) {
-            $event->error('Job failed with the following error:');
-            $event->error($th->getMessage());
-        }
+        $this->event->error('Job failed with the following error:');
+        $this->event->error($th->getMessage());
     }
 }

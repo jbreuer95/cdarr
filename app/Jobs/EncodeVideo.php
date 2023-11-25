@@ -25,19 +25,20 @@ class EncodeVideo implements ShouldQueue
 
     public $timeout = 0;
 
+    protected Event $event;
+
     protected Encode $encode;
 
     protected VideoFile $file;
 
-    protected ?Event $event = null;
-
     /**
      * Create a new job instance.
      */
-    public function __construct(Encode $encode)
+    public function __construct(Event $event, Encode $encode)
     {
         $this->onQueue('encoding');
 
+        $this->event = $event;
         $this->encode = $encode;
         $this->file = $this->encode->videofile;
     }
@@ -47,12 +48,8 @@ class EncodeVideo implements ShouldQueue
      */
     public function handle(): void
     {
-        $this->event = new Event();
-        $this->event->type = (new \ReflectionClass($this))->getShortName();
-        $this->event->video_file_id = $this->file->id;
-
         try {
-            $this->event->info('Encoding file '.pathinfo($this->file->path, PATHINFO_BASENAME));
+            $this->event->info('Started encoding file '.pathinfo($this->file->path, PATHINFO_BASENAME));
 
             $tmp_output = $this->getTmpLocation().'/'.pathinfo($this->file->path, PATHINFO_FILENAME).'.mp4';
             $final_output = pathinfo($this->file->path, PATHINFO_DIRNAME).'/'.pathinfo($this->file->path, PATHINFO_FILENAME).'.mp4';
@@ -95,38 +92,32 @@ class EncodeVideo implements ShouldQueue
 
             $this->file->analysed = false;
             $this->file->save();
-            AnalyzeFile::dispatch($this->file);
+
+            $this->event->info('Dispatching new AnalyzeFile job');
+
+            $event = new Event();
+            $event->type = (new \ReflectionClass(AnalyzeFile::class))->getShortName();
+            $event->video_file_id = $this->file->id;
+            $event->info('Queued analyzing file '.pathinfo($this->file->path, PATHINFO_BASENAME));
+
+            AnalyzeFile::dispatch($event, $this->file);
         } catch (Throwable $th) {
-            $this->logFailure($th);
+            $this->failed($th);
         }
     }
 
     public function failed(Throwable $th): void
     {
-        $this->logFailure($th);
+        $this->encode->status = EncodeStatus::FAILED;
+        $this->encode->save();
+
+        $this->event->error('Job failed with the following error:');
+        $this->event->error($th->getMessage());
     }
 
     public function uniqueId()
     {
         return $this->file->id;
-    }
-
-    protected function logFailure(Throwable $th)
-    {
-        $this->encode->status = EncodeStatus::FAILED;
-        $this->encode->save();
-
-        $event = $this->event ?? $this->encode->event;
-        if (! $event) {
-            $event = Event::where('video_file_id', $this->file->id)
-                ->where('type', (new \ReflectionClass($this))->getShortName())
-                ->orderByDesc('id')
-                ->first();
-        }
-        if ($event) {
-            $event->error('Job failed with the following error:');
-            $event->error($th->getMessage());
-        }
     }
 
     protected function getTmpLocation()
