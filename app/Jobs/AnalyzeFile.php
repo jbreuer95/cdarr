@@ -179,6 +179,7 @@ class AnalyzeFile implements ShouldQueue
                 $encode = new Encode();
                 $encode->status = EncodeStatus::WAITING;
                 $encode->video_file_id = $this->file->id;
+                $encode->event_id = $event->id;
                 $encode->save();
 
                 EncodeVideo::dispatch($event, $encode);

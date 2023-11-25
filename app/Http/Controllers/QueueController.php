@@ -11,7 +11,7 @@ class QueueController extends Controller
 {
     public function index(Request $request)
     {
-        $encodes = Encode::select('id', 'status', 'progress', 'video_file_id')
+        $encodes = Encode::select('id', 'status', 'progress', 'video_file_id', 'updated_at', 'created_at')
             ->with('videofile:id,movie_id,path', 'videofile.movie:id,title,year')
             ->whereIn('status', [EncodeStatus::WAITING, EncodeStatus::TRANSCODING])
             ->orderByDesc('updated_at')
@@ -30,13 +30,14 @@ class QueueController extends Controller
         }
 
         return Inertia::render('QueuePage', [
+            'type' => 'queue',
             'encodes' => $encodes,
         ]);
     }
 
     public function history(Request $request)
     {
-        $encodes = Encode::select('id', 'status', 'progress', 'video_file_id')
+        $encodes = Encode::select('id', 'status', 'progress', 'video_file_id', 'updated_at', 'created_at')
             ->with('videofile:id,movie_id,path', 'videofile.movie:id,title,year')
             ->whereNotIn('status', [EncodeStatus::WAITING, EncodeStatus::TRANSCODING])
             ->orderByDesc('id')
@@ -55,6 +56,7 @@ class QueueController extends Controller
         }
 
         return Inertia::render('QueuePage', [
+            'type' => 'history',
             'encodes' => $encodes,
         ]);
     }

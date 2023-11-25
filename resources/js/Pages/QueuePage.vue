@@ -12,17 +12,17 @@
             <table>
                 <thead>
                     <tr>
-                        <th class="text-left p-2">File</th>
                         <th class="text-left p-2">Movie / Episode</th>
+                        <th class="text-left p-2">File</th>
                         <th class="text-left p-2">Status</th>
-                        <th class="text-left p-2">Progress</th>
+                        <th v-if="type === 'queue'" class="text-left p-2">
+                            Progress
+                        </th>
+                        <th class="text-left p-2">Runtime</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr v-for="encode in items" :key="encode.id">
-                        <td class="p-2 border-t">
-                            {{ encode.videofile.path }}
-                        </td>
                         <td class="p-2 border-t">
                             <template v-if="encode?.videofile?.movie">
                                 {{ encode.videofile.movie.title }}
@@ -30,9 +30,15 @@
                             </template>
                             <template v-else> - </template>
                         </td>
-                        <td class="p-2 border-t">{{ encode.status }}</td>
                         <td class="p-2 border-t">
+                            {{ encode.videofile.path }}
+                        </td>
+                        <td class="p-2 border-t">{{ encode.status }}</td>
+                        <td v-if="type === 'queue'" class="p-2 border-t">
                             {{ encode.progress / 100 }}%
+                        </td>
+                        <td class="p-2 border-t">
+                            {{ encode.runtime }}
                         </td>
                     </tr>
                 </tbody>
@@ -51,6 +57,10 @@ import { useInfiniteScrolling } from "@/Composables/infinite";
 import { router } from "@inertiajs/vue3";
 
 const props = defineProps({
+    type: {
+        type: String,
+        required: true,
+    },
     encodes: {
         type: Object,
         required: true,

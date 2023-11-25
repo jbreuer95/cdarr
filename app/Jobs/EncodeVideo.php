@@ -11,6 +11,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Process;
 use Illuminate\Support\Str;
@@ -62,6 +63,7 @@ class EncodeVideo implements ShouldQueue
 
             $this->encode->event_id = $this->event->id;
             $this->encode->status = EncodeStatus::TRANSCODING;
+            $this->encode->created_at = Date::now();
             $this->encode->save();
 
             $process = Process::forever()->start($command, function (string $type, string $output) {
