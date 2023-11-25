@@ -52,7 +52,7 @@
 import MasterLayout from "@/Layouts/MasterLayout.vue";
 import PageToolbar from "@/Components/PageToolbar.vue";
 import PageToolBarItem from "@/Components/PageToolBarItem.vue";
-import { onMounted, ref } from "vue";
+import { onBeforeUnmount, onMounted, ref } from "vue";
 import { useInfiniteScrolling } from "@/Composables/infinite";
 import { router } from "@inertiajs/vue3";
 
@@ -77,22 +77,50 @@ const refresh = async () => {
         return;
     }
     refreshing.value = true;
+    const start = performance.now();
+    await reload();
+    const time = Math.round(performance.now() - start);
 
-    try {
-        router.reload({
-            only: ["encodes"],
-            onSuccess: () => {
-                refreshing.value = false;
-                items.value = props.encodes.data;
-                nextPageUrl.value = props.encodes.next_page_url;
-            },
-        });
-    } catch (error) {
-        return;
+    if (time < 200) {
+        setTimeout(() => {
+            refreshing.value = false;
+        }, 200 - time);
+    } else {
+        refreshing.value = false;
     }
 };
 
+const reload = () => {
+    return new Promise((resolve) => {
+        try {
+            router.reload({
+                only: ["encodes"],
+                onSuccess: () => {
+                    items.value = props.encodes.data;
+                    nextPageUrl.value = props.encodes.next_page_url;
+                    resolve();
+                },
+            });
+        } catch (error) {
+            resolve();
+            return;
+        }
+    });
+};
+
+let interval = null;
+
 onMounted(() => {
     start(bottom);
+    if (props.type === "queue") {
+        interval = setInterval(() => {
+            reload();
+        }, 1000);
+    }
+});
+onBeforeUnmount(() => {
+    if (interval) {
+        clearInterval(interval);
+    }
 });
 </script>
