@@ -12,7 +12,12 @@ class QueueController extends Controller
     public function index(Request $request)
     {
         $encodes = Encode::select('id', 'status', 'progress', 'video_file_id', 'updated_at', 'created_at')
-            ->with('videofile:id,movie_id,path', 'videofile.movie:id,title,year')
+            ->with(
+                'videofile:id,movie_id,episode_id,path',
+                'videofile.movie:id,title,year',
+                'videofile.episode:id,serie_id,season,episode',
+                'videofile.episode.serie:id,title'
+            )
             ->whereIn('status', [EncodeStatus::WAITING, EncodeStatus::TRANSCODING])
             ->orderByDesc('updated_at')
             ->cursorPaginate(100);
@@ -38,7 +43,12 @@ class QueueController extends Controller
     public function history(Request $request)
     {
         $encodes = Encode::select('id', 'status', 'progress', 'video_file_id', 'updated_at', 'created_at')
-            ->with('videofile:id,movie_id,path', 'videofile.movie:id,title,year')
+            ->with(
+                'videofile:id,movie_id,episode_id,path',
+                'videofile.movie:id,title,year',
+                'videofile.episode:id,serie_id,season,episode',
+                'videofile.episode.serie:id,title'
+            )
             ->whereNotIn('status', [EncodeStatus::WAITING, EncodeStatus::TRANSCODING])
             ->orderByDesc('id')
             ->cursorPaginate(100);

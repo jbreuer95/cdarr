@@ -27,6 +27,11 @@ class VideoFile extends Model
         return $this->belongsTo(Movie::class);
     }
 
+    public function episode()
+    {
+        return $this->belongsTo(Episode::class);
+    }
+
     public function audiostreams()
     {
         return $this->hasMany(AudioStream::class);

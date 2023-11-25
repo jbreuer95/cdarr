@@ -1,17 +1,17 @@
 <template>
-    <MasterLayout title="Movies">
+    <MasterLayout title="Series">
         <PageToolbar>
             <PageToolBarItem
                 v-if="setup"
                 icon="rotate"
-                title="Sync Movies"
+                title="Sync Series"
                 :loading="syncLoading"
-                @click="syncMovies"
+                @click="syncSeries"
             ></PageToolBarItem>
             <PageToolBarItem
                 v-if="!setup"
                 icon="gear"
-                title="Setup Radarr"
+                title="Setup Sonarr"
                 @click="goToSetup"
             ></PageToolBarItem>
         </PageToolbar>
@@ -19,25 +19,24 @@
             <table>
                 <thead>
                     <tr>
-                        <th class="text-left p-2">Movie title</th>
+                        <th class="text-left p-2">Serie title</th>
                         <th class="text-left p-2">Year</th>
-                        <th class="text-left p-2">Studio</th>
-                        <th class="text-left p-2">Quality</th>
-                        <th class="text-left p-2">Status</th>
+                        <th class="text-left p-2">Network</th>
+                        <th class="text-left p-2">Episodes playable</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr v-for="movie in items" :key="movie.id">
-                        <td class="p-2 border-t">{{ movie.title }}</td>
-                        <td class="p-2 border-t">{{ movie.year }}</td>
-                        <td class="p-2 border-t">{{ movie.studio }}</td>
-                        <td class="p-2 border-t">{{ movie.quality }}</td>
+                    <tr v-for="serie in items" :key="serie.id">
+                        <td class="p-2 border-t">{{ serie.title }}</td>
+                        <td class="p-2 border-t">{{ serie.year }}</td>
+                        <td class="p-2 border-t">{{ serie.network }}</td>
                         <td class="p-2 border-t">
                             <div
-                                class="w-fit text-white text-xs px-4 rounded"
-                                :class="statusColor(movie.status)"
+                                class="min-w-[125px] w-fit text-center text-white text-xs px-4 rounded"
+                                :class="statusColor(serie)"
                             >
-                                {{ statusName(movie.status) }}
+                                {{ serie.episodePlayableCount }} /
+                                {{ serie.episodeCount }}
                             </div>
                         </td>
                     </tr>
@@ -54,7 +53,7 @@ import PageToolbar from "@/Components/PageToolbar.vue";
 import PageToolBarItem from "@/Components/PageToolBarItem.vue";
 import { useInfiniteScrolling } from "@/Composables/infinite";
 import { onMounted, ref } from "vue";
-import { router, usePage } from "@inertiajs/vue3";
+import { router } from "@inertiajs/vue3";
 import axios from "axios";
 
 const props = defineProps({
@@ -62,20 +61,18 @@ const props = defineProps({
         type: Boolean,
         default: false,
     },
-    movies: {
+    series: {
         type: Object,
         required: true,
     },
 });
 
-const page = usePage();
-
 const bottom = ref(null);
-const { start, items, nextPageUrl } = useInfiniteScrolling(props.movies);
+const { start, items, nextPageUrl } = useInfiniteScrolling(props.series);
 
 const syncLoading = ref(false);
 
-const syncMovies = async () => {
+const syncSeries = async () => {
     if (syncLoading.value) {
         return;
     }
@@ -85,17 +82,17 @@ const syncMovies = async () => {
 
     try {
         const { data: { success = false } = {} } = await axios.post(
-            route("movies.sync"),
+            route("series.sync"),
         );
         if (!success) {
             return;
         }
 
         router.reload({
-            only: ["movies"],
+            only: ["series"],
             onSuccess: () => {
-                items.value = props.movies.data;
-                nextPageUrl.value = props.movies.next_page_url;
+                items.value = props.series.data;
+                nextPageUrl.value = props.series.next_page_url;
 
                 const time = Math.round(performance.now() - start);
                 if (time < 200) {
@@ -113,34 +110,15 @@ const syncMovies = async () => {
 };
 
 const goToSetup = () => {
-    router.get(route("settings.radarr"));
+    router.get(route("settings.sonarr"));
 };
 
-const statusName = (status) => {
-    return page.props.enums.VideoStatus[status] ?? "-";
-};
-
-const statusColor = (status) => {
-    if (status === "QUEUED_ANALYSING") {
-        return "bg-indigo-400";
-    }
-    if (status === "QUEUED_ENCODING") {
-        return "bg-purple-400";
-    }
-    if (status === "NOT_PLAYABLE_NOT_ENCODED") {
-        return "bg-amber-500";
-    }
-    if (status === "NOT_PLAYABLE_ENCODED") {
-        return "bg-red-500";
-    }
-    if (status === "PLAYABLE_NOT_ENCODED") {
-        return "bg-blue-400";
-    }
-    if (status === "PLAYABLE_ENCODED") {
+const statusColor = (serie) => {
+    if (serie.episodePlayableCount === serie.episodeCount) {
         return "bg-green-400";
     }
 
-    return "bg-gray-400";
+    return "bg-amber-500";
 };
 
 onMounted(() => {

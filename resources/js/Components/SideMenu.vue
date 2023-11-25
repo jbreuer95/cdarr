@@ -11,18 +11,14 @@
             icon="clock-rotate-left"
         />
         <SideMenuItem location="movies" title="Movies" icon="film" />
-        <!-- <SideMenuItem location="series" title="Series" icon="tv" /> -->
-        <SideMenuItem
-            location="settings.radarr"
-            title="Settings"
-            icon="sliders"
-        >
+        <SideMenuItem location="series" title="Series" icon="tv" />
+        <SideMenuItem location="settings" title="Settings" icon="sliders">
             <!-- <SideMenuSubItem location="settings.general" title="General" /> -->
             <!-- <SideMenuSubItem location="settings.video" title="Video" /> -->
             <!-- <SideMenuSubItem location="settings.audio" title="Audio" /> -->
             <!-- <SideMenuSubItem location="settings.subtitles" title="Subtitles" /> -->
             <SideMenuSubItem location="settings.radarr" title="Radarr" />
-            <!-- <SideMenuSubItem location="settings.sonarr" title="Sonarr" /> -->
+            <SideMenuSubItem location="settings.sonarr" title="Sonarr" />
         </SideMenuItem>
         <SideMenuItem location="system.events" title="System" icon="laptop">
             <!-- <SideMenuSubItem location="system.status" title="Status" /> -->

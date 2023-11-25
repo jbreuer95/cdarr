@@ -168,6 +168,7 @@ return [
         App\Providers\EventServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
         App\Providers\RadarrServiceProvider::class,
+        App\Providers\SonarrServiceProvider::class,
     ])->toArray(),
 
     /*
@@ -183,6 +184,7 @@ return [
 
     'aliases' => Facade::defaultAliases()->merge([
         'Radarr' => App\Facades\Radarr::class,
+        'Sonarr' => App\Facades\Sonarr::class,
     ])->toArray(),
 
 ];

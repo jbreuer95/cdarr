@@ -33,7 +33,14 @@ class Encode extends Model
     {
         return new Attribute(
             get: function () {
-                return $this->updated_at->diffForHumans($this->created_at, CarbonInterface::DIFF_ABSOLUTE);
+                if (in_array($this->status, [EncodeStatus::TRANSCODING])) {
+                    return $this->created_at->diffForHumans(now(), CarbonInterface::DIFF_ABSOLUTE);
+                }
+                if (in_array($this->status, [EncodeStatus::WAITING])) {
+                    return 0;
+                }
+
+                return $this->created_at->diffForHumans($this->updated_at, CarbonInterface::DIFF_ABSOLUTE);
             },
         );
     }

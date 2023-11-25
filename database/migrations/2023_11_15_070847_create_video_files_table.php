@@ -38,6 +38,9 @@ return new class extends Migration
             $table->bigInteger('movie_id')->unsigned()->nullable();
             $table->foreign('movie_id')->references('id')->on('movies')->nullOnDelete();
 
+            $table->bigInteger('episode_id')->unsigned()->nullable();
+            $table->foreign('episode_id')->references('id')->on('episodes')->nullOnDelete();
+
             $table->timestamps();
         });
     }

@@ -9,12 +9,12 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 
-class RadarrController extends Controller
+class SonarrController extends Controller
 {
     public function index()
     {
-        return Inertia::render('Settings/RadarrPage', [
-            'settings' => config('radarr'),
+        return Inertia::render('Settings/SonarrPage', [
+            'settings' => config('sonarr'),
         ]);
     }
 
@@ -25,7 +25,7 @@ class RadarrController extends Controller
             'url' => 'nullable|string|max:255',
         ]);
 
-        $setting = Setting::where('key', 'radarr')->first();
+        $setting = Setting::where('key', 'sonarr')->first();
 
         $value = $setting->value;
         $value['url'] = str($validated['url'])->rtrim('/');
@@ -45,7 +45,7 @@ class RadarrController extends Controller
         ]);
 
         $ping_url = str($validated['url'])->rtrim('/').'/ping';
-        $api_url = str($validated['url'])->rtrim('/').'/api';
+        $api_url = str($validated['url'])->rtrim('/').'/api/v3/system/status';
 
         $connected = false;
         $authenticated = false;
@@ -67,7 +67,7 @@ class RadarrController extends Controller
             $response = Http::timeout(3)->withHeaders([
                 'X-Api-Key' => $validated['token'],
             ])->get($api_url);
-            if ($response->ok() && ! empty($response->object()->current) && $response->object()->current === 'v3') {
+            if ($response->ok() && ! empty($response->object()->version) && str($response->object()->version)->startsWith(['3'])) {
                 $authenticated = true;
             }
         } catch (ConnectionException $e) {

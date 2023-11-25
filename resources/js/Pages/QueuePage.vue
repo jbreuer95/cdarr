@@ -25,7 +25,7 @@
                     <tr v-for="encode in items" :key="encode.id">
                         <td class="p-2 border-t">
                             <div
-                                class="w-fit bg-gray-400 text-white text-xs px-4 rounded"
+                                class="w-fit text-white text-xs px-4 rounded"
                                 :class="statusColor(encode.status)"
                             >
                                 {{ statusName(encode.status) }}
@@ -35,12 +35,16 @@
                             {{ encode.progress / 100 }}%
                         </td>
                         <td class="p-2 border-t">
-                            {{ encode.runtime }}
+                            {{ encode.runtime || "-" }}
                         </td>
                         <td class="p-2 border-t">
                             <template v-if="encode?.videofile?.movie">
                                 {{ encode.videofile.movie.title }}
                                 ({{ encode.videofile.movie.year }})
+                            </template>
+                            <template v-else-if="encode?.videofile?.episode">
+                                {{ encode.videofile.episode.serie.title }}
+                                - {{ encode.videofile.episode.title }}
                             </template>
                             <template v-else> - </template>
                         </td>
@@ -134,7 +138,7 @@ const statusColor = (status) => {
         return "bg-red-500";
     }
 
-    return "";
+    return "bg-gray-400";
 };
 
 let interval = null;

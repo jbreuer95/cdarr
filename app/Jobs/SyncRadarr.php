@@ -52,7 +52,7 @@ class SyncRadarr implements ShouldQueue
                     $movie->title = $radarr_movie->title;
                     $movie->year = $radarr_movie->year ?? null;
                     $movie->studio = $radarr_movie->studio ?? null;
-                    $movie->quality = $radarr_movie->movieFile->quality->quality->resolution ?? null;
+                    $movie->quality = $radarr_movie->movieFile->quality->quality->name ?? null;
                     $movie->save();
 
                     $file = new VideoFile();
