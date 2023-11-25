@@ -2,9 +2,13 @@
 
 namespace App\Models;
 
+use App\Enums\VideoStatus;
+use App\Jobs\AnalyzeFile;
+use App\Jobs\EncodeVideo;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 
 class VideoFile extends Model
 {
@@ -16,7 +20,7 @@ class VideoFile extends Model
         'faststart' => 'boolean',
     ];
 
-    protected $appends = ['compliant'];
+    protected $appends = ['playable'];
 
     public function movie()
     {
@@ -28,7 +32,7 @@ class VideoFile extends Model
         return $this->hasMany(AudioStream::class);
     }
 
-    protected function compliant(): Attribute
+    protected function playable(): Attribute
     {
         return new Attribute(
             get: function () {
@@ -79,12 +83,58 @@ class VideoFile extends Model
                 }
 
                 foreach ($this->audiostreams as $audiostream) {
-                    if (! $audiostream->compliant) {
+                    if (! $audiostream->playable) {
                         return false;
                     }
                 }
 
                 return true;
+            },
+        );
+    }
+
+    protected function queued($job): bool
+    {
+        $jobs = DB::table('jobs')->where('payload', 'like', "%".json_encode($job)."%")->get();
+        foreach ($jobs as $job) {
+            $payload = json_decode($job->payload, true);
+            $command = unserialize($payload['data']['command']);
+
+            if ($command->uniqueId() === $this->id) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    protected function status(): Attribute
+    {
+        return new Attribute(
+            get: function () {
+                if ($this->playable && ! $this->encoded) {
+                    return VideoStatus::PLAYABLE_NOT_ENCODED;
+                }
+                if ($this->playable && $this->encoded) {
+                    return VideoStatus::PLAYABLE_ENCODED;
+                }
+                if (! $this->playable && $this->encoded) {
+                    return VideoStatus::NOT_PLAYABLE_ENCODED;
+                }
+                if ($this->queued(AnalyzeFile::class)) {
+                    return VideoStatus::QUEUED_ANALYSING;
+                }
+                if ($this->queued(EncodeVideo::class)) {
+                    return VideoStatus::QUEUED_ENCODING;
+                }
+                if (! $this->analysed) {
+                    return VideoStatus::NOT_ANALYSED;
+                }
+                if (! $this->playable && ! $this->encoded) {
+                    return VideoStatus::NOT_PLAYABLE_NOT_ENCODED;
+                }
+
+                return 'Unknown';
             },
         );
     }

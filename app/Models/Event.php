@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use App\Enums\EventStatus;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Log;
@@ -10,10 +9,6 @@ use Illuminate\Support\Facades\Log;
 class Event extends Model
 {
     use HasFactory;
-
-    protected $casts = [
-        'status' => EventStatus::class,
-    ];
 
     public function videofile()
     {

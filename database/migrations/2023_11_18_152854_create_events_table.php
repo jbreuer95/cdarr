@@ -14,7 +14,6 @@ return new class extends Migration
         Schema::create('events', function (Blueprint $table) {
             $table->id();
             $table->string('type');
-            $table->string('status');
             $table->longText('payload');
 
             $table->bigInteger('video_file_id')->unsigned()->nullable();

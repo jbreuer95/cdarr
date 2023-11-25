@@ -2,7 +2,6 @@
 
 namespace App\Jobs;
 
-use App\Enums\EventStatus;
 use App\Facades\Radarr;
 use App\Models\Event;
 use App\Models\Movie;
@@ -39,7 +38,6 @@ class SyncRadarr implements ShouldQueue
     {
         $this->event = new Event();
         $this->event->type = (new \ReflectionClass($this))->getShortName();
-        $this->event->status = EventStatus::RUNNING;
 
         try {
             $this->event->info('Syncing movies with Radarr');
@@ -67,7 +65,6 @@ class SyncRadarr implements ShouldQueue
                 }
             }
 
-            $this->event->status = EventStatus::FINISHED;
             $this->event->info('Finished sync with Radarr');
         } catch (Throwable $th) {
             $this->logFailure($th);
@@ -83,13 +80,11 @@ class SyncRadarr implements ShouldQueue
     {
         $event = $this->event;
         if (! $event) {
-            $event = Event::whereNotIn('status', [EventStatus::ERRORED, EventStatus::FINISHED])
-                ->where('type', (new \ReflectionClass($this))->getShortName())
+            $event = Event::where('type', (new \ReflectionClass($this))->getShortName())
                 ->orderByDesc('id')
                 ->first();
         }
         if ($event) {
-            $event->status = EventStatus::ERRORED;
             $event->error('Job failed with the following error:');
             $event->error($th->getMessage());
         }

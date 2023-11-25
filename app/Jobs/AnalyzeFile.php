@@ -3,7 +3,6 @@
 namespace App\Jobs;
 
 use App\Enums\EncodeStatus;
-use App\Enums\EventStatus;
 use App\Models\AudioStream;
 use App\Models\Encode;
 use App\Models\Event;
@@ -47,7 +46,6 @@ class AnalyzeFile implements ShouldQueue
     {
         $this->event = new Event();
         $this->event->type = (new \ReflectionClass($this))->getShortName();
-        $this->event->status = EventStatus::RUNNING;
         $this->event->video_file_id = $this->file->id;
 
         try {
@@ -172,8 +170,8 @@ class AnalyzeFile implements ShouldQueue
 
             $this->file->refresh();
             $this->event->info('File is '.($this->file->encoded ? '' : 'NOT ').'encoded by cdarr already');
-            $this->event->info('File is '.($this->file->compliant ? '' : 'NOT ').'compliant for direct play already');
-            if ($this->file->encoded === false && $this->file->compliant === false) {
+            $this->event->info('File is '.($this->file->playable ? '' : 'NOT ').'direct playable already');
+            if ($this->file->encoded === false && $this->file->playable === false) {
                 $this->event->info('Dispatching EncodeVideo job');
 
                 $encode = new Encode();
@@ -184,7 +182,6 @@ class AnalyzeFile implements ShouldQueue
                 EncodeVideo::dispatch($encode);
             }
 
-            $this->event->status = EventStatus::FINISHED;
             $this->event->info('Finished analyzing file '.$this->file->path);
         } catch (Throwable $th) {
             $this->logFailure($th);
@@ -196,18 +193,21 @@ class AnalyzeFile implements ShouldQueue
         $this->logFailure($th);
     }
 
+    public function uniqueId()
+    {
+        return $this->file->id;
+    }
+
     protected function logFailure(Throwable $th)
     {
         $event = $this->event;
         if (! $event) {
             $event = Event::where('video_file_id', $this->file->id)
-                ->whereNotIn('status', [EventStatus::ERRORED, EventStatus::FINISHED])
                 ->where('type', (new \ReflectionClass($this))->getShortName())
                 ->orderByDesc('id')
                 ->first();
         }
         if ($event) {
-            $event->status = EventStatus::ERRORED;
             $event->error('Job failed with the following error:');
             $event->error($th->getMessage());
         }

@@ -3,7 +3,6 @@
 namespace App\Jobs;
 
 use App\Enums\EncodeStatus;
-use App\Enums\EventStatus;
 use App\Models\Encode;
 use App\Models\Event;
 use App\Models\VideoFile;
@@ -50,7 +49,6 @@ class EncodeVideo implements ShouldQueue
     {
         $this->event = new Event();
         $this->event->type = (new \ReflectionClass($this))->getShortName();
-        $this->event->status = EventStatus::RUNNING;
         $this->event->video_file_id = $this->file->id;
 
         try {
@@ -91,7 +89,6 @@ class EncodeVideo implements ShouldQueue
             $this->encode->status = EncodeStatus::FINISHED;
             $this->encode->save();
 
-            $this->event->status = EventStatus::FINISHED;
             $this->event->info('Finished encoding file');
             File::delete($this->file->path);
             File::move($tmp_output, $final_output);
@@ -109,6 +106,11 @@ class EncodeVideo implements ShouldQueue
         $this->logFailure($th);
     }
 
+    public function uniqueId()
+    {
+        return $this->file->id;
+    }
+
     protected function logFailure(Throwable $th)
     {
         $this->encode->status = EncodeStatus::FAILED;
@@ -117,13 +119,11 @@ class EncodeVideo implements ShouldQueue
         $event = $this->event ?? $this->encode->event;
         if (! $event) {
             $event = Event::where('video_file_id', $this->file->id)
-                ->whereNotIn('status', [EventStatus::ERRORED, EventStatus::FINISHED])
                 ->where('type', (new \ReflectionClass($this))->getShortName())
                 ->orderByDesc('id')
                 ->first();
         }
         if ($event) {
-            $event->status = EventStatus::ERRORED;
             $event->error('Job failed with the following error:');
             $event->error($th->getMessage());
         }

@@ -15,9 +15,9 @@ class AudioStream extends Model
         return $this->belongsTo(VideoFile::class, 'video_file_id');
     }
 
-    protected $appends = ['compliant'];
+    protected $appends = ['playable'];
 
-    protected function compliant(): Attribute
+    protected function playable(): Attribute
     {
         return new Attribute(
             get: function () {
