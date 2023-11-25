@@ -130,14 +130,23 @@ const refresh = async () => {
         return;
     }
     refreshing.value = true;
+    const start = performance.now();
 
     try {
         router.reload({
             only: ["events"],
             onSuccess: () => {
-                refreshing.value = false;
                 items.value = props.events.data;
                 nextPageUrl.value = props.events.next_page_url;
+
+                const time = Math.round(performance.now() - start);
+                if (time < 200) {
+                    setTimeout(() => {
+                        refreshing.value = false;
+                    }, 200 - time);
+                } else {
+                    refreshing.value = false;
+                }
             },
         });
     } catch (error) {

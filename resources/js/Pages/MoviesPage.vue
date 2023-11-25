@@ -81,6 +81,7 @@ const syncMovies = async () => {
     }
 
     syncLoading.value = true;
+    const start = performance.now();
 
     try {
         const { data: { success = false } = {} } = await axios.post(
@@ -93,9 +94,17 @@ const syncMovies = async () => {
         router.reload({
             only: ["movies"],
             onSuccess: () => {
-                syncLoading.value = false;
                 items.value = props.movies.data;
                 nextPageUrl.value = props.movies.next_page_url;
+
+                const time = Math.round(performance.now() - start);
+                if (time < 200) {
+                    setTimeout(() => {
+                        syncLoading.value = false;
+                    }, 200 - time);
+                } else {
+                    syncLoading.value = false;
+                }
             },
         });
     } catch (error) {
