@@ -4,7 +4,7 @@
             <PageToolBarItem
                 v-if="setup"
                 icon="rotate"
-                title="Sync Movies"
+                title="Sync Radarr"
                 :loading="syncLoading"
                 @click="syncMovies"
             ></PageToolBarItem>

@@ -12,7 +12,7 @@ class EventsContoller extends Controller
     public function index(Request $request)
     {
         $events = Event::select('id', 'updated_at', 'type', DB::raw('SUBSTR(payload, 1, INSTR(payload, char(10)) -1) as firstline'))
-            ->orderByDesc('id')
+            ->orderByDesc('updated_at')
             ->cursorPaginate(100);
 
         $events = $events->through(function ($event) {

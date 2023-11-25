@@ -16,7 +16,13 @@ class MoviesController extends Controller
 {
     public function index(Request $request)
     {
-        $movies = Movie::with('videofile')->orderBy('id')->cursorPaginate(100);
+        $movies = Movie::with('videofile.audiostreams')->orderBy('id')->cursorPaginate(100);
+        $movies = $movies->through(function ($movie) {
+            $movie->append('status');
+
+            return $movie;
+        });
+
         if ($request->wantsJson()) {
             return $movies;
         }

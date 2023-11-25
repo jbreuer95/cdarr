@@ -4,7 +4,7 @@
             <PageToolBarItem
                 v-if="setup"
                 icon="rotate"
-                title="Sync Series"
+                title="Sync Sonarr"
                 :loading="syncLoading"
                 @click="syncSeries"
             ></PageToolBarItem>
