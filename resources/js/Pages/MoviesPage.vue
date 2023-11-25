@@ -117,7 +117,7 @@ const goToSetup = () => {
 };
 
 const statusName = (status) => {
-    return page.props.enums.VideoStatus[status] ?? "Unknown";
+    return page.props.enums.VideoStatus[status] ?? "-";
 };
 
 const statusColor = (status) => {
