@@ -93,17 +93,12 @@ class EncodeVideo implements ShouldQueue
 
             $this->event->status = EventStatus::FINISHED;
             $this->event->info('Finished encoding file');
-
-            // TODO what if file is playing/locked?
             File::delete($this->file->path);
             File::move($tmp_output, $final_output);
 
             $this->file->analysed = false;
             $this->file->save();
             AnalyzeFile::dispatch($this->file);
-
-            // TODO trigger rescan radarr/sonarr
-            // TODO trigger rename radarr/sonarr
         } catch (Throwable $th) {
             $this->logFailure($th);
         }
@@ -204,7 +199,7 @@ class EncodeVideo implements ShouldQueue
         $command[] = 'faster';
         $command[] = '-profile:v';
         $command[] = 'high';
-        // TODO downscale to 1080p $command[] = '-vf'; $command[] = "scale=w={$width}:h={$height}";
+        // $command[] = '-vf'; $command[] = "scale=w={$width}:h={$height}";
         $command[] = '-crf';
         $command[] = '23';
         $command[] = '-maxrate';
@@ -212,11 +207,8 @@ class EncodeVideo implements ShouldQueue
         $command[] = '-bufsize';
         $command[] = ($bitrate * 2).'k';
         $command[] = '-vf';
-        if (false) { // TODO if HDR
-            $command[] = 'zscale=t=linear:npl=100,format=gbrpf32le,zscale=p=bt709,tonemap=tonemap=hable:desat=0:peak=100,zscale=t=bt709:m=bt709,format=yuv420p,format=pix_fmts=yuv420p';
-        } else {
-            $command[] = 'format=pix_fmts=yuv420p';
-        }
+        // $command[] = 'zscale=t=linear:npl=100,format=gbrpf32le,zscale=p=bt709,tonemap=tonemap=hable:desat=0:peak=100,zscale=t=bt709:m=bt709,format=yuv420p,format=pix_fmts=yuv420p';
+        $command[] = 'format=pix_fmts=yuv420p';
         $command[] = '-movflags';
         $command[] = '+faststart';
         $command[] = '-metadata';

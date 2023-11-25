@@ -41,7 +41,6 @@ class VideoFile extends Model
                 if ($this->index === null || $this->index !== 0) {
                     return false;
                 }
-                // TODO add a check that no sub streams are present
                 if ($this->container_format === null || ! str($this->container_format)->lower()->contains('mp4')) {
                     return false;
                 }

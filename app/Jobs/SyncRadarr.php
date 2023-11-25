@@ -64,8 +64,6 @@ class SyncRadarr implements ShouldQueue
                     $file->save();
 
                     AnalyzeFile::dispatch($file);
-                } else {
-                    // TODO
                 }
             }
 
