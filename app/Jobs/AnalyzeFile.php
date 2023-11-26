@@ -3,6 +3,7 @@
 namespace App\Jobs;
 
 use App\Enums\EncodeStatus;
+use App\Enums\VideoRange;
 use App\Models\AudioStream;
 use App\Models\Encode;
 use App\Models\Event;
@@ -87,6 +88,7 @@ class AnalyzeFile implements ShouldQueue
             $this->file->codec_id = $videostream->codec_tag_string ?? null;
             $this->file->profile = $videostream->profile ?? null;
             $this->file->level = $videostream->level ?? null;
+            $this->file->video_range = $this->getVideoRange($videostream)[0];
             $this->file->pixel_format = $videostream->pix_fmt ?? null;
             $this->file->color_range = $videostream->color_range ?? null;
             $this->file->color_space = $videostream->color_space ?? null;
@@ -94,6 +96,7 @@ class AnalyzeFile implements ShouldQueue
             $this->file->color_primaries = $videostream->color_primaries ?? null;
             $this->file->chroma_location = $videostream->chroma_location ?? null;
             $this->file->interlaced = $this->detectInterlaced($videostream);
+            $this->file->bit_depth = $this->getBitDepth($videostream);
             $this->file->frame_rate = $videostream->avg_frame_rate ?? null;
             $this->file->bit_rate = $this->getBestVideoBitRate($videostream, $analysis->format);
             $this->file->duration = $this->getBestRuntime($videostream->duration ?? null, $analysis->format->duration ?? null);
@@ -241,6 +244,42 @@ class AnalyzeFile implements ShouldQueue
         });
 
         return $firstNonMotion ?? $first;
+    }
+
+    protected function getVideoRange($videostream)
+    {
+        if (!empty($videostream->color_primaries) && in_array(str($videostream->color_primaries)->lower(), ['bt2020'])) {
+            return VideoRange::HDR;
+        }
+        if (!empty($videostream->color_transfer) && in_array(str($videostream->color_transfer)->lower(), ['bt2020-10', 'arib-std-b67', 'smpte2084'])) {
+            return VideoRange::HDR;
+        }
+
+        return VideoRange::SDR;
+    }
+
+    protected function getBitDepth($videostream)
+    {
+        if (!empty($videostream->bits_per_sample)) {
+            return (int) $videostream->bits_per_sample;
+        }
+        if (!empty($videostream->bits_per_raw_sample)) {
+            return (int) $videostream->bits_per_raw_sample;
+        }
+
+        if (!empty($videostream->pix_fmt) && in_array(str($videostream->pix_fmt)->lower(), ['yuv420p', 'yuv444p'])) {
+            return 8;
+        }
+
+        if (!empty($videostream->pix_fmt) && in_array(str($videostream->pix_fmt)->lower(), ['yuv420p10le', 'yuv444p10le'])) {
+            return 10;
+        }
+
+        if (!empty($videostream->pix_fmt) && in_array(str($videostream->pix_fmt)->lower(), ['yuv420p12le', 'yuv444p12le'])) {
+            return 10;
+        }
+
+        return 0;
     }
 
     protected function detectInterlaced($videostream)

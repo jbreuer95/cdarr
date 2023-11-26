@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\VideoRange;
 use App\Enums\VideoStatus;
 use App\Jobs\AnalyzeFile;
 use App\Jobs\EncodeVideo;
@@ -15,8 +16,10 @@ class VideoFile extends Model
     use HasFactory;
 
     protected $casts = [
+        'video_range' => VideoRange::class,
         'analysed' => 'boolean',
         'encoded' => 'boolean',
+        'interlaced' => 'boolean',
         'faststart' => 'boolean',
     ];
 
@@ -87,6 +90,9 @@ class VideoFile extends Model
                 if ($this->interlaced) {
                     return false;
                 }
+                if ($this->video_range !== VideoRange::SDR) {
+                    return false;
+                }
                 if ($this->container_format === null || ! str($this->container_format)->lower()->contains('mp4')) {
                     return false;
                 }
@@ -96,7 +102,7 @@ class VideoFile extends Model
                 if ($this->codec_id === null || ! str($this->codec_id)->lower()->exactly('avc1')) {
                     return false;
                 }
-                if ($this->profile === null || ! in_array(str($this->profile)->lower(), ['main', 'high'])) {
+                if ($this->profile === null || ! in_array(str($this->profile)->lower(), ['baseline', 'main', 'high'])) {
                     return false;
                 }
                 if ($this->level === null || (int) $this->level > 41) {
