@@ -179,55 +179,56 @@ class EncodeVideo implements ShouldQueue
         $command[] = '-map_chapters'; // Disable chapter data track from being created
         $command[] = '-1';
 
-        $command[] = '-c:a';
+        $command[] = '-c:a'; // Set audio encoder to AAC
         $command[] = 'aac';
-        $command[] = '-ac';
+        $command[] = '-ac'; // Set audio channels
         $command[] = '2';
-        $command[] = '-b:a';
+        $command[] = '-b:a'; // Set audio bitrate
         $command[] = '128k';
-        $command[] = '-ar';
+        $command[] = '-ar'; // Set audio sample rate
         $command[] = '48000';
 
         $bitrate = 5000;
 
-        $command[] = '-c:v';
+        $command[] = '-c:v'; // Set video encoder to x264
         $command[] = 'libx264';
-        $command[] = '-f';
+        $command[] = '-f'; // Force mp4 container
         $command[] = 'mp4';
-        $command[] = '-preset';
+        $command[] = '-preset'; // Set video encoder preset
         $command[] = 'faster';
-        $command[] = '-profile:v';
+        $command[] = '-profile:v'; // Set video encoder profile
         $command[] = 'high';
-        // $command[] = '-vf'; $command[] = "scale=w={$width}:h={$height}";
-        $command[] = '-crf';
+        $command[] = '-crf'; // Set video quality
         $command[] = '23';
-        $command[] = '-maxrate';
+        $command[] = '-maxrate'; // Set video max target bitrate
         $command[] = "{$bitrate}k";
-        $command[] = '-bufsize';
-        $command[] = ($bitrate * 2).'k';
+        $command[] = '-bufsize'; // Set bitrate overflow (max spike)
+        $command[] = ($bitrate * 2).'k'; // 200% per HLS guidelines
 
-        $command[] = '-vsync';
+        $command[] = '-vsync'; // Force constant framerate
         $command[] = 'cfr';
 
         if ($this->file->hasHigherFrameRate(30)) {
-            $command[] = '-r';
+            $command[] = '-r'; // Force a max of 30fps
             $command[] = '30';
         }
 
-        // $command[] = 'zscale=t=linear:npl=100,format=gbrpf32le,zscale=p=bt709,tonemap=tonemap=hable:desat=0:peak=100,zscale=t=bt709:m=bt709,format=yuv420p,format=pix_fmts=yuv420p';
-
         $video_filters = [];
+        // Use zscale for HDR and scale for SDR since zscale doesnt support detecting input color space
         $scale_filter = $this->file->video_range === VideoRange::HDR ? 'zscale' : 'scale';
 
         if ($this->file->interlaced) {
+            // Use yadif filter to deinterlace video
             $video_filters[] = 'yadif';
         }
 
         if ($this->file->anamorphic) {
+            // Scale to allow a 1:1 pixel ratio
             $video_filters[] = "{$scale_filter}=iw*sar:ih";
         }
 
         if ($this->file->width > 1920 || $this->file->height > 1080) {
+            // Scale while perserving aspect ration but allow rounding to nearest integer
             if ($this->file->width > $this->file->height) {
                 $video_filters[] = "{$scale_filter}=1920:-2";
             } else {
@@ -236,6 +237,7 @@ class EncodeVideo implements ShouldQueue
         }
 
         if ($this->file->video_range === VideoRange::HDR) {
+            // Tonemap HDR to SDR
             $video_filters[] = 'zscale=t=linear:npl=100';
             $video_filters[] = 'format=gbrpf32le';
             $video_filters[] = 'zscale=primaries=bt709';
@@ -243,19 +245,23 @@ class EncodeVideo implements ShouldQueue
             $video_filters[] = 'zscale=transfer=bt709:matrix=bt709:chromal=left:range=tv';
             $video_filters[] = 'format=yuv420p';
         } else if ($this->file->video_range === VideoRange::SDR && ! $this->file->isColorSpaceBT709()) {
+            // Convert unknown and older color spaces to bt709
             $video_filters[] = 'scale=in_color_matrix=auto:in_range=auto:out_color_matrix=bt709:out_range=tv';
         }
 
         if ($this->file->anamorphic) {
+            // Force 1:1 pixel ratio
             $video_filters[] = 'setsar=1';
         }
 
         if (count($video_filters) > 0) {
+            // Apply all video filters at once
             $command[] = '-vf';
             $command[] = implode(',', $video_filters);
         }
 
         if ($this->file->video_range !== VideoRange::HDR && ! $this->file->isColorSpaceBT709()) {
+            // Set all the right tags for the bt709 colorspace that likely got lost
             $command[] = '-pix_fmt:v';
             $command[] = 'yuv420p';
             $command[] = '-colorspace:v';
@@ -270,15 +276,15 @@ class EncodeVideo implements ShouldQueue
             $command[] = 'left';
         }
 
-        $command[] = '-movflags';
+        $command[] = '-movflags'; // Move mov atom to start for instant playback
         $command[] = '+faststart';
-        $command[] = '-metadata';
+        $command[] = '-metadata'; // Add a nice cdarr comment to prevent encoding loops
         $command[] = "comment='Encoded by cdarr on ".now()->format('Y-m-d H:i:s')."'";
-        $command[] = '-loglevel';
+        $command[] = '-loglevel'; // Only log errors
         $command[] = 'error';
-        $command[] = '-progress';
+        $command[] = '-progress'; // Show progress (time in video)
         $command[] = '-';
-        $command[] = '-nostats';
+        $command[] = '-nostats'; // Prevent starting with a bunch of info
 
         $command[] = $output;
 
