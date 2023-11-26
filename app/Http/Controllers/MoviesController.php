@@ -3,13 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Jobs\SyncRadarr;
-use App\Models\AudioStream;
-use App\Models\Encode;
 use App\Models\Event;
 use App\Models\Movie;
-use App\Models\VideoFile;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 
 class MoviesController extends Controller
@@ -37,13 +33,6 @@ class MoviesController extends Controller
 
     public function sync(Request $request)
     {
-        // DB::table('jobs')->delete();
-        // Encode::query()->delete();
-        // Movie::query()->delete();
-        // VideoFile::query()->delete();
-        // AudioStream::query()->delete();
-        // Event::query()->delete();
-
         $event = new Event();
         $event->type = (new \ReflectionClass(SyncRadarr::class))->getShortName();
         $event->info('Queued syncing movies with Radarr');

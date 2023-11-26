@@ -12,7 +12,7 @@ class SeriesController extends Controller
 {
     public function index(Request $request)
     {
-        $series = Serie::with('episodes.videofile')->orderBy('id')->cursorPaginate(100);
+        $series = Serie::with('episodes.videofile.audiostreams')->orderBy('id')->cursorPaginate(100);
 
         $series = $series->through(function ($serie) {
             $serie->episodeCount = $serie->episodes->count();
@@ -40,13 +40,6 @@ class SeriesController extends Controller
 
     public function sync(Request $request)
     {
-        // DB::table('jobs')->delete();
-        // Encode::query()->delete();
-        // Movie::query()->delete();
-        // VideoFile::query()->delete();
-        // AudioStream::query()->delete();
-        // Event::query()->delete();
-
         $event = new Event();
         $event->type = (new \ReflectionClass(SyncSonarr::class))->getShortName();
         $event->info('Queued syncing series with Sonarr');
