@@ -127,6 +127,9 @@ class VideoFile extends Model
                 if ($this->hasHigherFrameRate(30)) {
                     return false;
                 }
+                if ($this->nb_streams > (count($this->audiostreams) + 1)) {
+                    return false;
+                }
 
                 foreach ($this->audiostreams as $audiostream) {
                     if (! $audiostream->playable) {
