@@ -86,12 +86,14 @@ class EncodeVideo implements ShouldQueue
             }
 
             $this->encode->status = EncodeStatus::FINISHED;
+            $this->encode->progress = 10000;
             $this->encode->save();
 
             $this->event->info('Finished encoding file');
             File::delete($this->file->path);
             File::move($tmp_output, $final_output);
 
+            $this->file->path = $final_output;
             $this->file->analysed = false;
             $this->file->save();
 
@@ -182,6 +184,8 @@ class EncodeVideo implements ShouldQueue
         $command[] = '2';
         $command[] = '-b:a';
         $command[] = '128k';
+        $command[] = '-ar';
+        $command[] = '48000';
 
         $bitrate = 5000;
         $command[] = '-c:v';
@@ -201,7 +205,20 @@ class EncodeVideo implements ShouldQueue
         $command[] = ($bitrate * 2).'k';
         $command[] = '-vf';
         // $command[] = 'zscale=t=linear:npl=100,format=gbrpf32le,zscale=p=bt709,tonemap=tonemap=hable:desat=0:peak=100,zscale=t=bt709:m=bt709,format=yuv420p,format=pix_fmts=yuv420p';
-        $command[] = 'format=pix_fmts=yuv420p';
+        $command[] = 'scale=in_color_matrix=auto:in_range=auto:out_color_matrix=bt709:out_range=tv';
+        $command[] = '-pix_fmt:v';
+        $command[] = 'yuv420p';
+        $command[] = '-colorspace:v';
+        $command[] = 'bt709';
+        $command[] = '-color_primaries:v';
+        $command[] = 'bt709';
+        $command[] = '-color_trc:v';
+        $command[] = 'bt709';
+        $command[] = '-color_range:v';
+        $command[] = 'tv';
+        $command[] = '-chroma_sample_location:v';
+        $command[] = 'left';
+
         $command[] = '-movflags';
         $command[] = '+faststart';
         $command[] = '-metadata';
