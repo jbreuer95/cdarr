@@ -261,7 +261,25 @@ class AnalyzeFile implements ShouldQueue
 
     protected function getAnamorphic($videostream)
     {
-        if (!empty($videostream->sample_aspect_ratio) && str($videostream->sample_aspect_ratio)->lower()->exactly('0:1')) {
+        $width = $videostream->width ?? null;
+        $height = $videostream->height ?? null;
+        $sar = $videostream->sample_aspect_ratio ?? null;
+        $dar = $videostream->display_aspect_ratio ?? null;
+
+        if (!$sar || !$dar || !$width || !$height) {
+            // Not enough info to determine, fallback to false because anamorphic is not common
+            return false;
+        }
+        if ($sar === '1:1') {
+            return false;
+        }
+        if ($sar !== '0:1') {
+            return true;
+        }
+        if ($dar === '0:1') {
+            return false;
+        }
+        if ($dar != "{$width}:{$height}") {
             return true;
         }
 

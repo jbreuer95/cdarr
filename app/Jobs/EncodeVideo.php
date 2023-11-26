@@ -217,17 +217,21 @@ class EncodeVideo implements ShouldQueue
         // $command[] = 'zscale=t=linear:npl=100,format=gbrpf32le,zscale=p=bt709,tonemap=tonemap=hable:desat=0:peak=100,zscale=t=bt709:m=bt709,format=yuv420p,format=pix_fmts=yuv420p';
 
         $video_filters = [];
+        $scale_filter = $this->file->video_range === VideoRange::HDR ? 'zscale' : 'scale';
+
         if ($this->file->interlaced) {
             $video_filters[] = 'yadif';
         }
 
-        if ($this->file->width > 1920 || $this->file->height > 1080) {
-            $filter = $this->file->video_range === VideoRange::HDR ? 'zscale' : 'scale';
+        if ($this->file->anamorphic) {
+            $video_filters[] = "{$scale_filter}=iw*sar:ih";
+        }
 
+        if ($this->file->width > 1920 || $this->file->height > 1080) {
             if ($this->file->width > $this->file->height) {
-                $video_filters[] = "{$$filter}1920:-2";
+                $video_filters[] = "{$scale_filter}=1920:-2";
             } else {
-                $video_filters[] = "{$$filter}-2:1080";
+                $video_filters[] = "{$scale_filter}=-2:1080";
             }
         }
 
@@ -240,6 +244,10 @@ class EncodeVideo implements ShouldQueue
             $video_filters[] = 'format=yuv420p';
         } else if ($this->file->video_range === VideoRange::SDR && ! $this->file->isColorSpaceBT709()) {
             $video_filters[] = 'scale=in_color_matrix=auto:in_range=auto:out_color_matrix=bt709:out_range=tv';
+        }
+
+        if ($this->file->anamorphic) {
+            $video_filters[] = 'setsar=1';
         }
 
         if (count($video_filters) > 0) {
