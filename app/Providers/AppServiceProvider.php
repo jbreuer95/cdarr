@@ -2,7 +2,14 @@
 
 namespace App\Providers;
 
+use App\Models\AudioStream;
+use App\Models\Encode;
+use App\Models\Episode;
+use App\Models\Event;
+use App\Models\Movie;
+use App\Models\Serie;
 use App\Models\Setting;
+use App\Models\VideoFile;
 use Illuminate\Encryption\Encrypter;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\File;
@@ -41,6 +48,14 @@ class AppServiceProvider extends ServiceProvider
         }
 
         Setting::register();
+
+        AudioStream::shouldBeStrict(true);
+        Encode::shouldBeStrict(true);
+        Episode::shouldBeStrict(true);
+        Event::shouldBeStrict(true);
+        Movie::shouldBeStrict(true);
+        Serie::shouldBeStrict(true);
+        VideoFile::shouldBeStrict(true);
     }
 
     protected function generateRandomKey()
