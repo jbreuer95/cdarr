@@ -39,6 +39,7 @@ return new class extends Migration
             $table->string('frame_rate')->nullable();
             $table->integer('bit_rate')->nullable();
             $table->boolean('interlaced')->default(false);
+            $table->boolean('anamorphic')->default(false);
             $table->boolean('faststart')->default(false);
 
             $table->bigInteger('movie_id')->unsigned()->nullable();

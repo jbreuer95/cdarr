@@ -3,6 +3,7 @@
 namespace App\Jobs;
 
 use App\Enums\EncodeStatus;
+use App\Enums\VideoRange;
 use App\Models\Encode;
 use App\Models\Event;
 use App\Models\VideoFile;
@@ -218,17 +219,35 @@ class EncodeVideo implements ShouldQueue
         $video_filters = [];
         if ($this->file->interlaced) {
             $video_filters[] = 'yadif';
-
         }
-        if (! $this->file->isColorSpaceBT709()) {
+
+        if ($this->file->width > 1920 || $this->file->height > 1080) {
+            $filter = $this->file->video_range === VideoRange::HDR ? 'zscale' : 'scale';
+
+            if ($this->file->width > $this->file->height) {
+                $video_filters[] = "{$$filter}1920:-2";
+            } else {
+                $video_filters[] = "{$$filter}-2:1080";
+            }
+        }
+
+        if ($this->file->video_range === VideoRange::HDR) {
+            $video_filters[] = 'zscale=t=linear:npl=100';
+            $video_filters[] = 'format=gbrpf32le';
+            $video_filters[] = 'zscale=primaries=bt709';
+            $video_filters[] = 'tonemap=tonemap=hable:desat=0:peak=100';
+            $video_filters[] = 'zscale=transfer=bt709:matrix=bt709:chromal=left:range=tv';
+            $video_filters[] = 'format=yuv420p';
+        } else if ($this->file->video_range === VideoRange::SDR && ! $this->file->isColorSpaceBT709()) {
             $video_filters[] = 'scale=in_color_matrix=auto:in_range=auto:out_color_matrix=bt709:out_range=tv';
         }
+
         if (count($video_filters) > 0) {
             $command[] = '-vf';
             $command[] = implode(',', $video_filters);
         }
 
-        if (! $this->file->isColorSpaceBT709()) {
+        if ($this->file->video_range !== VideoRange::HDR && ! $this->file->isColorSpaceBT709()) {
             $command[] = '-pix_fmt:v';
             $command[] = 'yuv420p';
             $command[] = '-colorspace:v';

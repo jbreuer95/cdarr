@@ -88,7 +88,7 @@ class AnalyzeFile implements ShouldQueue
             $this->file->codec_id = $videostream->codec_tag_string ?? null;
             $this->file->profile = $videostream->profile ?? null;
             $this->file->level = $videostream->level ?? null;
-            $this->file->video_range = $this->getVideoRange($videostream)[0];
+            $this->file->video_range = $this->getVideoRange($videostream);
             $this->file->pixel_format = $videostream->pix_fmt ?? null;
             $this->file->color_range = $videostream->color_range ?? null;
             $this->file->color_space = $videostream->color_space ?? null;
@@ -96,6 +96,7 @@ class AnalyzeFile implements ShouldQueue
             $this->file->color_primaries = $videostream->color_primaries ?? null;
             $this->file->chroma_location = $videostream->chroma_location ?? null;
             $this->file->interlaced = $this->detectInterlaced($videostream);
+            $this->file->anamorphic  = $this->getAnamorphic($videostream);
             $this->file->bit_depth = $this->getBitDepth($videostream);
             $this->file->frame_rate = $videostream->avg_frame_rate ?? null;
             $this->file->bit_rate = $this->getBestVideoBitRate($videostream, $analysis->format);
@@ -256,6 +257,15 @@ class AnalyzeFile implements ShouldQueue
         }
 
         return VideoRange::SDR;
+    }
+
+    protected function getAnamorphic($videostream)
+    {
+        if (!empty($videostream->sample_aspect_ratio) && str($videostream->sample_aspect_ratio)->lower()->exactly('0:1')) {
+            return true;
+        }
+
+        return false;
     }
 
     protected function getBitDepth($videostream)

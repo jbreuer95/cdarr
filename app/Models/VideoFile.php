@@ -20,6 +20,7 @@ class VideoFile extends Model
         'analysed' => 'boolean',
         'encoded' => 'boolean',
         'interlaced' => 'boolean',
+        'anamorphic' => 'boolean',
         'faststart' => 'boolean',
     ];
 
@@ -88,6 +89,9 @@ class VideoFile extends Model
                     return false;
                 }
                 if ($this->interlaced) {
+                    return false;
+                }
+                if ($this->anamorphic) {
                     return false;
                 }
                 if ($this->video_range !== VideoRange::SDR) {
