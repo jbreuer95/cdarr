@@ -110,10 +110,11 @@ class AnalyzeFile implements ShouldQueue
             $this->file->profile = $videostream->profile ?? null;
             $this->file->level = $videostream->level ?? null;
             $this->file->pixel_format = $videostream->pix_fmt ?? null;
+            $this->file->color_range = $videostream->color_range ?? null;
             $this->file->color_space = $videostream->color_space ?? null;
             $this->file->color_transfer = $videostream->color_transfer ?? null;
             $this->file->color_primaries = $videostream->color_primaries ?? null;
-            $this->file->frame_rate = $videostream->avg_frame_rate ?? null;
+            $this->file->chroma_location = $videostream->chroma_location ?? null;
             $this->file->frame_rate = $videostream->avg_frame_rate ?? null;
             $this->file->bit_rate = $this->getBestVideoBitRate($videostream, $analysis->format);
             $this->file->duration = $this->getBestRuntime($videostream->duration ?? null, $analysis->format->duration ?? null);

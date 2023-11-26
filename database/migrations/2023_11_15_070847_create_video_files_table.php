@@ -28,9 +28,11 @@ return new class extends Migration
             $table->string('profile')->nullable();
             $table->string('level')->nullable();
             $table->string('pixel_format')->nullable();
+            $table->string('color_range')->nullable();
             $table->string('color_space')->nullable();
             $table->string('color_transfer')->nullable();
             $table->string('color_primaries')->nullable();
+            $table->string('chroma_location')->nullable();
             $table->string('frame_rate')->nullable();
             $table->integer('bit_rate')->nullable();
             $table->boolean('faststart')->default(false);

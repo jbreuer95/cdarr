@@ -68,6 +68,9 @@ class VideoFile extends Model
                 if ($this->pixel_format === null || ! str($this->pixel_format)->lower()->exactly('yuv420p')) {
                     return false;
                 }
+                if ($this->color_range === null || ! str($this->color_range)->lower()->exactly('tv')) {
+                    return false;
+                }
                 if ($this->color_space === null || ! in_array(str($this->color_space)->lower(), ['bt601', 'bt709'])) {
                     return false;
                 }
@@ -75,6 +78,9 @@ class VideoFile extends Model
                     return false;
                 }
                 if ($this->color_primaries !== null && ! in_array(str($this->color_primaries)->lower(), ['bt601', 'bt709'])) {
+                    return false;
+                }
+                if ($this->chroma_location === null || ! str($this->chroma_location)->lower()->exactly('left')) {
                     return false;
                 }
                 if ($this->faststart === null || $this->faststart !== true) {
