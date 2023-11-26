@@ -20,8 +20,6 @@ class VideoFile extends Model
         'faststart' => 'boolean',
     ];
 
-    protected $appends = ['playable'];
-
     public function movie()
     {
         return $this->belongsTo(Movie::class);
@@ -37,6 +35,42 @@ class VideoFile extends Model
         return $this->hasMany(AudioStream::class);
     }
 
+    public function hasHigherFrameRate(int $rate)
+    {
+        if ($this->frame_rate === null) {
+            return true;
+        }
+
+        $parts = explode('/', $this->frame_rate);
+        $avg_rate = round($parts[0] / $parts[1], 3);
+
+        return $avg_rate > $rate;
+    }
+
+    public function isColorSpaceBT709()
+    {
+        if ($this->pixel_format === null || ! str($this->pixel_format)->lower()->exactly('yuv420p')) {
+            return false;
+        }
+        if ($this->color_range === null || ! str($this->color_range)->lower()->exactly('tv')) {
+            return false;
+        }
+        if ($this->color_space === null || ! str($this->color_space)->lower()->exactly('bt709')) {
+            return false;
+        }
+        if ($this->color_transfer === null || ! str($this->color_transfer)->lower()->exactly('bt709')) {
+            return false;
+        }
+        if ($this->color_primaries === null || ! str($this->color_primaries)->lower()->exactly('bt709')) {
+            return false;
+        }
+        if ($this->chroma_location === null || ! str($this->chroma_location)->lower()->exactly('left')) {
+            return false;
+        }
+
+        return true;
+    }
+
     protected function playable(): Attribute
     {
         return new Attribute(
@@ -50,6 +84,9 @@ class VideoFile extends Model
                 if ($this->index === null || $this->index !== 0) {
                     return false;
                 }
+                if ($this->interlaced) {
+                    return false;
+                }
                 if ($this->container_format === null || ! str($this->container_format)->lower()->contains('mp4')) {
                     return false;
                 }
@@ -59,28 +96,10 @@ class VideoFile extends Model
                 if ($this->codec_id === null || ! str($this->codec_id)->lower()->exactly('avc1')) {
                     return false;
                 }
-                if ($this->profile === null || ! str($this->profile)->lower()->exactly('high')) {
+                if ($this->profile === null || ! in_array(str($this->profile)->lower(), ['main', 'high'])) {
                     return false;
                 }
                 if ($this->level === null || (int) $this->level > 41) {
-                    return false;
-                }
-                if ($this->pixel_format === null || ! str($this->pixel_format)->lower()->exactly('yuv420p')) {
-                    return false;
-                }
-                if ($this->color_range === null || ! str($this->color_range)->lower()->exactly('tv')) {
-                    return false;
-                }
-                if ($this->color_space === null || ! in_array(str($this->color_space)->lower(), ['bt601', 'bt709'])) {
-                    return false;
-                }
-                if ($this->color_transfer !== null && ! in_array(str($this->color_transfer)->lower(), ['bt601', 'bt709'])) {
-                    return false;
-                }
-                if ($this->color_primaries !== null && ! in_array(str($this->color_primaries)->lower(), ['bt601', 'bt709'])) {
-                    return false;
-                }
-                if ($this->chroma_location === null || ! str($this->chroma_location)->lower()->exactly('left')) {
                     return false;
                 }
                 if ($this->faststart === null || $this->faststart !== true) {
@@ -90,6 +109,12 @@ class VideoFile extends Model
                     return false;
                 }
                 if ($this->height === null || $this->height > 1080) {
+                    return false;
+                }
+                if (! $this->isColorSpaceBT709()) {
+                    return false;
+                }
+                if ($this->hasHigherFrameRate(30)) {
                     return false;
                 }
 
@@ -102,21 +127,6 @@ class VideoFile extends Model
                 return true;
             },
         );
-    }
-
-    protected function queued($job): bool
-    {
-        $jobs = DB::table('jobs')->where('payload', 'like', "%".json_encode($job)."%")->get();
-        foreach ($jobs as $job) {
-            $payload = json_decode($job->payload, true);
-            $command = unserialize($payload['data']['command']);
-
-            if ($command->uniqueId() === $this->id) {
-                return true;
-            }
-        }
-
-        return false;
     }
 
     protected function status(): Attribute
@@ -148,5 +158,20 @@ class VideoFile extends Model
                 return 'Unknown';
             },
         );
+    }
+
+    protected function queued($job): bool
+    {
+        $jobs = DB::table('jobs')->where('payload', 'like', "%".json_encode($job)."%")->get();
+        foreach ($jobs as $job) {
+            $payload = json_decode($job->payload, true);
+            $command = unserialize($payload['data']['command']);
+
+            if ($command->uniqueId() === $this->id) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

@@ -188,6 +188,7 @@ class EncodeVideo implements ShouldQueue
         $command[] = '48000';
 
         $bitrate = 5000;
+
         $command[] = '-c:v';
         $command[] = 'libx264';
         $command[] = '-f';
@@ -203,21 +204,44 @@ class EncodeVideo implements ShouldQueue
         $command[] = "{$bitrate}k";
         $command[] = '-bufsize';
         $command[] = ($bitrate * 2).'k';
-        $command[] = '-vf';
+
+        $command[] = '-vsync';
+        $command[] = 'cfr';
+
+        if ($this->file->hasHigherFrameRate(30)) {
+            $command[] = '-r';
+            $command[] = '30';
+        }
+
         // $command[] = 'zscale=t=linear:npl=100,format=gbrpf32le,zscale=p=bt709,tonemap=tonemap=hable:desat=0:peak=100,zscale=t=bt709:m=bt709,format=yuv420p,format=pix_fmts=yuv420p';
-        $command[] = 'scale=in_color_matrix=auto:in_range=auto:out_color_matrix=bt709:out_range=tv';
-        $command[] = '-pix_fmt:v';
-        $command[] = 'yuv420p';
-        $command[] = '-colorspace:v';
-        $command[] = 'bt709';
-        $command[] = '-color_primaries:v';
-        $command[] = 'bt709';
-        $command[] = '-color_trc:v';
-        $command[] = 'bt709';
-        $command[] = '-color_range:v';
-        $command[] = 'tv';
-        $command[] = '-chroma_sample_location:v';
-        $command[] = 'left';
+
+        $video_filters = [];
+        if ($this->file->interlaced) {
+            $video_filters[] = 'yadif';
+
+        }
+        if (! $this->file->isColorSpaceBT709()) {
+            $video_filters[] = 'scale=in_color_matrix=auto:in_range=auto:out_color_matrix=bt709:out_range=tv';
+        }
+        if (count($video_filters) > 0) {
+            $command[] = '-vf';
+            $command[] = implode(',', $video_filters);
+        }
+
+        if (! $this->file->isColorSpaceBT709()) {
+            $command[] = '-pix_fmt:v';
+            $command[] = 'yuv420p';
+            $command[] = '-colorspace:v';
+            $command[] = 'bt709';
+            $command[] = '-color_primaries:v';
+            $command[] = 'bt709';
+            $command[] = '-color_trc:v';
+            $command[] = 'bt709';
+            $command[] = '-color_range:v';
+            $command[] = 'tv';
+            $command[] = '-chroma_sample_location:v';
+            $command[] = 'left';
+        }
 
         $command[] = '-movflags';
         $command[] = '+faststart';

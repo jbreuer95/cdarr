@@ -74,34 +74,12 @@ class AnalyzeFile implements ShouldQueue
 
             $this->event->info(json_encode($analysis, JSON_PRETTY_PRINT));
 
-            $this->event->info('Running ffprobe command to determine faststart');
-            $command = [
-                'ffprobe',
-                '-v',
-                'trace',
-                '-i',
-                $this->file->path,
-            ];
-            $this->event->info((new SymfonyProcess($command))->getCommandLine());
-            $result = Process::run($command);
-            if (! $result->successful()) {
-                $this->event->error($result->errorOutput());
-                $this->event->error($result->output());
-
-                throw new \Exception('ffprobe command failed unexpectedly, exiting');
-            }
-
-            $faststart = false;
-            if (($moov_pos = strpos($result->errorOutput(), 'moov')) && ($mdat_pos = strpos($result->errorOutput(), 'mdat'))) {
-                $faststart = $moov_pos < $mdat_pos;
-            }
-            $this->event->info('Faststart '.($faststart ? '' : 'NOT ').'detected');
-
             $videostream = $this->getPrimaryVideoStream($analysis->streams);
             $this->event->info("Determined that stream with index {$videostream->index} is the primary video stream, skipping other video streams");
 
             $this->file->audiostreams()->delete();
             $this->file->index = $videostream->index;
+            $this->file->nb_streams = $analysis->format->nb_streams ?? null;
             $this->file->container_format = $analysis->format->format_name ?? null;
             $this->file->width = $videostream->width ?? null;
             $this->file->height = $videostream->height ?? null;
@@ -115,10 +93,11 @@ class AnalyzeFile implements ShouldQueue
             $this->file->color_transfer = $videostream->color_transfer ?? null;
             $this->file->color_primaries = $videostream->color_primaries ?? null;
             $this->file->chroma_location = $videostream->chroma_location ?? null;
+            $this->file->interlaced = $this->detectInterlaced($videostream);
             $this->file->frame_rate = $videostream->avg_frame_rate ?? null;
             $this->file->bit_rate = $this->getBestVideoBitRate($videostream, $analysis->format);
             $this->file->duration = $this->getBestRuntime($videostream->duration ?? null, $analysis->format->duration ?? null);
-            $this->file->faststart = $faststart;
+            $this->file->faststart = $this->detectFastStart();
             $this->file->encoded = str($analysis->format->tags->comment ?? '')->contains('cdarr');
             $this->file->analysed = true;
             $this->file->save();
@@ -132,9 +111,11 @@ class AnalyzeFile implements ShouldQueue
             $this->event->info("Video stream profile: {$this->file->profile}");
             $this->event->info("Video stream level: {$this->file->level}");
             $this->event->info("Video stream pixel_format: {$this->file->pixel_format}");
-            $this->event->info("Video stream color_space: {$this->file->color_space}");
-            $this->event->info("Video stream color_transfer: {$this->file->color_transfer}");
-            $this->event->info("Video stream color_primaries: {$this->file->color_primaries}");
+            $this->event->info("Video stream color range: {$this->file->color_range}");
+            $this->event->info("Video stream color space: {$this->file->color_space}");
+            $this->event->info("Video stream color transfer: {$this->file->color_transfer}");
+            $this->event->info("Video stream color primaries: {$this->file->color_primaries}");
+            $this->event->info("Video stream chroma location: {$this->file->chroma_location}");
             $this->event->info("Video stream frame_rate: {$this->file->frame_rate}");
             $this->event->info("Video stream bit_rate: {$this->file->bit_rate}");
             $this->event->info("Video stream duration: {$this->file->duration}");
@@ -260,5 +241,78 @@ class AnalyzeFile implements ShouldQueue
         });
 
         return $firstNonMotion ?? $first;
+    }
+
+    protected function detectInterlaced($videostream)
+    {
+        if (!empty($videostream->field_order) && $videostream->field_order !== 'progressive') {
+            return true;
+        }
+
+        $this->event->info('Running ffprobe command to determine interlaced video');
+        $command = [
+            'ffmpeg',
+            '-filter:v',
+            'idet',
+            '-frames:v',
+            '100',
+            '-an',
+            '-f',
+            'rawvideo',
+            '-y',
+            '/dev/null',
+            '-i',
+            $this->file->path,
+        ];
+        $this->event->info((new SymfonyProcess($command))->getCommandLine());
+        $result = Process::run($command);
+        if (! $result->successful()) {
+            $this->event->error($result->errorOutput());
+            $this->event->error($result->output());
+
+            throw new \Exception('ffmpeg command failed unexpectedly, exiting');
+        }
+
+        $output = $result->output() . $result->errorOutput();
+        preg_match_all('/TFF:\s*(\d*)/m', $output, $matches, PREG_SET_ORDER, 0);
+        if (count($matches) !== 2) {
+            throw new \Exception('ffmpeg cannot determine interlacing from output');
+        }
+
+        foreach ($matches as $match) {
+            if ((int) $match[1] !== 0) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    protected function detectFastStart()
+    {
+        $this->event->info('Running ffprobe command to determine faststart');
+        $command = [
+            'ffprobe',
+            '-v',
+            'trace',
+            '-i',
+            $this->file->path,
+        ];
+        $this->event->info((new SymfonyProcess($command))->getCommandLine());
+        $result = Process::run($command);
+        if (! $result->successful()) {
+            $this->event->error($result->errorOutput());
+            $this->event->error($result->output());
+
+            throw new \Exception('ffprobe command failed unexpectedly, exiting');
+        }
+
+        $faststart = false;
+        if (($moov_pos = strpos($result->errorOutput(), 'moov')) && ($mdat_pos = strpos($result->errorOutput(), 'mdat'))) {
+            $faststart = $moov_pos < $mdat_pos;
+        }
+        $this->event->info('Faststart '.($faststart ? '' : 'NOT ').'detected');
+
+        return $faststart;
     }
 }

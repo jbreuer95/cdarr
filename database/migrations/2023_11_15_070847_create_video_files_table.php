@@ -19,6 +19,7 @@ return new class extends Migration
             $table->boolean('encoded')->default(false);
 
             $table->integer('index')->nullable();
+            $table->integer('nb_streams')->nullable();
             $table->integer('duration')->nullable();
             $table->integer('width')->nullable();
             $table->integer('height')->nullable();
@@ -35,6 +36,7 @@ return new class extends Migration
             $table->string('chroma_location')->nullable();
             $table->string('frame_rate')->nullable();
             $table->integer('bit_rate')->nullable();
+            $table->boolean('interlaced')->default(false);
             $table->boolean('faststart')->default(false);
 
             $table->bigInteger('movie_id')->unsigned()->nullable();
