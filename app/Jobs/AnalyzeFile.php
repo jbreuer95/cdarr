@@ -100,7 +100,7 @@ class AnalyzeFile implements ShouldQueue
             $this->file->bit_depth = $this->getBitDepth($videostream);
             $this->file->frame_rate = $videostream->avg_frame_rate ?? null;
             $this->file->bit_rate = $this->getBestVideoBitRate($videostream, $analysis->format);
-            $this->file->duration = $this->getBestRuntime($videostream->duration ?? null, $analysis->format->duration ?? null);
+            $this->file->duration = $this->getBestRuntime($videostream, $analysis->format);
             $this->file->faststart = $this->detectFastStart();
             $this->file->encoded = str($analysis->format->tags->comment ?? '')->contains('cdarr');
             $this->file->analysed = true;
@@ -188,23 +188,26 @@ class AnalyzeFile implements ShouldQueue
         return $this->file->id;
     }
 
-    protected function getBestRuntime($video, $format)
+    protected function getBestRuntime($videostream, $format)
     {
-        if (! $video || $video === 0) {
-            return (int) round($format * 1000);
+        $video_duration = $videostream->duration ?? null;
+        $format_duration = $format->duration ?? null;
+
+        if (! $video_duration || $video_duration === 0) {
+            return (int) round($format_duration * 1000);
         }
 
-        return (int) round($video * 1000);
+        return (int) round($video_duration * 1000);
     }
 
-    protected function getBestVideoBitRate($video, $format)
+    protected function getBestVideoBitRate($videostream, $format)
     {
-        if (! empty($video->bit_rate) && $video->bit_rate !== 0) {
-            return (int) $video->bit_rate;
+        if (! empty($videostream->bit_rate) && $videostream->bit_rate !== 0) {
+            return (int) $videostream->bit_rate;
         }
 
-        if (! empty($video->tags->BPS) && $video->tags->BPS !== 0) {
-            return (int) $video->tags->BPS;
+        if (! empty($videostream->tags->BPS) && $videostream->tags->BPS !== 0) {
+            return (int) $videostream->tags->BPS;
         }
 
         if (! empty($format->bit_rate) && $format->bit_rate !== 0) {
@@ -214,14 +217,14 @@ class AnalyzeFile implements ShouldQueue
         return 0;
     }
 
-    protected function getBestAudioBitRate($audio)
+    protected function getBestAudioBitRate($audiostream)
     {
-        if (! empty($audio->bit_rate) && $audio->bit_rate !== 0) {
-            return (int) $audio->bit_rate;
+        if (! empty($audiostream->bit_rate) && $audiostream->bit_rate !== 0) {
+            return (int) $audiostream->bit_rate;
         }
 
-        if (! empty($audio->tags->BPS) && $audio->tags->BPS !== 0) {
-            return (int) $audio->tags->BPS;
+        if (! empty($audiostream->tags->BPS) && $audiostream->tags->BPS !== 0) {
+            return (int) $audiostream->tags->BPS;
         }
 
         return 0;
