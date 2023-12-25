@@ -2,17 +2,29 @@
 
 namespace Database\Seeders;
 
+// use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+
+use App\Models\Setting;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
 {
     /**
      * Seed the application's database.
-     *
-     * @return void
      */
-    public function run()
+    public function run(): void
     {
-        // \App\Models\User::factory(10)->create();
+        if (Setting::where('key', 'radarr')->count() === 0) {
+            Setting::create(['key' => 'radarr', 'value' => [
+                'url' => '',
+                'token' => '',
+            ]]);
+        }
+        if (Setting::where('key', 'sonarr')->count() === 0) {
+            Setting::create(['key' => 'sonarr', 'value' => [
+                'url' => '',
+                'token' => '',
+            ]]);
+        }
     }
 }

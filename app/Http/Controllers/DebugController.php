@@ -6,8 +6,11 @@ use Illuminate\Http\Request;
 
 class DebugController extends Controller
 {
-    public function index(Request $request)
+    /**
+     * Handle the incoming request.
+     */
+    public function __invoke(Request $request)
     {
-        return response()->json(['succes' => true]);
+        dd('test');
     }
 }

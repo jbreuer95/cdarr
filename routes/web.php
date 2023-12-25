@@ -1,12 +1,13 @@
 <?php
 
 use App\Http\Controllers\DebugController;
-use App\Http\Livewire\ShowHistory;
-use App\Http\Livewire\ShowMovies;
-use App\Http\Livewire\ShowQueue;
-use App\Http\Livewire\ShowSeries;
-use App\Http\Livewire\ShowSettings;
-use App\Http\Livewire\ShowSystem;
+use App\Http\Controllers\EventsContoller;
+use App\Http\Controllers\MoviesController;
+use App\Http\Controllers\PHPController;
+use App\Http\Controllers\QueueController;
+use App\Http\Controllers\RadarrController;
+use App\Http\Controllers\SeriesController;
+use App\Http\Controllers\SonarrController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -15,36 +16,38 @@ use Illuminate\Support\Facades\Route;
 |--------------------------------------------------------------------------
 |
 | Here is where you can register web routes for your application. These
-| routes are loaded by the RouteServiceProvider within a group which
-| contains the "web" middleware group. Now create something great!
+| routes are loaded by the RouteServiceProvider and all of them will
+| be assigned to the "web" middleware group. Make something great!
 |
 */
 
-Route::get('/', function() {
-    return redirect()->route('queue');
-});
-Route::get('/debug', [DebugController::class, 'index'])->name('debug');
-Route::get('/queue', ShowQueue::class)->name('queue');
-Route::get('/history', ShowHistory::class)->name('history');
-Route::get('/series', ShowSeries::class)->name('series');
-Route::get('/movies', ShowMovies::class)->name('movies');
-Route::get('/settings', ShowSettings::class)->name('settings');
-Route::get('/settings/general', ShowSettings::class)->name('settings.general');
-Route::get('/settings/sonarr', ShowSettings::class)->name('settings.sonarr');
-Route::get('/settings/radarr', ShowSettings::class)->name('settings.radarr');
-Route::get('/settings/plex', ShowSettings::class)->name('settings.plex');
-Route::get('/settings/emby', ShowSettings::class)->name('settings.emby');
-Route::get('/settings/jellyfin', ShowSettings::class)->name('settings.jellyfin');
-Route::get('/settings/video', ShowSettings::class)->name('settings.video');
-Route::get('/settings/audio', ShowSettings::class)->name('settings.audio');
-Route::get('/settings/subtitles', ShowSettings::class)->name('settings.subtitles');
-Route::get('/settings/scheduler', ShowSettings::class)->name('settings.scheduler');
-Route::get('/settings/notifications', ShowSettings::class)->name('settings.notifications');
+Route::get('/', [QueueController::class, 'index'])->name('queue');
+Route::get('/history', [QueueController::class, 'history'])->name('history');
+Route::get('/debug', DebugController::class)->name('debug');
+Route::get('/php', PHPController::class)->name('php');
 
-Route::get('/system', ShowSystem::class)->name('system');
-Route::get('/system/status', ShowSystem::class)->name('system.status');
-Route::get('/system/tasks', ShowSystem::class)->name('system.tasks');
-Route::get('/system/backup', ShowSystem::class)->name('system.backup');
-Route::get('/system/updates', ShowSystem::class)->name('system.updates');
-Route::get('/system/events', ShowSystem::class)->name('system.events');
-Route::get('/system/logs', ShowSystem::class)->name('system.logs');
+Route::get('/movies', [MoviesController::class, 'index'])->name('movies');
+Route::post('/movies/sync', [MoviesController::class, 'sync'])->name('movies.sync');
+Route::get('/series', [SeriesController::class, 'index'])->name('series');
+Route::post('/series/sync', [SeriesController::class, 'sync'])->name('series.sync');
+Route::inertia('/settings', 'SettingsPage')->name('settings');
+Route::get('/settings/radarr', [RadarrController::class, 'index'])->name('settings.radarr');
+Route::put('/settings/radarr', [RadarrController::class, 'update'])->name('settings.radarr.update');
+Route::post('/settings/radarr/test', [RadarrController::class, 'test'])->name('settings.radarr.test');
+Route::get('/settings/sonarr', [SonarrController::class, 'index'])->name('settings.sonarr');
+Route::put('/settings/sonarr', [SonarrController::class, 'update'])->name('settings.sonarr.update');
+Route::post('/settings/sonarr/test', [SonarrController::class, 'test'])->name('settings.sonarr.test');
+Route::get('/system/events', [EventsContoller::class, 'index'])->name('system.events');
+Route::get('/events/{id}', [EventsContoller::class, 'show'])->name('events.show');
+Route::post('/events/clear', [EventsContoller::class, 'clear'])->name('events.clear');
+
+Route::inertia('/settings/general', 'TodoPage')->name('settings.general');
+Route::inertia('/settings/video', 'TodoPage')->name('settings.video');
+Route::inertia('/settings/audio', 'TodoPage')->name('settings.audio');
+Route::inertia('/settings/subtitles', 'TodoPage')->name('settings.subtitles');
+Route::inertia('/system', 'TodoPage')->name('system');
+Route::inertia('/system/status', 'TodoPage')->name('system.status');
+Route::inertia('/system/tasks', 'TodoPage')->name('system.tasks');
+Route::inertia('/system/backup', 'TodoPage')->name('system.backup');
+Route::inertia('/system/updates', 'TodoPage')->name('system.updates');
+Route::inertia('/system/logs', 'TodoPage')->name('system.logs');

@@ -1,5 +1,0 @@
-#!/command/execlineb -P
-with-contenv
-s6-setuidgid abc
-
-php-fpm8 -F
