@@ -13,9 +13,6 @@ RUN apk update && apk add --no-cache shadow bash \
 # Install official composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
-# Install handbrake
-RUN apk update && apk add --no-cache handbrake --repository="http://dl-cdn.alpinelinux.org/alpine/edge/testing"
-
 ARG S6_OVERLAY_VERSION=3.1.5.0
 ENV S6_CMD_WAIT_FOR_SERVICES_MAXTIME=0
 
